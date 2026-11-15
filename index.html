@@ -2,149 +2,35 @@
 <!doctype html>
 <html lang="sv">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fantasy Stars Analyzer 2.0</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fantasy Stars Analyzer 3.0</title>
 <style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}
-*{box-sizing:border-box}
-body{margin:0;background:#0c1020;color:#eef0ff}
-header{padding:28px 18px;background:linear-gradient(120deg,#182345,#37216b)}
-h1{font-size:1.65rem;margin:0 0 7px}
-header p{color:#c4c6df;margin:0}
-.wrap{max-width:850px;margin:auto;padding:16px}
-.panel{background:#171e34;border:1px solid #354060;border-radius:18px;padding:17px;margin-bottom:16px}
-h2{font-size:1.15rem;margin:0 0 14px}
-button,input,select{font:inherit}
-button{border:0;border-radius:10px;background:#353e65;color:white;padding:11px 14px;cursor:pointer}
-button.active,.primary{background:#a532d1}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c9a5ff}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:block;color:#c6c9df;font-size:.91rem;margin-bottom:5px}
-input,select{width:100%;background:#10172a;color:white;border:1px solid #475475;border-radius:10px;padding:11px;min-width:0}
-.player{border-top:1px solid #36405d;padding:15px 0;display:flex;justify-content:space-between;gap:10px;align-items:start}
-.player:first-child{border-top:0}
-.player strong{font-size:1.05rem}
-.muted{color:#b8bdd7;font-size:.86rem;margin-top:5px}
-.score{text-align:right;color:#a6f5c6;font-size:1.6rem;font-weight:750;white-space:nowrap}
-.score small{display:block;color:#b8bdd7;font-size:.72rem;font-weight:400}
-.actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
-.actions button{padding:7px 10px;font-size:.85rem}
-.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.full{grid-column:1/-1}
-.check{display:flex;align-items:center;gap:8px}
-.check input{width:auto}
-.note{color:#b8bdd7;font-size:.85rem;line-height:1.5}
-.empty{color:#b8bdd7;padding:18px 0}
-@media(max-width:440px){
-.controls{grid-template-columns:1fr}
-.score{font-size:1.35rem}
-header{padding:22px 16px}
-}
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}*{box-sizing:border-box}body{margin:0;background:#0c1020;color:#eef0ff}header{padding:25px 18px;background:linear-gradient(120deg,#182345,#37216b)}h1{font-size:1.65rem;margin:0 0 7px}header p{color:#c4c6df;margin:0}.wrap{max-width:850px;margin:auto;padding:16px}.panel{background:#171e34;border:1px solid #354060;border-radius:18px;padding:17px;margin-bottom:16px}h2{font-size:1.15rem;margin:0 0 14px}button,input,select{font:inherit}button{border:0;border-radius:10px;background:#353e65;color:white;padding:11px 14px;cursor:pointer}button.active,.primary{background:#a532d1}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c9a5ff}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.controls,.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{display:block;color:#c6c9df;font-size:.91rem;margin-bottom:5px}input,select{width:100%;background:#10172a;color:white;border:1px solid #475475;border-radius:10px;padding:11px;min-width:0}.player{border-top:1px solid #36405d;padding:15px 0;display:flex;justify-content:space-between;gap:10px;align-items:start}.player:first-child{border-top:0}.player strong{font-size:1.05rem}.muted,.note{color:#b8bdd7;font-size:.86rem;line-height:1.5;margin-top:5px}.score{text-align:right;color:#a6f5c6;font-size:1.6rem;font-weight:750;white-space:nowrap}.score small{display:block;color:#b8bdd7;font-size:.72rem;font-weight:400}.actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end;flex-wrap:wrap}.actions button{padding:7px 10px;font-size:.85rem}.full{grid-column:1/-1}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.empty{color:#b8bdd7;padding:18px 0}.pill{display:inline-block;border:1px solid #566287;border-radius:99px;padding:4px 9px;margin:3px 4px 3px 0;font-size:.8rem}.scout-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.good{color:#a6f5c6}.error{color:#ffb5b5}.grid5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}.grid5 label{font-size:.78rem}.grid5 select{padding:9px 3px}.hint{font-size:.78rem;color:#aeb7d5}.scoutcard{border-top:1px solid #36405d;padding:14px 0}.scoutcard:first-child{border-top:0}.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}@media(max-width:440px){.controls{grid-template-columns:1fr}.score{font-size:1.35rem}header{padding:22px 16px}.grid5{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 </head>
 <body>
-<header>
-<h1>🏒 Fantasy Stars Analyzer 2.0</h1>
-<p>Din scoutingcentral · Full guld · 10–7–4–4–4</p>
-</header>
+<header><h1>🏒 Fantasy Stars Analyzer 3.0</h1><p>Din scoutingcentral · NHL-scout · Träningssimulator</p></header>
 <main class="wrap">
-<section class="panel">
-<h2>Välj position</h2>
-<div class="tabs" id="tabs"></div>
-<div class="controls">
-<div>
-<label for="sort">Sortera efter</label>
-<select id="sort">
-<option value="fpts">FPTS/match</option>
-<option value="name">Namn</option>
-<option value="rank">Ranking (lägst först)</option>
-<option value="shots">Skott</option>
-<option value="hits">Tacklingar</option>
-<option value="blocks">Täckta skott</option>
-</select>
-</div>
-<div>
-<label for="filter">Visa</label>
-<select id="filter">
-<option value="all">Alla registrerade</option>
-<option value="owned">Bara mina kort</option>
-<option value="missing">Kort jag saknar</option>
-</select>
-</div>
-</div>
-<div id="results"></div>
+<section class="panel" id="scoutPanel">
+<div class="scout-head"><h2>🔎 NHL-scout</h2><button id="loadNhl" class="primary">Hämta NHL-spelare</button></div>
+<p class="note">Sök bland NHL-spelare med tillgänglig säsongsstatistik. Det här är inte en verifierad lista över kort som finns på Fantasy Stars-marknaden.</p>
+<div class="controls"><div><label for="season">Säsong</label><select id="season"><option value="20262027">2026/27</option><option value="20252026">2025/26</option></select></div><div><label for="searchNhl">Sök namn eller lag</label><input id="searchNhl" placeholder="Ex. Cale Makar" autocomplete="off"></div></div>
+<p class="note" id="nhlStatus" role="status">Tryck på ”Hämta NHL-spelare” för att börja.</p>
+<h2>Träningssimulator</h2>
+<p class="note">Välj nivå för varje skill. Otränad = 0, brons = +1, silver = +2 och guld = +3 poäng per händelse.</p>
+<div class="grid5" id="training"></div>
+<p class="hint">FPTS/match = (mål × G + assist × A + skott × S + tacklingar × HITS + blockeringar × BLK) ÷ matcher.</p>
+<div class="row"><label class="check" style="margin:0"><input id="onlyOwnedNhl" type="checkbox"> Visa bara spelare i min samling</label><span id="nhlCount" class="hint"></span></div>
+<div id="nhlResults"></div>
 </section>
-<section class="panel">
-<h2 id="formTitle">Lägg till eller uppdatera spelare</h2>
-<form id="form">
-<div class="formgrid">
-<div class="full">
-<label for="name">Spelare</label>
-<input id="name" required placeholder="Namn">
-</div>
-<div>
-<label for="pos">Position</label>
-<select id="pos">
-<option>LW</option><option>RW</option><option>C</option><option>D</option>
-</select>
-</div>
-<div>
-<label for="team">Lag</label>
-<input id="team" placeholder="Ex. EDM">
-</div>
-<div>
-<label for="fpts">FPTS/match</label>
-<input id="fpts" type="number" min="0" step="0.1" placeholder="0,0">
-</div>
-<div>
-<label for="rank">Ranking</label>
-<input id="rank" type="number" min="1" step="1">
-</div>
-<div>
-<label for="shots">Skott</label>
-<input id="shots" type="number" min="0" step="1">
-</div>
-<div>
-<label for="hits">Tacklingar</label>
-<input id="hits" type="number" min="0" step="1">
-</div>
-<div>
-<label for="blocks">Täckta skott</label>
-<input id="blocks" type="number" min="0" step="1">
-</div>
-<div>
-<label for="games">Matcher</label>
-<input id="games" type="number" min="0" step="1">
-</div>
-<div class="full check">
-<input id="owned" type="checkbox">
-<label for="owned" style="margin:0">Jag äger kortet (full guld eller annan nivå)</label>
-</div>
-<div class="full">
-<label for="level">Kortnivå / kommentar</label>
-<input id="level" placeholder="Ex. Full guld">
-</div>
-<div class="full">
-<button class="primary" type="submit">Spara spelare</button>
-<button type="button" id="cancel">Avbryt redigering</button>
-</div>
-</div>
-</form>
-</section>
-<section class="panel">
-<h2>Säkerhetskopia</h2>
-<p class="note">Dina ändringar sparas bara i den här webbläsaren på den här enheten. Exportera gärna en säkerhetskopia om du byter telefon eller rensar webbläsardata.</p>
-<button id="export">Exportera JSON</button>
-<label style="display:inline-block;margin:10px 0">
-Importera JSON
-<input id="import" type="file" accept="application/json,.json">
-</label>
-<p><button id="reset">Återställ exempeldata</button></p>
-</section>
+<section class="panel"><h2>Min samling · välj position</h2><div class="tabs" id="tabs"></div><div class="controls"><div><label for="sort">Sortera efter</label><select id="sort"><option value="fpts">FPTS/match</option><option value="name">Namn</option><option value="rank">Ranking (lägst först)</option><option value="shots">Skott</option><option value="hits">Tacklingar</option><option value="blocks">Täckta skott</option></select></div><div><label for="filter">Visa</label><select id="filter"><option value="all">Alla registrerade</option><option value="owned">Bara mina kort</option><option value="missing">Kort jag saknar</option></select></div></div><div id="results"></div></section>
+<section class="panel"><h2 id="formTitle">Lägg till eller uppdatera spelare</h2><form id="form"><div class="formgrid"><div class="full"><label for="name">Spelare</label><input id="name" required placeholder="Namn"></div><div><label for="pos">Position</label><select id="pos"><option>LW</option><option>RW</option><option>C</option><option>D</option></select></div><div><label for="team">Lag</label><input id="team" placeholder="Ex. EDM"></div><div><label for="fpts">FPTS/match</label><input id="fpts" type="number" min="0" step="0.1" placeholder="0,0"></div><div><label for="rank">Ranking</label><input id="rank" type="number" min="1" step="1"></div><div><label for="shots">Skott</label><input id="shots" type="number" min="0" step="1"></div><div><label for="hits">Tacklingar</label><input id="hits" type="number" min="0" step="1"></div><div><label for="blocks">Täckta skott</label><input id="blocks" type="number" min="0" step="1"></div><div><label for="games">Matcher</label><input id="games" type="number" min="0" step="1"></div><div class="full check"><input id="owned" type="checkbox"><label for="owned" style="margin:0">Jag äger kortet</label></div><div class="full"><label for="level">Kortnivå / kommentar</label><input id="level" placeholder="Ex. Lila, full guld"></div><div class="full"><button class="primary" type="submit">Spara spelare</button> <button type="button" id="cancel">Avbryt redigering</button></div></div></form></section>
+<section class="panel"><h2>Säkerhetskopia</h2><p class="note">Din samling sparas lokalt i webbläsaren, precis som i version 2.0. Exportera en JSON-kopia innan större ändringar.</p><button id="export">Exportera JSON</button><label style="display:inline-block;margin:10px 0">Importera JSON<input id="import" type="file" accept="application/json,.json"></label><p><button id="reset">Återställ exempeldata</button></p></section>
 </main>
 <script>
+'use strict';
+// Samma lagringsnyckel som version 2.0: befintliga spelare bevaras.
+const KEY='fantasy-stars-analyzer-v2';
 const seed=[
 {name:'Brady Tkachuk',pos:'LW',team:'OTT',fpts:39.9,owned:true,level:'Full guld'},
 {name:'Cutter Gauthier',pos:'LW',team:'ANA',fpts:33.4,owned:true,level:'Full guld'},
@@ -165,116 +51,45 @@ const seed=[
 {name:'Seth Jones',pos:'D',team:'FLA',fpts:27.2,rank:17,games:21,shots:51,hits:23,blocks:28,owned:true,level:'Full guld'},
 {name:'Thomas Chabot',pos:'D',team:'OTT',fpts:15.4,owned:false}
 ];
-const KEY='fantasy-stars-analyzer-v2';
 let players;
-try{
-let stored=JSON.parse(localStorage.getItem(KEY));
-players=Array.isArray(stored)?stored:structuredClone(seed)
-}catch{
-players=structuredClone(seed)
-}
-let current='LW',editing=-1;
+try{const stored=JSON.parse(localStorage.getItem(KEY));players=Array.isArray(stored)?stored:structuredClone(seed)}catch{players=structuredClone(seed)}
+let current='LW',editing=-1,nhlPlayers=[],nhlReady=false;
 const $=id=>document.getElementById(id);
 const save=()=>localStorage.setItem(KEY,JSON.stringify(players));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=n=>Number.isFinite(Number(n))&&n!==''&&n!=null?Number(n).toLocaleString('sv-SE',{maximumFractionDigits:1}):'–';
+const fmt=n=>n!==''&&n!=null&&Number.isFinite(Number(n))?Number(n).toLocaleString('sv-SE',{maximumFractionDigits:1}):'–';
+const n=v=>Number.isFinite(Number(v))?Number(v):0;
 function render(){
 $('tabs').innerHTML=['LW','RW','C','D'].map(p=>`<button type="button" class="${p===current?'active':''}" data-pos="${p}">${p}</button>`).join('');
 let rows=players.map((p,i)=>({...p,_i:i})).filter(p=>p.pos===current&&($('filter').value==='all'||($('filter').value==='owned'?p.owned:!p.owned)));
 let sort=$('sort').value;
-rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'sv'):sort==='rank'?(Number(a.rank)||Infinity)-(Number(b.rank)||Infinity):(Number(b[sort])||0)-(Number(a[sort])||0));
-$('results').innerHTML=rows.length?rows.map((p,i)=>`<div class="player"><div><strong>${i+1}. ${esc(p.name)}</strong><div class="muted">${p.owned?'✓ Äger':'Ej markerad som ägd'}${p.team?' · '+esc(p.team):''}${p.level?' · '+esc(p.level):''}</div><div class="muted">${p.rank?'Rank #'+esc(p.rank)+' · ':''}${p.games?'Matcher '+esc(p.games)+' · ':''}Skott ${fmt(p.shots)} · Tacklingar ${fmt(p.hits)} · Block ${fmt(p.blocks)}</div></div><div><div class="score">${fmt(p.fpts)}<small>FPTS/match</small></div><div class="actions"><button data-edit="${p._i}">Ändra</button><button data-del="${p._i}">Ta bort</button></div></div></div>`).join(''):'<p class="empty">Inga spelare här ännu. Lägg till en nedan!</p>'
+rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'sv'):sort==='rank'?(Number(a.rank)||Infinity)-(Number(b.rank)||Infinity):(n(b[sort])-n(a[sort])));
+$('results').innerHTML=rows.length?rows.map((p,i)=>`<div class="player"><div><strong>${i+1}. ${esc(p.name)}</strong><div class="muted">${p.owned?'✓ Äger':'Ej markerad som ägd'}${p.team?' · '+esc(p.team):''}${p.level?' · '+esc(p.level):''}</div><div class="muted">${p.rank?'Rank #'+esc(p.rank)+' · ':''}${p.games?'Matcher '+esc(p.games)+' · ':''}Skott ${fmt(p.shots)} · Tacklingar ${fmt(p.hits)} · Block ${fmt(p.blocks)}</div></div><div><div class="score">${fmt(p.fpts)}<small>FPTS/match</small></div><div class="actions"><button data-edit="${p._i}">Ändra</button><button data-del="${p._i}">Ta bort</button></div></div></div>`).join(''):'<p class="empty">Inga spelare här ännu. Lägg till en nedan!</p>';
 }
-function clearForm(){
-editing=-1;
-$('form').reset();
-$('formTitle').textContent='Lägg till eller uppdatera spelare';
-$('pos').value=current
-}
-function num(id){
-let v=$(id).value.trim();
-return v===''?null:Number(v)
-}
-$('tabs').addEventListener('click',e=>{
-let b=e.target.closest('[data-pos]');
-if(b){current=b.dataset.pos;render();if(editing<0)$('pos').value=current}
-});
-$('sort').addEventListener('change',render);
-$('filter').addEventListener('change',render);
-$('results').addEventListener('click',e=>{
-let b=e.target.closest('button');
-if(!b)return;
-let idx=b.dataset.edit??b.dataset.del;
-if(idx===undefined)return;
-idx=Number(idx);
-if(b.hasAttribute('data-del')){
-if(confirm('Ta bort '+players[idx].name+'?')){
-players.splice(idx,1);save();render();clearForm()
-}
-return
-}
-editing=idx;
-let p=players[idx];
-for(let id of ['name','pos','team','fpts','rank','shots','hits','blocks','games','level'])$(id).value=p[id]??'';
-$('owned').checked=!!p.owned;
-$('formTitle').textContent='Redigera '+p.name;
-$('form').scrollIntoView({behavior:'smooth'})
-});
-$('form').addEventListener('submit',e=>{
-e.preventDefault();
-let p={
-name:$('name').value.trim(),
-pos:$('pos').value,
-team:$('team').value.trim(),
-fpts:num('fpts'),
-rank:num('rank'),
-shots:num('shots'),
-hits:num('hits'),
-blocks:num('blocks'),
-games:num('games'),
-owned:$('owned').checked,
-level:$('level').value.trim()
-};
-if(!p.name)return;
-let existing=players.findIndex((x,i)=>i!==editing&&x.name.toLowerCase()===p.name.toLowerCase()&&x.pos===p.pos);
-if(existing>=0&&!confirm('Spelaren finns redan. Lägg till ändå?'))return;
-if(editing>=0)players[editing]=p;
-else players.push(p);
-current=p.pos;
-save();
-clearForm();
-render();
-window.scrollTo({top:0,behavior:'smooth'})
-});
+function clearForm(){editing=-1;$('form').reset();$('formTitle').textContent='Lägg till eller uppdatera spelare';$('pos').value=current}
+function num(id){const v=$(id).value.trim();return v===''?null:Number(v)}
+$('tabs').addEventListener('click',e=>{let b=e.target.closest('[data-pos]');if(b){current=b.dataset.pos;render();if(editing<0)$('pos').value=current}});
+$('sort').addEventListener('change',render);$('filter').addEventListener('change',render);
+$('results').addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let idx=b.dataset.edit??b.dataset.del;if(idx===undefined)return;idx=Number(idx);if(b.hasAttribute('data-del')){if(confirm('Ta bort '+players[idx].name+'?')){players.splice(idx,1);save();render();clearForm();renderNhl()}return}editing=idx;let p=players[idx];for(let id of ['name','pos','team','fpts','rank','shots','hits','blocks','games','level'])$(id).value=p[id]??'';$('owned').checked=!!p.owned;$('formTitle').textContent='Redigera '+p.name;$('form').scrollIntoView({behavior:'smooth'})});
+$('form').addEventListener('submit',e=>{e.preventDefault();let p={name:$('name').value.trim(),pos:$('pos').value,team:$('team').value.trim(),fpts:num('fpts'),rank:num('rank'),shots:num('shots'),hits:num('hits'),blocks:num('blocks'),games:num('games'),owned:$('owned').checked,level:$('level').value.trim()};if(!p.name)return;let existing=players.findIndex((x,i)=>i!==editing&&x.name.toLowerCase()===p.name.toLowerCase()&&x.pos===p.pos);if(existing>=0&&!confirm('Spelaren finns redan. Lägg till ändå?'))return;if(editing>=0)players[editing]=p;else players.push(p);current=p.pos;save();clearForm();render();renderNhl();window.scrollTo({top:0,behavior:'smooth'})});
 $('cancel').addEventListener('click',clearForm);
-$('export').addEventListener('click',()=>{
-let blob=new Blob([JSON.stringify(players,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-a.href=url;
-a.download='fantasy-stars-backup.json';
-a.click();
-setTimeout(()=>URL.revokeObjectURL(url),1000)
-});
-$('import').addEventListener('change',async e=>{
-let file=e.target.files[0];
-if(!file)return;
-try{
-let data=JSON.parse(await file.text());
-if(!Array.isArray(data)||!data.every(p=>p&&typeof p.name==='string'&&['LW','RW','C','D'].includes(p.pos)))throw Error('Ogiltigt format');
-if(confirm('Ersätta nuvarande register med filens spelare?')){
-players=data;save();render();clearForm();alert('Importen lyckades')
-}
-}catch(err){
-alert('Kunde inte läsa filen: '+err.message)
-}
-e.target.value=''
-});
-$('reset').addEventListener('click',()=>{
-if(confirm('Återställa till exempeldata? Dina egna ändringar ersätts.')){
-players=structuredClone(seed);save();clearForm();render()
-}
-});
-clearForm();
-render();
+$('export').addEventListener('click',()=>{let blob=new Blob([JSON.stringify(players,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='fantasy-stars-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+$('import').addEventListener('change',async e=>{let file=e.target.files[0];if(!file)return;try{let data=JSON.parse(await file.text());if(!Array.isArray(data)||!data.every(p=>p&&typeof p.name==='string'&&['LW','RW','C','D'].includes(p.pos)))throw Error('Ogiltigt format');if(confirm('Ersätta nuvarande register med filens spelare?')){players=data;save();render();clearForm();renderNhl();alert('Importen lyckades')}}catch(err){alert('Kunde inte läsa filen: '+err.message)}e.target.value=''});
+$('reset').addEventListener('click',()=>{if(confirm('Återställa till exempeldata? Dina egna ändringar ersätts.')){players=structuredClone(seed);save();clearForm();render();renderNhl()}});
+// NHL:s publika statistik-API. Inget konto eller API-nyckel krävs normalt.
+const NHL='https://api.nhle.com/stats/rest/en/skater/';
+async function fetchStats(type,season){const params=new URLSearchParams({isAggregate:'false',isGame:'false',cayenneExp:`seasonId=${season} and gameTypeId=2`,limit:'2000',start:'0'});const res=await fetch(NHL+type+'?'+params,{cache:'no-store'});if(!res.ok)throw Error('NHL svarade med HTTP '+res.status);const json=await res.json();if(!Array.isArray(json.data))throw Error('Oväntat format från NHL');return json.data}
+function pick(row,...fields){for(const f of fields)if(row[f]!=null)return row[f];return null}
+function normalize(summary,realtime){const id=pick(summary,'playerId','id');const r=realtime.get(String(id))||{};return{id,name:pick(summary,'skaterFullName','playerName','name')||'',team:pick(summary,'teamAbbrevs','teamAbbrev','team')||'',pos:pick(summary,'positionCode','position')||'',games:n(pick(summary,'gamesPlayed','games')),goals:n(pick(summary,'goals')),assists:n(pick(summary,'assists')),shots:n(pick(summary,'shots','shotsOnGoal')),hits:n(pick(r,'hits')),blocks:n(pick(r,'blockedShotAttempts','blockedShots','blocks')),hasRealtime:realtime.has(String(id))}}
+const base={goals:7,assists:4,shots:1,hits:1,blocks:1};
+const skills=[['goals','Mål'],['assists','Assist'],['shots','Skott'],['hits','Tackling'],['blocks','Block']];
+$('training').innerHTML=skills.map(([key,label])=>`<div><label for="train_${key}">${label}</label><select id="train_${key}"><option value="0">Ingen</option><option value="1">Brons</option><option value="2">Silver</option><option value="3" selected>Guld</option></select></div>`).join('');
+function score(p){if(!p.games)return null;return skills.reduce((total,[key])=>total+n(p[key])*(base[key]+n($('train_'+key).value)),0)/p.games}
+function ownedMatch(p){return players.some(x=>x.name.toLocaleLowerCase('sv').trim()===p.name.toLocaleLowerCase('sv').trim()&&x.owned)}
+function renderNhl(){if(!nhlReady)return;const query=$('searchNhl').value.trim().toLocaleLowerCase('sv');const onlyOwned=$('onlyOwnedNhl').checked;let rows=nhlPlayers.filter(p=>(p.name.toLocaleLowerCase('sv').includes(query)||String(p.team).toLocaleLowerCase('sv').includes(query))&&(!onlyOwned||ownedMatch(p))).sort((a,b)=>(score(b)??-1)-(score(a)??-1));$('nhlCount').textContent=rows.length+' träffar';$('nhlResults').innerHTML=rows.slice(0,100).map(p=>`<div class="scoutcard"><div class="row"><div><strong>${esc(p.name)}</strong><div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} matcher ${ownedMatch(p)?'· ✓ Äger':''}</div></div><div class="score">${fmt(score(p))}<small>beräknade FPTS/match</small></div></div><div class="muted">${p.goals} mål · ${p.assists} assist · ${p.shots} skott · ${p.hits} tacklingar · ${p.blocks} block</div><div class="actions"><button data-addnhl="${esc(p.id)}">${players.some(x=>x.name.toLowerCase()===p.name.toLowerCase())?'Uppdatera min samling':'Lägg till i min samling'}</button></div></div>`).join('')+(rows.length>100?'<p class="note">Visar de 100 högst rankade träffarna. Skriv ett namn för att begränsa sökningen.</p>':'')||'<p class="empty">Inga spelare matchar sökningen.</p>'}
+$('loadNhl').addEventListener('click',loadNhl);$('season').addEventListener('change',()=>{nhlReady=false;nhlPlayers=[];$('nhlResults').innerHTML='';$('nhlCount').textContent='';loadNhl()});$('searchNhl').addEventListener('input',renderNhl);$('onlyOwnedNhl').addEventListener('change',renderNhl);skills.forEach(([key])=>$('train_'+key).addEventListener('change',renderNhl));
+async function loadNhl(){const season=$('season').value;const btn=$('loadNhl');btn.disabled=true;$('nhlStatus').className='note';$('nhlStatus').textContent='Hämtar säsongsstatistik från NHL…';try{const [summary,realtime]=await Promise.all([fetchStats('summary',season),fetchStats('realtime',season)]);const map=new Map(realtime.map(x=>[String(pick(x,'playerId','id')),x]));nhlPlayers=summary.map(s=>normalize(s,map)).filter(p=>p.name&&p.games>0);if(!nhlPlayers.length)throw Error('Inga spelare hittades för säsongen');nhlReady=true;$('nhlStatus').className='note good';$('nhlStatus').textContent=`Klart! ${nhlPlayers.length} NHL-spelare inlästa för ${season.slice(0,4)}/${season.slice(4)}. Poängen är beräknade, inte hämtade från Fantasy Stars.`;renderNhl()}catch(err){nhlReady=false;$('nhlStatus').className='note error';$('nhlStatus').textContent='Kunde inte hämta NHL-statistik: '+err.message+'. Kontrollera internetanslutningen och försök igen. NHL:s API kan också blockera anrop från GitHub Pages.'}finally{btn.disabled=false}}
+$('nhlResults').addEventListener('click',e=>{const b=e.target.closest('[data-addnhl]');if(!b)return;const p=nhlPlayers.find(x=>String(x.id)===b.dataset.addnhl);if(!p)return;const idx=players.findIndex(x=>x.name.toLowerCase()===p.name.toLowerCase());const prior=idx>=0?players[idx]:null;const entry={...(prior||{}),name:p.name,pos:['LW','RW','C','D'].includes(p.pos)?p.pos:(prior?.pos||'C'),team:p.team,fpts:Math.round((score(p)??0)*10)/10,shots:p.shots,hits:p.hits,blocks:p.blocks,games:p.games,owned:prior?.owned||false,level:prior?.level||'Beräknad NHL-statistik; kontrollera träningsnivå'};if(idx>=0){if(!confirm('Uppdatera '+p.name+' med aktuell NHL-statistik och beräknade poäng?'))return;players[idx]=entry}else players.push(entry);save();current=entry.pos;render();renderNhl();alert(p.name+' sparad i din samling!')});
+clearForm();render();
 </script>
-</body>
-</html>
+</body></html>
