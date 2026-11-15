@@ -1,0 +1,35 @@
+
+name: Uppdatera NHL-statistik
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 7,19 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checka ut repository
+        uses: actions/checkout@v4
+
+      - name: Installera Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Hamta NHL-statistik
+        run: python scripts/update_nhl.py
+
+      - name: Spara statistikfiler
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/nhl-20262027.json data/nhl-20252026.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update NHL statistics"
+            git push
+          fi
