@@ -1,3 +1,280 @@
-<!doctype html><html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#101522"><title>Fantasy Stars Analyzer</title><style>:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}body{margin:0;background:#0c1120;color:#eef2ff}header{padding:24px 18px 12px;background:linear-gradient(130deg,#171e38,#29205b)}h1{font-size:25px;margin:0 0 6px}.sub{color:#b6c2d9;font-size:13px}main{max-width:760px;margin:auto;padding:16px}.panel{background:#171e31;border:1px solid #2a3654;border-radius:16px;padding:15px;margin-bottom:14px}h2{font-size:17px;margin:0 0 12px}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}button{background:#343c60;color:white;border:0;border-radius:10px;padding:10px 13px;font-weight:700;cursor:pointer}.active,.primary{background:#a23bd7}.muted{font-size:12px;color:#aebad0}.stat{font-size:25px;font-weight:800;color:#baffcb}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{font-size:12px;color:#c3cce0;display:block}input,select{box-sizing:border-box;width:100%;padding:10px;margin-top:5px;background:#0d1528;color:#fff;border:1px solid #3a4765;border-radius:9px;font-size:16px}.item{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2b3550;padding:12px 0;gap:12px}.item:last-child{border:0}.name{font-weight:700}.tag{font-size:11px;color:#e4c5ff}.right{text-align:right;white-space:nowrap}.note{border-left:3px solid #a23bd7;padding-left:10px;font-size:13px;color:#bfc9e1}small{color:#aab5cc}footer{text-align:center;color:#8d9ab5;font-size:12px;padding:12px 0 30px}</style></head><body><header><h1>🏒 Fantasy Stars Analyzer</h1><div class="sub">Din egen scoutingcentral · Full guld · 10–7–4–4–4</div></header><main><div class="panel"><h2>Välj position</h2><div class="tabs" id="tabs"></div><div class="grid"><label>Sortera efter<select id="sort"><option value="fpts">FPTS/match</option><option value="name">Namn</option></select></label><label>Visa<select id="filter"><option value="all">Alla registrerade</option><option value="owned">Bara mina kort</option></select></label></div><div id="list"></div></div><div class="panel"><h2>Lägg till eller uppdatera spelare</h2><div class="grid"><label>Spelare<input id="name" placeholder="Ex. Alex Laferriere"></label><label>Position i Fantasy Stars<select id="position"><option>LW</option><option>RW</option><option>C</option><option>D</option></select></label><label>Matcher<input type="number" id="gp" min="1" value="20"></label><label>Mål<input type="number" id="g" min="0" value="0"></label><label>Assist<input type="number" id="a" min="0" value="0"></label><label>Skott<input type="number" id="s" min="0" value="0"></label><label>Tacklingar<input type="number" id="h" min="0" value="0"></label><label>Blockeringar<input type="number" id="b" min="0" value="0"></label></div><p><label><input id="owned" type="checkbox" style="width:auto"> Jag äger kortet (full guld)</label></p><p><button class="primary" id="save">Spara spelare</button> <button id="reset">Återställ exempeldata</button></p><div id="preview" class="stat"></div></div><div class="panel"><h2>Importera / exportera</h2><p class="muted">Exportera din registrerade samling som JSON för säkerhetskopia. Data lagras lokalt i webbläsaren på den här enheten.</p><button id="export">Exportera JSON</button> <label style="display:inline-block"><input type="file" accept="application/json" id="import" style="max-width:180px;font-size:12px"></label></div><div class="panel"><h2>Så fungerar version 1</h2><p class="note">Alla spelare som är förifyllda är endast exempel från våra tidigare diskussioner. De markerade kortvärdena är uppskattade eller hämtade från tidigare skärmbilder, inte liveuppdaterad NHL-statistik. Endast spelare med fullständiga inmatade statistikvärden får ett nyberäknat FPTS-snitt.</p><p class="muted">Spelets egna positioner används. Inga externa NHL-positioner antas. Framtida version: automatisk statistikimport via NHL:s datakällor, om tillåtet och tekniskt möjligt.</p></div><footer>Ej ansluten till NHL Fantasy Stars · Oberoende privat analysverktyg</footer></main><script>
-const seed=[{name:'Brady Tkachuk',pos:'LW',fpts:39.9,owned:true},{name:'Cutter Gauthier',pos:'LW',fpts:33.4,owned:true},{name:'Victor Olofsson',pos:'LW',fpts:23.5,owned:false},{name:'Alex DeBrincat',pos:'LW'},{name:'Timo Meier',pos:'LW'},{name:'Alex Laferriere',pos:'RW',fpts:32.8,owned:true},{name:'Sam Reinhart',pos:'RW',fpts:28.3,owned:true},{name:'Matthew Tkachuk',pos:'RW',fpts:26.8,owned:true},{name:'Beckett Sennecke',pos:'RW',fpts:24.6,owned:true},{name:'Matt Boldy',pos:'RW'},{name:'Jesper Bratt',pos:'RW'},{name:'Alexis Lafrenière',pos:'RW'},{name:'Artturi Lehkonen',pos:'RW'},{name:'Tage Thompson',pos:'RW'},{name:'Wyatt Johnston',pos:'RW'},{name:'Mika Zibanejad',pos:'RW'},{name:'Leon Draisaitl',pos:'C',fpts:32.6,owned:true},{name:'Macklin Celebrini',pos:'C',fpts:32,owned:true},{name:'Evan Bouchard',pos:'D',fpts:29.6,owned:true},{name:'Roman Josi',pos:'D',fpts:27.6,owned:true},{name:'Seth Jones',pos:'D',fpts:27.2,owned:true}];
-let players;try{players=JSON.parse(localStorage.getItem('fsa_v1'))||seed}catch{players=seed}let tab='LW';const $=x=>document.getElementById(x);function store(){localStorage.setItem('fsa_v1',JSON.stringify(players))}function score(p){if(p.gp>0)return (10*p.g+7*p.a+4*(p.s+p.h+p.b))/p.gp;return p.fpts??null}function render(){ $('tabs').innerHTML=['LW','RW','C','D'].map(p=>`<button data-pos="${p}" class="${p===tab?'active':''}">${p}</button>`).join('');document.querySelectorAll('[data-pos]').forEach(b=>b.onclick=()=>{tab=b.dataset.pos;render()});let rows=players.filter(p=>p.pos===tab&&($('filter').value==='all'||p.owned));rows.sort((a,b)=>$('sort').value==='name'?a.name.localeCompare(b.name,'sv'):(score(b)??-1)-(score(a)??-1));$('list').innerHTML=rows.length?rows.map((p,i)=>`<div class="item"><div><div class="name">${i+1}. ${esc(p.name)}</div><span class="tag">${p.owned?'✓ Äger':'Ej markerad som ägd'}</span><div class="muted">${p.gp?'Beräknat från statistik':'Tidigare kortvärde / saknas'}</div></div><div class="right"><div class="stat">${score(p)==null?'–':score(p).toFixed(1).replace('.',',')}</div><small>FPTS/match</small></div></div>`).join(''):'<p class="muted">Inga spelare registrerade ännu.</p>'}function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function updatePreview(){const gp=+$('gp').value;if(gp>0){let v=(10*(+$('g').value)+7*(+$('a').value)+4*(['s','h','b'].reduce((sum,id)=>sum+(+$(id).value),0)))/gp;$('preview').textContent=v.toFixed(1).replace('.',',')+' FPTS/match'}}['gp','g','a','s','h','b'].forEach(id=>$(id).oninput=updatePreview);$('save').onclick=()=>{let name=$('name').value.trim();if(!name||+$('gp').value<1){alert('Ange namn och minst en match.');return}let p={name,pos:$('position').value,gp:+$('gp').value,g:+$('g').value,a:+$('a').value,s:+$('s').value,h:+$('h').value,b:+$('b').value,owned:$('owned').checked};let idx=players.findIndex(x=>x.name.toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv'));if(idx>=0)players[idx]=p;else players.push(p);tab=p.pos;store();render();alert('Spelaren är sparad!')};$('reset').onclick=()=>{if(confirm('Återställa till exempeldata? Dina egna ändringar raderas.')){players=structuredClone(seed);store();render()}};$('export').onclick=()=>{const blob=new Blob([JSON.stringify(players,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='fantasy-stars-samling.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('import').onchange=async e=>{try{const a=JSON.parse(await e.target.files[0].text());if(!Array.isArray(a)||!a.every(x=>typeof x.name==='string'&&['LW','RW','C','D'].includes(x.pos)))throw Error('Fel format');players=a;store();render();alert('Import klar')}catch(e){alert('Kunde inte importera: '+e.message)}};$('sort').onchange=render;$('filter').onchange=render;render();updatePreview();</script></body></html>
+
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fantasy Stars Analyzer 2.0</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#0c1020;color:#eef0ff}
+header{padding:28px 18px;background:linear-gradient(120deg,#182345,#37216b)}
+h1{font-size:1.65rem;margin:0 0 7px}
+header p{color:#c4c6df;margin:0}
+.wrap{max-width:850px;margin:auto;padding:16px}
+.panel{background:#171e34;border:1px solid #354060;border-radius:18px;padding:17px;margin-bottom:16px}
+h2{font-size:1.15rem;margin:0 0 14px}
+button,input,select{font:inherit}
+button{border:0;border-radius:10px;background:#353e65;color:white;padding:11px 14px;cursor:pointer}
+button.active,.primary{background:#a532d1}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #c9a5ff}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;color:#c6c9df;font-size:.91rem;margin-bottom:5px}
+input,select{width:100%;background:#10172a;color:white;border:1px solid #475475;border-radius:10px;padding:11px;min-width:0}
+.player{border-top:1px solid #36405d;padding:15px 0;display:flex;justify-content:space-between;gap:10px;align-items:start}
+.player:first-child{border-top:0}
+.player strong{font-size:1.05rem}
+.muted{color:#b8bdd7;font-size:.86rem;margin-top:5px}
+.score{text-align:right;color:#a6f5c6;font-size:1.6rem;font-weight:750;white-space:nowrap}
+.score small{display:block;color:#b8bdd7;font-size:.72rem;font-weight:400}
+.actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+.actions button{padding:7px 10px;font-size:.85rem}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.full{grid-column:1/-1}
+.check{display:flex;align-items:center;gap:8px}
+.check input{width:auto}
+.note{color:#b8bdd7;font-size:.85rem;line-height:1.5}
+.empty{color:#b8bdd7;padding:18px 0}
+@media(max-width:440px){
+.controls{grid-template-columns:1fr}
+.score{font-size:1.35rem}
+header{padding:22px 16px}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>🏒 Fantasy Stars Analyzer 2.0</h1>
+<p>Din scoutingcentral · Full guld · 10–7–4–4–4</p>
+</header>
+<main class="wrap">
+<section class="panel">
+<h2>Välj position</h2>
+<div class="tabs" id="tabs"></div>
+<div class="controls">
+<div>
+<label for="sort">Sortera efter</label>
+<select id="sort">
+<option value="fpts">FPTS/match</option>
+<option value="name">Namn</option>
+<option value="rank">Ranking (lägst först)</option>
+<option value="shots">Skott</option>
+<option value="hits">Tacklingar</option>
+<option value="blocks">Täckta skott</option>
+</select>
+</div>
+<div>
+<label for="filter">Visa</label>
+<select id="filter">
+<option value="all">Alla registrerade</option>
+<option value="owned">Bara mina kort</option>
+<option value="missing">Kort jag saknar</option>
+</select>
+</div>
+</div>
+<div id="results"></div>
+</section>
+<section class="panel">
+<h2 id="formTitle">Lägg till eller uppdatera spelare</h2>
+<form id="form">
+<div class="formgrid">
+<div class="full">
+<label for="name">Spelare</label>
+<input id="name" required placeholder="Namn">
+</div>
+<div>
+<label for="pos">Position</label>
+<select id="pos">
+<option>LW</option><option>RW</option><option>C</option><option>D</option>
+</select>
+</div>
+<div>
+<label for="team">Lag</label>
+<input id="team" placeholder="Ex. EDM">
+</div>
+<div>
+<label for="fpts">FPTS/match</label>
+<input id="fpts" type="number" min="0" step="0.1" placeholder="0,0">
+</div>
+<div>
+<label for="rank">Ranking</label>
+<input id="rank" type="number" min="1" step="1">
+</div>
+<div>
+<label for="shots">Skott</label>
+<input id="shots" type="number" min="0" step="1">
+</div>
+<div>
+<label for="hits">Tacklingar</label>
+<input id="hits" type="number" min="0" step="1">
+</div>
+<div>
+<label for="blocks">Täckta skott</label>
+<input id="blocks" type="number" min="0" step="1">
+</div>
+<div>
+<label for="games">Matcher</label>
+<input id="games" type="number" min="0" step="1">
+</div>
+<div class="full check">
+<input id="owned" type="checkbox">
+<label for="owned" style="margin:0">Jag äger kortet (full guld eller annan nivå)</label>
+</div>
+<div class="full">
+<label for="level">Kortnivå / kommentar</label>
+<input id="level" placeholder="Ex. Full guld">
+</div>
+<div class="full">
+<button class="primary" type="submit">Spara spelare</button>
+<button type="button" id="cancel">Avbryt redigering</button>
+</div>
+</div>
+</form>
+</section>
+<section class="panel">
+<h2>Säkerhetskopia</h2>
+<p class="note">Dina ändringar sparas bara i den här webbläsaren på den här enheten. Exportera gärna en säkerhetskopia om du byter telefon eller rensar webbläsardata.</p>
+<button id="export">Exportera JSON</button>
+<label style="display:inline-block;margin:10px 0">
+Importera JSON
+<input id="import" type="file" accept="application/json,.json">
+</label>
+<p><button id="reset">Återställ exempeldata</button></p>
+</section>
+</main>
+<script>
+const seed=[
+{name:'Brady Tkachuk',pos:'LW',team:'OTT',fpts:39.9,owned:true,level:'Full guld'},
+{name:'Cutter Gauthier',pos:'LW',team:'ANA',fpts:33.4,owned:true,level:'Full guld'},
+{name:'Victor Olofsson',pos:'LW',fpts:23.5,owned:false},
+{name:'Alex DeBrincat',pos:'LW',owned:false},
+{name:'Timo Meier',pos:'LW',owned:false},
+{name:'Sam Reinhart',pos:'RW',team:'FLA',fpts:28.3,rank:12,games:21,shots:68,hits:30,blocks:5,owned:true,level:'Full guld'},
+{name:'Matthew Tkachuk',pos:'RW',team:'FLA',fpts:26.8,rank:18,games:21,shots:43,hits:42,blocks:2,owned:true,level:'Full guld'},
+{name:'Beckett Sennecke',pos:'RW',team:'ANA',fpts:24.6,rank:24,games:20,shots:49,hits:19,blocks:7,owned:true,level:'Full guld'},
+{name:'Mark Stone',pos:'RW',team:'VGK',fpts:23.5,rank:54,games:21,shots:38,hits:23,blocks:20,owned:true,level:'Full guld'},
+{name:'Mikko Rantanen',pos:'RW',team:'DAL',fpts:20.7,rank:67,games:19,shots:34,hits:15,blocks:4,owned:true,level:'Full guld'},
+{name:'Mitch Marner',pos:'RW',team:'VGK',fpts:8.9,rank:66,games:19,shots:45,hits:7,blocks:12,owned:true,level:'Full guld'},
+{name:'Travis Konecny',pos:'RW',team:'PHI',fpts:7.5,rank:113,games:12,shots:22,hits:30,blocks:8,owned:true,level:'Full guld'},
+{name:'Matvei Michkov',pos:'RW',team:'PHI',fpts:6.6,rank:160,games:22,shots:31,hits:11,blocks:7,owned:true,level:'Full guld'},
+{name:'Evan Bouchard',pos:'D',team:'EDM',fpts:29.6,rank:1,games:21,shots:55,hits:10,blocks:22,owned:true,level:'Full guld'},
+{name:'Jakob Chychrun',pos:'D',team:'WSH',fpts:27.6,owned:true,level:'Full guld'},
+{name:'Roman Josi',pos:'D',team:'NSH',fpts:27.6,rank:13,games:20,shots:54,hits:11,blocks:31,owned:true,level:'Full guld'},
+{name:'Seth Jones',pos:'D',team:'FLA',fpts:27.2,rank:17,games:21,shots:51,hits:23,blocks:28,owned:true,level:'Full guld'},
+{name:'Thomas Chabot',pos:'D',team:'OTT',fpts:15.4,owned:false}
+];
+const KEY='fantasy-stars-analyzer-v2';
+let players;
+try{
+let stored=JSON.parse(localStorage.getItem(KEY));
+players=Array.isArray(stored)?stored:structuredClone(seed)
+}catch{
+players=structuredClone(seed)
+}
+let current='LW',editing=-1;
+const $=id=>document.getElementById(id);
+const save=()=>localStorage.setItem(KEY,JSON.stringify(players));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Number.isFinite(Number(n))&&n!==''&&n!=null?Number(n).toLocaleString('sv-SE',{maximumFractionDigits:1}):'–';
+function render(){
+$('tabs').innerHTML=['LW','RW','C','D'].map(p=>`<button type="button" class="${p===current?'active':''}" data-pos="${p}">${p}</button>`).join('');
+let rows=players.map((p,i)=>({...p,_i:i})).filter(p=>p.pos===current&&($('filter').value==='all'||($('filter').value==='owned'?p.owned:!p.owned)));
+let sort=$('sort').value;
+rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'sv'):sort==='rank'?(Number(a.rank)||Infinity)-(Number(b.rank)||Infinity):(Number(b[sort])||0)-(Number(a[sort])||0));
+$('results').innerHTML=rows.length?rows.map((p,i)=>`<div class="player"><div><strong>${i+1}. ${esc(p.name)}</strong><div class="muted">${p.owned?'✓ Äger':'Ej markerad som ägd'}${p.team?' · '+esc(p.team):''}${p.level?' · '+esc(p.level):''}</div><div class="muted">${p.rank?'Rank #'+esc(p.rank)+' · ':''}${p.games?'Matcher '+esc(p.games)+' · ':''}Skott ${fmt(p.shots)} · Tacklingar ${fmt(p.hits)} · Block ${fmt(p.blocks)}</div></div><div><div class="score">${fmt(p.fpts)}<small>FPTS/match</small></div><div class="actions"><button data-edit="${p._i}">Ändra</button><button data-del="${p._i}">Ta bort</button></div></div></div>`).join(''):'<p class="empty">Inga spelare här ännu. Lägg till en nedan!</p>'
+}
+function clearForm(){
+editing=-1;
+$('form').reset();
+$('formTitle').textContent='Lägg till eller uppdatera spelare';
+$('pos').value=current
+}
+function num(id){
+let v=$(id).value.trim();
+return v===''?null:Number(v)
+}
+$('tabs').addEventListener('click',e=>{
+let b=e.target.closest('[data-pos]');
+if(b){current=b.dataset.pos;render();if(editing<0)$('pos').value=current}
+});
+$('sort').addEventListener('change',render);
+$('filter').addEventListener('change',render);
+$('results').addEventListener('click',e=>{
+let b=e.target.closest('button');
+if(!b)return;
+let idx=b.dataset.edit??b.dataset.del;
+if(idx===undefined)return;
+idx=Number(idx);
+if(b.hasAttribute('data-del')){
+if(confirm('Ta bort '+players[idx].name+'?')){
+players.splice(idx,1);save();render();clearForm()
+}
+return
+}
+editing=idx;
+let p=players[idx];
+for(let id of ['name','pos','team','fpts','rank','shots','hits','blocks','games','level'])$(id).value=p[id]??'';
+$('owned').checked=!!p.owned;
+$('formTitle').textContent='Redigera '+p.name;
+$('form').scrollIntoView({behavior:'smooth'})
+});
+$('form').addEventListener('submit',e=>{
+e.preventDefault();
+let p={
+name:$('name').value.trim(),
+pos:$('pos').value,
+team:$('team').value.trim(),
+fpts:num('fpts'),
+rank:num('rank'),
+shots:num('shots'),
+hits:num('hits'),
+blocks:num('blocks'),
+games:num('games'),
+owned:$('owned').checked,
+level:$('level').value.trim()
+};
+if(!p.name)return;
+let existing=players.findIndex((x,i)=>i!==editing&&x.name.toLowerCase()===p.name.toLowerCase()&&x.pos===p.pos);
+if(existing>=0&&!confirm('Spelaren finns redan. Lägg till ändå?'))return;
+if(editing>=0)players[editing]=p;
+else players.push(p);
+current=p.pos;
+save();
+clearForm();
+render();
+window.scrollTo({top:0,behavior:'smooth'})
+});
+$('cancel').addEventListener('click',clearForm);
+$('export').addEventListener('click',()=>{
+let blob=new Blob([JSON.stringify(players,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+a.href=url;
+a.download='fantasy-stars-backup.json';
+a.click();
+setTimeout(()=>URL.revokeObjectURL(url),1000)
+});
+$('import').addEventListener('change',async e=>{
+let file=e.target.files[0];
+if(!file)return;
+try{
+let data=JSON.parse(await file.text());
+if(!Array.isArray(data)||!data.every(p=>p&&typeof p.name==='string'&&['LW','RW','C','D'].includes(p.pos)))throw Error('Ogiltigt format');
+if(confirm('Ersätta nuvarande register med filens spelare?')){
+players=data;save();render();clearForm();alert('Importen lyckades')
+}
+}catch(err){
+alert('Kunde inte läsa filen: '+err.message)
+}
+e.target.value=''
+});
+$('reset').addEventListener('click',()=>{
+if(confirm('Återställa till exempeldata? Dina egna ändringar ersätts.')){
+players=structuredClone(seed);save();clearForm();render()
+}
+});
+clearForm();
+render();
+</script>
+</body>
+</html>
