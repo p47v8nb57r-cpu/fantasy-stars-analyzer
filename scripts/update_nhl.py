@@ -20,7 +20,7 @@ HEADERS = {
     "Accept": "application/json",
 }
 
-SEASONS = ("20262027", "20252026")
+SEASONS = ("20262027",)
 FORM_LIMIT = 5
 REQUEST_DELAY = 0.08
 
