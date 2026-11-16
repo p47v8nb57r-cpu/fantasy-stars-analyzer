@@ -1,10 +1,9 @@
-
 <!doctype html>
 <html lang="sv">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fantasy Stars Analyzer 3.5</title>
+<title>Fantasy Stars Analyzer 3.6</title>
 <style>
 :root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}
 *{box-sizing:border-box}
@@ -22,6 +21,7 @@ button.primary,.active{background:#9d2dd0}
 button.danger{background:#713046}
 button:disabled{opacity:.55}
 input,select{width:100%;min-width:0;background:#10172a;border:1px solid #475475;color:white;border-radius:9px;padding:11px}
+input:read-only{background:#202944;color:#c6d9ef}
 label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .full{grid-column:1/-1}
@@ -85,6 +85,8 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 .card-actions button{font-size:.8rem;padding:8px 10px}
 .card-count{font-size:1.7rem;font-weight:800;color:#a6f5c6}
 .section-line{border-top:1px solid #36405d;margin:19px 0}
+.team-pill{display:inline-block;background:#253e57;color:#b7e2ff;border:1px solid #42617c;border-radius:6px;padding:2px 7px;font-size:.76rem;font-weight:700}
+.team-note{font-size:.76rem;color:#a6f5c6;margin-top:4px}
 @media(max-width:480px){
 .grid{grid-template-columns:1fr}
 .train{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -102,7 +104,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 </head>
 <body>
 <header>
-<h1>🏒 Fantasy Stars Analyzer 3.5</h1>
+<h1>🏒 Fantasy Stars Analyzer 3.6</h1>
 <p>Top 50 · Scout · Formkurvor · Mina kort · Träning</p>
 </header>
 <main class="wrap">
@@ -111,7 +113,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <section class="panel">
 <div class="top-head">
 <h2>🏆 Top 50 Fantasy Stars</h2>
-<span class="pill">3.5</span>
+<span class="pill">3.6</span>
 </div>
 <p class="note">De 50 högst rankade spelarna utifrån simulerade fantasypoäng per match.</p>
 <div class="tabs" id="topTabs"></div>
@@ -152,7 +154,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 </div>
 <div>
 <label for="query">Sök spelare eller lag</label>
-<input id="query" placeholder="Ex. Cale Makar" autocomplete="off">
+<input id="query" placeholder="Ex. Cale Makar eller COL" autocomplete="off">
 </div>
 </div>
 <p><button id="load" class="primary">Uppdatera spelarlista</button></p>
@@ -218,9 +220,9 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <h2>🃏 Min kortsamling</h2>
 <div class="card-count" id="cardCount">0 kort</div>
 </div>
-<span class="pill">NYTT I 3.5</span>
+<span class="pill">LAG AUTO · 3.6</span>
 </div>
-<p class="note">Här visas de kort du markerat som ägda. Kortregistret sparas lokalt på din enhet.</p>
+<p class="note">Här visas de kort du markerat som ägda. Aktuellt NHL-lag hämtas automatiskt. Kortregistret sparas lokalt på din enhet.</p>
 <div class="grid">
 <div>
 <label for="cardPosition">Position</label>
@@ -245,12 +247,12 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <div id="cardList"></div>
 <div class="section-line"></div>
 <h2 id="formTitle">➕ Registrera nytt kort</h2>
-<p class="note">Enklast är att använda knappen ”Mitt kort” i Top 50. Du kan också fylla i formuläret manuellt.</p>
+<p class="note">Enklast är att använda knappen ”Mitt kort” i Top 50. Lagtillhörighet fylls i automatiskt när spelaren finns i NHL-statistiken.</p>
 <form id="form">
 <div class="grid">
 <div class="full">
 <label for="name">Spelare</label>
-<input id="name" required>
+<input id="name" required autocomplete="off">
 </div>
 <div>
 <label for="pos">Position på Fantasy Stars-kortet</label>
@@ -260,7 +262,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 </div>
 <div>
 <label for="team">Lag</label>
-<input id="team">
+<input id="team" placeholder="Hämtas automatiskt">
 </div>
 <div>
 <label for="fpts">Kortets FPTS/match (valfritt)</label>
@@ -360,7 +362,9 @@ document.querySelector('.bottom-nav').addEventListener('click',e=>{
  if(b)showView(b.dataset.viewTarget);
 });
 
+/* Samma lagringsnyckel som tidigare versioner */
 const KEY='fantasy-stars-analyzer-v2';
+
 const seed=[
  {name:'Brady Tkachuk',pos:'LW',team:'OTT',fpts:39.9,owned:true,level:'Full guld'},
  {name:'Cutter Gauthier',pos:'LW',team:'ANA',fpts:33.4,owned:true,level:'Full guld'}
@@ -447,8 +451,18 @@ function normalize(raw){
   if(pos==='L')pos='LW';
   if(pos==='R')pos='RW';
 
-  let team=pick(p,['team','teamAbbrev','teamAbbreviation','teamCode','teamName'])||'';
-  if(team&&typeof team==='object')team=team.abbrev||team.default||'';
+  let team=pick(p,[
+   'team',
+   'teamAbbrev',
+   'teamAbbreviation',
+   'teamCode',
+   'teamName',
+   'teamAbbrevs'
+  ])||'';
+
+  if(team&&typeof team==='object'){
+   team=team.abbrev||team.default||team.en||'';
+  }
 
   const last5=Array.isArray(p.last5)?p.last5.map(g=>({
    gameId:g.gameId,
@@ -466,7 +480,7 @@ function normalize(raw){
    id:p.id,
    name:String(name||'').trim(),
    pos,
-   team:String(team),
+   team:String(team).trim().toUpperCase(),
    games:number(pick(stats,['games','gamesPlayed','gp'])),
    goals:number(pick(stats,['goals','g'])),
    assists:number(pick(stats,['assists','a'])),
@@ -493,6 +507,67 @@ function own(p){
 
 function findNhl(name){
  return nhl.find(p=>keyOf(p)===normalizeName(name));
+}
+
+/* VERSION 3.6: AUTOMATISK LAGTILLHÖRIGHET */
+
+function currentTeam(playerOrName){
+ const name=typeof playerOrName==='string'?
+  playerOrName:playerOrName?.name;
+
+ const p=findNhl(name);
+ if(p&&p.team)return p.team;
+
+ if(typeof playerOrName==='object'&&playerOrName?.team){
+  return String(playerOrName.team).trim();
+ }
+
+ const c=cards.find(c=>keyOf(c)===normalizeName(name));
+ if(c&&c.team)return String(c.team).trim();
+
+ return '';
+}
+
+function displayTeam(playerOrName){
+ return currentTeam(playerOrName)||'Okänt lag';
+}
+
+function syncCardTeams(){
+ let changed=false;
+
+ for(const c of cards){
+  if(!c||!c.name)continue;
+  const p=findNhl(c.name);
+
+  if(p&&p.team&&c.team!==p.team){
+   c.team=p.team;
+   changed=true;
+  }
+ }
+
+ if(changed){
+  try{
+   save();
+  }catch(err){
+   console.warn('Kunde inte spara uppdaterade lag:',err);
+  }
+ }
+
+ return changed;
+}
+
+function fillTeamFromNhl(){
+ const name=$('name').value.trim();
+ const p=findNhl(name);
+
+ if(p&&p.team){
+  $('team').value=p.team;
+  $('team').readOnly=true;
+  $('team').title='Laget hämtas från NHL-statistiken';
+ }else{
+  $('team').readOnly=false;
+  $('team').title='';
+ }
 }
 
 function formAverage(p,w=levelWeights.gold){
@@ -530,14 +605,22 @@ async function load(){
   if(!parsed.length)throw Error('Inga spelare med matcher hittades.');
 
   nhl=parsed;
-  const updated=raw.updated||raw.updatedAt||raw.generated_at||'';
+  syncCardTeams();
 
-  status('✓ '+nhl.length+' NHL-spelare inlästa'+
+  const updated=raw.updated||raw.updatedAt||raw.generated_at||'';
+  const teams=nhl.filter(p=>p.team).length;
+
+  status('✓ '+nhl.length+' NHL-spelare inlästa · '+
+   teams+' med lagtillhörighet'+
    (updated?' · Uppdaterad '+updated:''));
 
   render();
   populateFormPlayers();
   renderCards();
+
+  if($('name').value.trim()){
+   fillTeamFromNhl();
+  }
  }catch(err){
   status('Kunde inte läsa NHL-statistiken: '+err.message,true);
   render();
@@ -577,7 +660,10 @@ function renderTop(){
    <div class="details">
     <strong>${esc(p.name)}</strong>
     ${c?'<span class="pill">✓ Mitt kort</span>':''}
-    <div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} matcher</div>
+    <div class="muted">
+     <span class="team-pill">${esc(displayTeam(p))}</span>
+     · ${esc(p.pos)} · ${p.games} matcher
+    </div>
     <div class="muted">${p.goals} M · ${p.assists} A · ${p.shots} S · ${p.hits} T · ${p.blocks} B</div>
     <div class="actions">
      <button data-form="${esc(p.name)}">📈 Form</button>
@@ -624,7 +710,10 @@ function render(){
    <div>
     <strong>${esc(p.name)}</strong>
     ${c?'<span class="pill">✓ Mitt kort</span>':''}
-    <div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} matcher</div>
+    <div class="muted">
+     <span class="team-pill">${esc(displayTeam(p))}</span>
+     · ${esc(p.pos)} · ${p.games} matcher
+    </div>
     <div class="muted">${p.goals} mål · ${p.assists} assist · ${p.shots} skott · ${p.hits} tacklingar · ${p.blocks} block</div>
     ${c?.level?`<div class="muted">Mitt kort: ${esc(c.level)}</div>`:''}
    </div>
@@ -658,7 +747,7 @@ function populateFormPlayers(preferredName){
  $('formPlayer').innerHTML=
   '<option value="">Välj en NHL-spelare</option>'+
   matches.map(p=>
-   `<option value="${esc(p.name)}">${esc(p.name)} (${esc(p.team)})</option>`
+   `<option value="${esc(p.name)}">${esc(p.name)} (${esc(displayTeam(p))})</option>`
   ).join('');
 
  if(matches.some(p=>p.name===previous)){
@@ -741,6 +830,7 @@ function renderForm(){
  if(!games.length){
   target.innerHTML=`<div class="form-player">
    <strong>${esc(p.name)}</strong>
+   <div class="muted">${esc(displayTeam(p))} · ${esc(p.pos)}</div>
    <p class="muted">Ingen komplett matchhistorik finns tillgänglig för spelaren ännu.</p>
   </div>`;
   return;
@@ -765,7 +855,10 @@ function renderForm(){
  target.innerHTML=`
   <div class="form-player">
    <strong>${esc(p.name)}</strong>
-   <div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} NHL-matcher</div>
+   <div class="muted">
+    <span class="team-pill">${esc(displayTeam(p))}</span>
+    · ${esc(p.pos)} · ${p.games} NHL-matcher
+   </div>
    ${own(p)?'<span class="pill">✓ Mitt kort</span>':''}
   </div>
 
@@ -825,7 +918,7 @@ $('formSearch').addEventListener('input',()=>populateFormPlayers());
 $('formPlayer').addEventListener('change',renderForm);
 $('formLevel').addEventListener('change',renderForm);
 
-/* VERSION 3.5: MIN KORTSAMLING */
+/* MIN KORTSAMLING */
 
 function renderCards(){
  const owned=cards.filter(c=>c&&c.owned&&c.name);
@@ -876,12 +969,18 @@ function renderCards(){
  $('cardList').innerHTML=rows.map(({c,index,nhlPlayer,score,form})=>{
   const ownScore=c.fpts!==null&&c.fpts!==undefined&&c.fpts!=='';
   const scoreLabel=ownScore?'Mitt FPTS':'Sim. full guld';
+  const team=displayTeam(c);
+  const teamFromNhl=!!nhlPlayer?.team;
 
   return `<article class="card-item">
    <div class="card-head">
     <div>
      <strong>${esc(c.name)}</strong>
-     <div class="card-meta">${esc(c.team||nhlPlayer?.team||'Okänt lag')} · ${esc(c.pos||'–')}</div>
+     <div class="card-meta">
+      <span class="team-pill">${esc(team)}</span>
+      · ${esc(c.pos||'–')}
+     </div>
+     ${teamFromNhl?'<div class="team-note">✓ Lag från NHL</div>':''}
      ${c.level?`<span class="pill">${esc(c.level)}</span>`:''}
     </div>
     <span class="pill">✓ Äger</span>
@@ -955,6 +1054,8 @@ function fill(p){
   $(id).value=c[id]??'';
  }
 
+ fillTeamFromNhl();
+
  $('owned').checked=editing>=0?!!c.owned:true;
  $('formTitle').textContent=editing>=0?
   '✏️ Redigera kort: '+p.name:
@@ -963,6 +1064,8 @@ function fill(p){
  showView('cards');
  $('form').scrollIntoView({behavior:'smooth'});
 }
+
+$('name').addEventListener('input',fillTeamFromNhl);
 
 function handlePlayerAction(e){
  const formButton=e.target.closest('[data-form]');
@@ -1059,6 +1162,8 @@ for(const [key,title,base] of [
 function clear(){
  editing=-1;
  $('form').reset();
+ $('team').readOnly=false;
+ $('team').title='';
  $('owned').checked=true;
  $('formTitle').textContent='➕ Registrera nytt kort';
 }
@@ -1080,6 +1185,11 @@ $('form').addEventListener('submit',e=>{
 
  p.owned=$('owned').checked;
  if(!p.name)return;
+
+ const nhlPlayer=findNhl(p.name);
+ if(nhlPlayer?.team){
+  p.team=nhlPlayer.team;
+ }
 
  const i=editing>=0?editing:
   cards.findIndex(c=>keyOf(c)===keyOf(p));
@@ -1136,6 +1246,7 @@ $('import').addEventListener('change',async e=>{
 
   if(confirm('Ersätta ditt lokala kortregister med filen?')){
    cards=data;
+   syncCardTeams();
    save();
    clear();
    render();
@@ -1155,6 +1266,7 @@ $('import').addEventListener('change',async e=>{
 render();
 renderCards();
 load();
+
 </script>
 </body>
 </html>
