@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fantasy Stars Analyzer 3.4</title>
+<title>Fantasy Stars Analyzer 3.5</title>
 <style>
 :root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}
 *{box-sizing:border-box}
@@ -19,6 +19,7 @@ h3{font-size:1rem;margin:15px 0 8px}
 button,input,select{font:inherit}
 button{border:0;border-radius:10px;background:#354066;color:#fff;padding:10px 13px;cursor:pointer}
 button.primary,.active{background:#9d2dd0}
+button.danger{background:#713046}
 button:disabled{opacity:.55}
 input,select{width:100%;min-width:0;background:#10172a;border:1px solid #475475;color:white;border-radius:9px;padding:11px}
 label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
@@ -72,6 +73,18 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 .form-down{color:#ffb1b1}
 .form-neutral{color:#c1c6df}
 .form-player{background:#222c49;border-radius:12px;padding:14px;margin-top:12px}
+.card-item{background:#202944;border:1px solid #3c4868;border-radius:13px;padding:13px;margin:10px 0}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-head strong{font-size:1.05rem}
+.card-meta{margin-top:5px;color:#bdc7df;font-size:.84rem}
+.card-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}
+.card-stat{background:#111a30;border-radius:9px;padding:9px}
+.card-stat strong{display:block;color:#a6f5c6;font-size:1.1rem}
+.card-stat small{font-size:.72rem;color:#b9bfd8}
+.card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.card-actions button{font-size:.8rem;padding:8px 10px}
+.card-count{font-size:1.7rem;font-weight:800;color:#a6f5c6}
+.section-line{border-top:1px solid #36405d;margin:19px 0}
 @media(max-width:480px){
 .grid{grid-template-columns:1fr}
 .train{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -89,7 +102,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 </head>
 <body>
 <header>
-<h1>🏒 Fantasy Stars Analyzer 3.4</h1>
+<h1>🏒 Fantasy Stars Analyzer 3.5</h1>
 <p>Top 50 · Scout · Formkurvor · Mina kort · Träning</p>
 </header>
 <main class="wrap">
@@ -98,7 +111,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <section class="panel">
 <div class="top-head">
 <h2>🏆 Top 50 Fantasy Stars</h2>
-<span class="pill">3.4</span>
+<span class="pill">3.5</span>
 </div>
 <p class="note">De 50 högst rankade spelarna utifrån simulerade fantasypoäng per match.</p>
 <div class="tabs" id="topTabs"></div>
@@ -135,9 +148,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <div class="grid">
 <div>
 <label for="season">Säsong</label>
-<select id="season">
-<option value="20262027">2026/27</option>
-</select>
+<select id="season"><option value="20262027">2026/27</option></select>
 </div>
 <div>
 <label for="query">Sök spelare eller lag</label>
@@ -178,9 +189,9 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <section class="panel">
 <div class="top-head">
 <h2>📈 NHL-formkurvor</h2>
-<span class="pill">NYTT I 3.4</span>
+<span class="pill">5 senaste</span>
 </div>
-<p class="note">Analysera spelarens fem senaste grundseriematcher och jämför med säsongssnittet. FPTS är simulerade värden.</p>
+<p class="note">Analysera de fem senaste grundseriematcherna och jämför med säsongssnittet. FPTS är simulerade värden.</p>
 <label for="formSearch">Sök spelare</label>
 <input id="formSearch" placeholder="Ex. Cole Caufield" autocomplete="off">
 <label for="formPlayer">Välj spelare</label>
@@ -202,8 +213,39 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 
 <div id="view-cards" class="app-view" data-view="cards">
 <section class="panel">
-<h2 id="formTitle">Mitt kortregister</h2>
-<p class="note">Dina egna kort sparas lokalt i webbläsaren. Tidigare registreringar från version 2.0 och 3.3 behålls.</p>
+<div class="top-head">
+<div>
+<h2>🃏 Min kortsamling</h2>
+<div class="card-count" id="cardCount">0 kort</div>
+</div>
+<span class="pill">NYTT I 3.5</span>
+</div>
+<p class="note">Här visas de kort du markerat som ägda. Kortregistret sparas lokalt på din enhet.</p>
+<div class="grid">
+<div>
+<label for="cardPosition">Position</label>
+<select id="cardPosition">
+<option value="ALL">Alla positioner</option>
+<option value="LW">LW</option>
+<option value="RW">RW</option>
+<option value="C">C</option>
+<option value="D">D</option>
+</select>
+</div>
+<div>
+<label for="cardSort">Sortera kort</label>
+<select id="cardSort">
+<option value="fpts">FPTS, högst först</option>
+<option value="form">Form, senaste fem</option>
+<option value="position">Position</option>
+<option value="name">Namn A–Ö</option>
+</select>
+</div>
+</div>
+<div id="cardList"></div>
+<div class="section-line"></div>
+<h2 id="formTitle">➕ Registrera nytt kort</h2>
+<p class="note">Enklast är att använda knappen ”Mitt kort” i Top 50. Du kan också fylla i formuläret manuellt.</p>
 <form id="form">
 <div class="grid">
 <div class="full">
@@ -211,7 +253,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <input id="name" required>
 </div>
 <div>
-<label for="pos">Position</label>
+<label for="pos">Position på Fantasy Stars-kortet</label>
 <select id="pos">
 <option>LW</option><option>RW</option><option>C</option><option>D</option>
 </select>
@@ -221,7 +263,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <input id="team">
 </div>
 <div>
-<label for="fpts">Eget FPTS/match (valfritt)</label>
+<label for="fpts">Kortets FPTS/match (valfritt)</label>
 <input id="fpts" type="number" min="0" step="0.1">
 </div>
 <div>
@@ -245,7 +287,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <input id="games" type="number" min="0">
 </div>
 <div class="full check">
-<input id="owned" type="checkbox">
+<input id="owned" type="checkbox" checked>
 <label for="owned">Jag äger kortet</label>
 </div>
 <div class="full">
@@ -273,7 +315,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 <div id="view-more" class="app-view" data-view="more">
 <section class="panel">
 <h2>💾 Säkerhetskopia</h2>
-<p class="note">Exportera dina egna kort innan du rensar Safari eller byter telefon. Import ersätter dina nuvarande lokala kort.</p>
+<p class="note">Exportera dina kort innan du rensar Safari eller byter telefon. Import ersätter nuvarande kortregister.</p>
 <button id="export">Exportera JSON</button>
 <label>Importera JSON
 <input id="import" type="file" accept=".json,application/json">
@@ -281,7 +323,7 @@ label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}
 </section>
 </div>
 
-<p class="note foot">NHL-statistik från GitHub. Alla beräknade FPTS är simuleringar baserade på valda poängvikter, inte officiella Fantasy Stars-prognoser.</p>
+<p class="note foot">NHL-statistik från GitHub. Beräknade FPTS är simuleringar och ska inte förväxlas med Fantasy Stars officiella kortprognoser.</p>
 </main>
 
 <nav class="bottom-nav" aria-label="Appens huvudmeny">
@@ -309,6 +351,7 @@ function showView(view){
   if(selected)b.setAttribute('aria-current','page');
   else b.removeAttribute('aria-current');
  });
+ if(view==='cards')renderCards();
  window.scrollTo({top:0,behavior:'instant'});
 }
 
@@ -325,7 +368,7 @@ const seed=[
 
 let cards=[];
 try{
- let saved=JSON.parse(localStorage.getItem(KEY));
+ const saved=JSON.parse(localStorage.getItem(KEY));
  cards=Array.isArray(saved)?saved:seed;
 }catch{
  cards=seed;
@@ -345,7 +388,7 @@ const fmt=n=>Number.isFinite(Number(n))&&n!==null&&n!==''?
  Number(n).toLocaleString('sv-SE',{maximumFractionDigits:1}):'–';
 
 const number=x=>{
- let n=Number(x);
+ const n=Number(x);
  return Number.isFinite(n)?n:0;
 };
 
@@ -392,8 +435,8 @@ function normalize(raw){
   }
 
   if(!name){
-   let first=pick(p,['firstName','first_name']);
-   let last=pick(p,['lastName','last_name']);
+   const first=pick(p,['firstName','first_name']);
+   const last=pick(p,['lastName','last_name']);
    name=[
     typeof first==='object'?first.default:first,
     typeof last==='object'?last.default:last
@@ -445,7 +488,25 @@ function gameFpts(g,w){
 }
 
 function own(p){
- return cards.find(c=>keyOf(c)===keyOf(p));
+ return cards.find(c=>c.owned&&keyOf(c)===keyOf(p));
+}
+
+function findNhl(name){
+ return nhl.find(p=>keyOf(p)===normalizeName(name));
+}
+
+function formAverage(p,w=levelWeights.gold){
+ if(!p||!p.last5||!p.last5.length)return null;
+ return p.last5.reduce((sum,g)=>sum+gameFpts(g,w),0)/p.last5.length;
+}
+
+function cardScore(c){
+ if(c.fpts!==null&&c.fpts!==undefined&&c.fpts!==''){
+  const value=Number(c.fpts);
+  if(Number.isFinite(value))return value;
+ }
+ const p=findNhl(c.name);
+ return p?calc(p,levelWeights.gold):null;
 }
 
 function status(msg,error=false){
@@ -462,12 +523,10 @@ async function load(){
    'data/nhl-'+$('season').value+'.json?ts='+Date.now(),
    {cache:'no-store'}
   );
-
   if(!res.ok)throw Error('HTTP '+res.status);
 
   const raw=await res.json();
   const parsed=normalize(raw);
-
   if(!parsed.length)throw Error('Inga spelare med matcher hittades.');
 
   nhl=parsed;
@@ -478,9 +537,11 @@ async function load(){
 
   render();
   populateFormPlayers();
+  renderCards();
  }catch(err){
   status('Kunde inte läsa NHL-statistiken: '+err.message,true);
   render();
+  renderCards();
  }finally{
   $('load').disabled=false;
  }
@@ -515,7 +576,7 @@ function renderTop(){
    <div class="rank">${i+1}.</div>
    <div class="details">
     <strong>${esc(p.name)}</strong>
-    ${c?.owned?'<span class="pill">✓ Mitt kort</span>':''}
+    ${c?'<span class="pill">✓ Mitt kort</span>':''}
     <div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} matcher</div>
     <div class="muted">${p.goals} M · ${p.assists} A · ${p.shots} S · ${p.hits} T · ${p.blocks} B</div>
     <div class="actions">
@@ -537,7 +598,7 @@ function render(){
  const q=normalizeName($('query').value);
  const view=$('view').value;
 
- let rows=nhl.filter(p=>
+ const rows=nhl.filter(p=>
   (position==='ALL'||p.pos===position)&&
   (!q||normalizeName(p.name).includes(q)||normalizeName(p.team).includes(q))&&
   (view==='all'||(view==='owned'?!!own(p):!own(p)))
@@ -562,7 +623,7 @@ function render(){
   return `<div class="player">
    <div>
     <strong>${esc(p.name)}</strong>
-    ${c?.owned?'<span class="pill">✓ Mitt kort</span>':''}
+    ${c?'<span class="pill">✓ Mitt kort</span>':''}
     <div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} matcher</div>
     <div class="muted">${p.goals} mål · ${p.assists} assist · ${p.shots} skott · ${p.hits} tacklingar · ${p.blocks} block</div>
     ${c?.level?`<div class="muted">Mitt kort: ${esc(c.level)}</div>`:''}
@@ -584,7 +645,7 @@ function render(){
  ' poäng per mål, assist, skott, tackling och block.';
 }
 
-/* VERSION 3.4: FORMKURVOR */
+/* FORMKURVOR */
 
 function populateFormPlayers(preferredName){
  const previous=preferredName||$('formPlayer').value;
@@ -620,9 +681,9 @@ function makeChart(games,w,seasonAvg){
  const max=Math.max(10,...values,seasonAvg||0);
  const ceiling=Math.ceil(max/10)*10;
 
- const left=37,right=315,top=20,bottom=170;
+ const left=37,right=315,bottom=170;
  const width=right-left;
- const height=bottom-top;
+ const height=150;
 
  const x=i=>left+(games.length===1?width/2:i*width/(games.length-1));
  const y=v=>bottom-v/ceiling*height;
@@ -701,14 +762,11 @@ function renderForm(){
   difference< -0.05?'📉 Under säsongssnittet':
   '➖ I nivå med säsongssnittet';
 
- const best=Math.max(...scores);
- const worst=Math.min(...scores);
-
  target.innerHTML=`
   <div class="form-player">
    <strong>${esc(p.name)}</strong>
    <div class="muted">${esc(p.team)} · ${esc(p.pos)} · ${p.games} NHL-matcher</div>
-   ${own(p)?.owned?'<span class="pill">✓ Mitt kort</span>':''}
+   ${own(p)?'<span class="pill">✓ Mitt kort</span>':''}
   </div>
 
   <div class="form-summary">
@@ -733,11 +791,11 @@ function renderForm(){
 
   <div class="grid">
    <div class="metric">
-    <strong>${fmt(best)}</strong>
+    <strong>${fmt(Math.max(...scores))}</strong>
     <small>Bästa matchen</small>
    </div>
    <div class="metric">
-    <strong>${fmt(worst)}</strong>
+    <strong>${fmt(Math.min(...scores))}</strong>
     <small>Svagaste matchen</small>
    </div>
   </div>
@@ -749,7 +807,7 @@ function renderForm(){
    <div class="game-row">
     <div>
      <strong>${esc(g.date.slice(5))}</strong>
-     <div class="muted">${g.homeAway==='H'?'Hemma':'Borta'}</div>
+     <div class="muted">${g.homeAway==='H'?'Hemma':g.homeAway==='R'?'Borta':'Match'}</div>
     </div>
     <div>
      <strong>${esc(g.opponent||'Okänd')}</strong>
@@ -759,7 +817,7 @@ function renderForm(){
    </div>
   `).join('')}
 
-  <p class="note">Formkurvan använder de senast tillgängliga kompletta matchrapporterna. Den förutsäger inte nästa matchs resultat.</p>
+  <p class="note">Formkurvan bygger på tillgängliga matchrapporter och förutsäger inte nästa matchs resultat.</p>
  `;
 }
 
@@ -767,7 +825,127 @@ $('formSearch').addEventListener('input',()=>populateFormPlayers());
 $('formPlayer').addEventListener('change',renderForm);
 $('formLevel').addEventListener('change',renderForm);
 
-/* KORTREGISTER */
+/* VERSION 3.5: MIN KORTSAMLING */
+
+function renderCards(){
+ const owned=cards.filter(c=>c&&c.owned&&c.name);
+ const pos=$('cardPosition').value;
+ const sort=$('cardSort').value;
+
+ $('cardCount').textContent=owned.length+' kort';
+
+ const rows=owned
+  .map(c=>({
+   c,
+   index:cards.indexOf(c),
+   nhlPlayer:findNhl(c.name),
+   score:cardScore(c),
+   form:formAverage(findNhl(c.name))
+  }))
+  .filter(item=>pos==='ALL'||item.c.pos===pos);
+
+ rows.sort((a,b)=>{
+  if(sort==='name')return a.c.name.localeCompare(b.c.name,'sv');
+  if(sort==='position'){
+   return a.c.pos.localeCompare(b.c.pos,'sv')||
+    a.c.name.localeCompare(b.c.name,'sv');
+  }
+  if(sort==='form'){
+   return (b.form??-1)-(a.form??-1)||
+    a.c.name.localeCompare(b.c.name,'sv');
+  }
+  return (b.score??-1)-(a.score??-1)||
+   a.c.name.localeCompare(b.c.name,'sv');
+ });
+
+ if(!owned.length){
+  $('cardList').innerHTML=`
+   <div class="form-player">
+    <strong>Inga kort registrerade ännu</strong>
+    <p class="muted">Gå till Top 50 och tryck på ”Mitt kort” vid en spelare. Fyll i dina uppgifter och spara.</p>
+    <button type="button" id="goTopCards" class="primary">🏆 Gå till Top 50</button>
+   </div>`;
+  return;
+ }
+
+ if(!rows.length){
+  $('cardList').innerHTML='<p class="muted">Inga kort med den positionen.</p>';
+  return;
+ }
+
+ $('cardList').innerHTML=rows.map(({c,index,nhlPlayer,score,form})=>{
+  const ownScore=c.fpts!==null&&c.fpts!==undefined&&c.fpts!=='';
+  const scoreLabel=ownScore?'Mitt FPTS':'Sim. full guld';
+
+  return `<article class="card-item">
+   <div class="card-head">
+    <div>
+     <strong>${esc(c.name)}</strong>
+     <div class="card-meta">${esc(c.team||nhlPlayer?.team||'Okänt lag')} · ${esc(c.pos||'–')}</div>
+     ${c.level?`<span class="pill">${esc(c.level)}</span>`:''}
+    </div>
+    <span class="pill">✓ Äger</span>
+   </div>
+   <div class="card-stats">
+    <div class="card-stat">
+     <strong>${fmt(score)}</strong>
+     <small>${scoreLabel}</small>
+    </div>
+    <div class="card-stat">
+     <strong>${fmt(form)}</strong>
+     <small>Form senaste 5, sim. guld</small>
+    </div>
+   </div>
+   <div class="card-actions">
+    <button type="button" data-card-edit="${index}">✏️ Redigera</button>
+    ${nhlPlayer?`<button type="button" data-card-form="${esc(nhlPlayer.name)}">📈 Form</button>`:''}
+    <button type="button" class="danger" data-card-delete="${index}">🗑 Ta bort</button>
+   </div>
+  </article>`;
+ }).join('');
+}
+
+$('cardPosition').addEventListener('change',renderCards);
+$('cardSort').addEventListener('change',renderCards);
+
+$('cardList').addEventListener('click',e=>{
+ const top=e.target.closest('#goTopCards');
+ if(top){
+  showView('top');
+  return;
+ }
+
+ const edit=e.target.closest('[data-card-edit]');
+ if(edit){
+  const i=Number(edit.dataset.cardEdit);
+  if(cards[i])fill(cards[i]);
+  return;
+ }
+
+ const form=e.target.closest('[data-card-form]');
+ if(form){
+  openForm(form.dataset.cardForm);
+  return;
+ }
+
+ const del=e.target.closest('[data-card-delete]');
+ if(del){
+  const i=Number(del.dataset.cardDelete);
+  const c=cards[i];
+  if(!c)return;
+
+  if(confirm('Ta bort kortet för '+c.name+'?')){
+   cards.splice(i,1);
+   save();
+   clear();
+   renderCards();
+   render();
+   renderForm();
+  }
+ }
+});
+
+/* KORTREGISTRERING */
 
 function fill(p){
  editing=cards.findIndex(c=>keyOf(c)===keyOf(p));
@@ -778,7 +956,10 @@ function fill(p){
  }
 
  $('owned').checked=editing>=0?!!c.owned:true;
- $('formTitle').textContent='Redigera kort: '+p.name;
+ $('formTitle').textContent=editing>=0?
+  '✏️ Redigera kort: '+p.name:
+  '➕ Lägg till kort: '+p.name;
+
  showView('cards');
  $('form').scrollIntoView({behavior:'smooth'});
 }
@@ -878,7 +1059,8 @@ for(const [key,title,base] of [
 function clear(){
  editing=-1;
  $('form').reset();
- $('formTitle').textContent='Mitt kortregister';
+ $('owned').checked=true;
+ $('formTitle').textContent='➕ Registrera nytt kort';
 }
 
 $('cancel').addEventListener('click',clear);
@@ -905,11 +1087,19 @@ $('form').addEventListener('submit',e=>{
  if(i>=0)cards[i]={...cards[i],...p};
  else cards.push(p);
 
- save();
+ try{
+  save();
+ }catch(err){
+  alert('Kortet kunde inte sparas lokalt: '+err.message);
+  return;
+ }
+
  clear();
  render();
+ renderCards();
  renderForm();
- window.scrollTo({top:0,behavior:'smooth'});
+
+ $('cardList').scrollIntoView({behavior:'smooth'});
 });
 
 /* SÄKERHETSKOPIA */
@@ -949,6 +1139,7 @@ $('import').addEventListener('change',async e=>{
    save();
    clear();
    render();
+   renderCards();
    renderForm();
    alert('Importen lyckades');
   }
@@ -959,7 +1150,10 @@ $('import').addEventListener('change',async e=>{
  e.target.value='';
 });
 
+/* START */
+
 render();
+renderCards();
 load();
 </script>
 </body>
