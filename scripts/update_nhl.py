@@ -24,6 +24,8 @@ HEADERS = {
 SEASONS = ("20262027",)
 FORM_LIMIT = 5
 REQUEST_DELAY = 0.08
+REPORT_PAGE_SIZE = 100
+NHL_TEAM_COUNT = 32
 
 
 def fetch_json(url):
@@ -60,27 +62,43 @@ def fetch_json(url):
 
 
 def get_report(report, season):
-    params = urllib.parse.urlencode({
+    filters = {
         "isAggregate": "true",
         "isGame": "false",
         "cayenneExp": (
             f"seasonId={season} and gameTypeId=2"
         ),
-        "limit": "-1",
-        "start": "0",
-    })
+        "limit": REPORT_PAGE_SIZE,
+        "sort": json.dumps([{"property": "playerId", "direction": "ASC"}]),
+    }
+    rows = []
+    seen_ids = set()
+    total = None
 
-    payload = fetch_json(
-        STATS_BASE + report + "?" + params
-    )
+    while total is None or len(rows) < total:
+        params = urllib.parse.urlencode({**filters, "start": len(rows)})
+        payload = fetch_json(STATS_BASE + report + "?" + params)
+        page = payload.get("data")
+        reported_total = payload.get("total")
+        if (
+            not isinstance(page, list)
+            or not page
+            or type(reported_total) is not int
+            or reported_total < len(rows) + len(page)
+        ):
+            raise ValueError(f"Invalid {report} page at offset {len(rows)}")
+        if total is not None and reported_total != total:
+            raise ValueError(f"{report} total changed during pagination")
+        total = reported_total
 
-    rows = payload.get("data")
+        for row in page:
+            pid = row.get("playerId")
+            if pid is None or pid in seen_ids:
+                raise ValueError(f"Missing or repeated player ID in {report}: {pid}")
+            seen_ids.add(pid)
+        rows.extend(page)
 
-    if not isinstance(rows, list) or not rows:
-        raise ValueError(
-            f"Empty or invalid {report} response"
-        )
-
+    print(f"{report}: {len(rows)} skaters", flush=True)
     return rows
 
 
@@ -111,44 +129,34 @@ def get_current_teams():
     )
 
     standings = payload.get("standings", [])
-
-    if not standings:
+    abbreviations = [localized(row.get("teamAbbrev")) for row in standings]
+    if (
+        len(abbreviations) != NHL_TEAM_COUNT
+        or len(set(abbreviations)) != NHL_TEAM_COUNT
+        or not all(abbreviations)
+    ):
         raise ValueError(
-            "Could not retrieve NHL standings"
+            f"Expected {NHL_TEAM_COUNT} distinct NHL teams in standings"
         )
 
     teams = {}
 
-    for row in standings:
-        abbrev = localized(
-            row.get("teamAbbrev")
-        )
-
-        if not abbrev:
-            continue
-
-        try:
-            roster = fetch_json(
-                f"{WEB_BASE}/roster/{abbrev}/current"
-            )
-
-            for group in (
-                "forwards",
-                "defensemen",
-                "goalies",
-            ):
-                for player in roster.get(group, []):
-                    pid = player.get("id")
-
-                    if pid is not None:
-                        teams[str(pid)] = abbrev
-
-        except Exception as exc:
-            print(
-                f"Roster unavailable for "
-                f"{abbrev}: {exc}",
-                flush=True,
-            )
+    for abbrev in abbreviations:
+        roster = fetch_json(f"{WEB_BASE}/roster/{abbrev}/current")
+        for group in ("forwards", "defensemen", "goalies"):
+            players = roster.get(group)
+            if not isinstance(players, list) or not players:
+                raise ValueError(f"Incomplete roster for {abbrev}: missing {group}")
+            for player in players:
+                pid = player.get("id")
+                if pid is None:
+                    raise ValueError(f"Missing player ID in {abbrev} roster")
+                pid = str(pid)
+                if pid in teams:
+                    raise ValueError(
+                        f"Repeated player {pid} in NHL rosters: {teams[pid]}, {abbrev}"
+                    )
+                teams[pid] = abbrev
 
         time.sleep(REQUEST_DELAY)
 
@@ -549,7 +557,8 @@ def normalize(season):
 
     if len(players) < 100:
         raise ValueError(
-            f"Only {len(players)} skaters matched: "
+            f"Only {len(players)} skaters matched "
+            f"(summary: {len(summary)}, realtime: {len(realtime)}): "
             "refusing to publish incomplete data"
         )
 
