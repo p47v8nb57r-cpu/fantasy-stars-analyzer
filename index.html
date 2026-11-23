@@ -163,10 +163,11 @@ function renderFormLeader(){
     ${date?`<p class="note">Statistik uppdaterad ${esc(date)}</p>`:''}
     <button type="button" data-form="${esc(player.id)}">Visa formkurvan</button>`;
 }
-const portraitPreview={8477946:'https://assets.nhle.com/mugs/nhl/20262027/MTL/8477946.png'};
+const portraitPreview={8477946:'assets/players/dylan-larkin.png'};
 function playerPortrait(player){
-  const headshot=player.headshot||portraitPreview[player.id];
-  if(!/^https:\/\/assets\.nhle\.com\/mugs\/nhl\/[0-9]+\/[A-Z]+\/[0-9]+\.png$/.test(headshot))return '';
+  const official=/^https:\/\/assets\.nhle\.com\/mugs\/nhl\/[0-9]+\/[A-Z]+\/[0-9]+\.png$/.test(player.headshot);
+  const headshot=portraitPreview[player.id]||(official?player.headshot:'');
+  if(!headshot)return '';
   const initials=player.name.split(/\s+/).slice(0,2).map(part=>part[0]).join('');
   return `<span class="player-portrait" aria-hidden="true">${esc(initials)}<img src="${esc(headshot)}" alt="" width="64" height="64" decoding="async"></span>`;
 }
