@@ -3,6 +3,11 @@ name: Uppdatera NHL-statistik
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/update_nhl.py
   schedule:
     - cron: '15 7,19 * * *'
 
