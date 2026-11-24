@@ -1,0 +1,38 @@
+name: Publicera spelarporträtt
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/update_portraits.py
+      - assets/players/portraits.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nhl-portraits
+  cancel-in-progress: false
+
+jobs:
+  portraits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Hämta NHL-porträtt
+        run: python scripts/update_portraits.py --from-manifest
+      - name: Spara bildfiler
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/players
+          if ! git diff --cached --quiet; then
+            git commit -m "Add NHL player portraits"
+            git pull --rebase origin main
+            git push
+          fi
