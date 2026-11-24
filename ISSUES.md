@@ -22,4 +22,4 @@ The P2 interface passed WebKit tests at iPhone width. The user confirmed the upd
 - [x] **Expose incomplete form samples.** The player view shows how many of the five matches have complete data, including zero. The daily leader still requires five complete matches. [Form view](index.html)
 - [x] **Document season rollover and how to run the app.** The README covers local launch, backups, season rollover, statistics and portrait refreshes, and the public URL. [README](README.md)
 
-Physical iPhone confirmation for the P3 form change is tracked separately under the [release checks](README.md#release-checks).
+The user confirmed the P3 Form change on their iPhone.
