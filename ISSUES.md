@@ -15,9 +15,11 @@ Checked on 24 November 2026 against the local workspace and GitHub `main`. Prior
 - [x] **Let users link ambiguous legacy cards to the right NHL player.** Cards with more than one NHL name match can be linked in the card editor using position, team and NHL ID. Verified the two Elias Pettersson options, position migration and backup round-trip. [Card linking](index.html)
 - [x] **Make the scope of saved cards clear.** Sample cards are labeled and excluded from backups. A collection without saved cards links directly to the JSON import. Verified import with a separate WebKit profile. [Card storage and backup](index.html)
 
-The P2 interface passed WebKit tests at iPhone width. Confirmation on the physical iPhone is tracked separately under the [release checks](README.md#release-checks).
+The P2 interface passed WebKit tests at iPhone width. The user confirmed the updated Carson Soucy roster label on their iPhone after reopening the Home Screen app.
 
 ## P3 · Form clarity and maintenance
 
-- [ ] **Expose incomplete form samples.** The statistics script selects five games before checking whether all game stats are available, so a player can have fewer than five usable games. The daily leader requires five complete games. Close when a partial sample is clearly labeled and the leader continues to use five complete games per eligible player. [Form pipeline](scripts/update_nhl.py)
-- [ ] **Document season rollover and how to run the app.** The app, updater, and workflow refer to the current season, while the repository README contains only the project title. Close when the README covers local launch, season rollover, statistics and portrait refreshes, and the public app URL. [README](README.md)
+- [x] **Expose incomplete form samples.** The player view shows how many of the five matches have complete data, including zero. The daily leader still requires five complete matches. [Form view](index.html)
+- [x] **Document season rollover and how to run the app.** The README covers local launch, backups, season rollover, statistics and portrait refreshes, and the public URL. [README](README.md)
+
+Physical iPhone confirmation for the P3 form change is tracked separately under the [release checks](README.md#release-checks).
