@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - scripts/update_nhl.py
+      - scripts/update_portraits.py
       - .github/workflows/update-nhl.yml
   schedule:
     - cron: '15 7,19 * * *'
@@ -17,7 +18,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: nhl-statistics
+  group: nhl-assets
   cancel-in-progress: false
 
 jobs:
@@ -35,12 +36,16 @@ jobs:
       - name: Hamta NHL-statistik
         run: python scripts/update_nhl.py
 
+      - name: Uppdatera spelarporträtt
+        continue-on-error: true
+        run: python scripts/update_portraits.py
+
       - name: Spara statistikfiler
         id: save
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/nhl-20262027.json data/nhl-20252026.json
+          git add data/nhl-20262027.json data/nhl-20252026.json assets/players/portraits.json assets/players/*.png
           if ! git diff --cached --quiet; then
             git commit -m "Update NHL statistics"
             git pull --rebase origin main

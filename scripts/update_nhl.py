@@ -534,6 +534,7 @@ def normalize(season):
             "id": pid,
             "name": s["skaterFullName"],
             "team": team,
+            "rosterStatus": "nhl" if team else "outside",
             "pos": s.get(
                 "positionCode",
                 "",

@@ -134,7 +134,10 @@ def main(season, from_manifest=False):
                 if url:
                     sources[str(pid)] = url
 
-    if not sources or from_manifest and len(sources) != len(ids):
+    missing = [str(pid) for pid in ids if str(pid) not in sources]
+    if missing:
+        print(f"::warning::No portrait for NHL player IDs: {', '.join(missing)}", flush=True)
+    if not sources or from_manifest and missing:
         raise RuntimeError(f"Portrait download incomplete: {len(sources)}/{len(ids)} available")
     temp = manifest.with_suffix(".tmp")
     temp.write_text(json.dumps(sources, sort_keys=True, separators=(",", ":")), encoding="utf-8")

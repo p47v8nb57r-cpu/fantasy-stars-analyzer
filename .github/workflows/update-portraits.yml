@@ -6,14 +6,13 @@ on:
     branches:
       - main
     paths:
-      - scripts/update_portraits.py
       - assets/players/portraits.json
 
 permissions:
   contents: write
 
 concurrency:
-  group: nhl-portraits
+  group: nhl-assets
   cancel-in-progress: false
 
 jobs:
