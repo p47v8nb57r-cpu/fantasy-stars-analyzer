@@ -48,9 +48,16 @@ jobs:
           git add data/nhl-20262027.json data/nhl-20252026.json assets/players/portraits.json assets/players/*.png
           if ! git diff --cached --quiet; then
             git commit -m "Update NHL statistics"
-            git pull --rebase origin main
-            git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            for delay in 2 5 10; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then
+                echo "changed=true" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              sleep "$delay"
+            done
+            echo "::error::Could not push NHL data after three attempts"
+            exit 1
           fi
 
       - name: Starta publicering på GitHub Pages
