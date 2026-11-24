@@ -25,7 +25,7 @@
   <div><label for="lineupLevel">Träningsnivå</label><select id="lineupLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select></div>
 </div>
 <p id="lineupStatus" class="note" role="status"></p><div id="lineupResults"></div>
-<details><summary>Så beräknas förslaget</summary><p class="note">Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
+<details><summary>Så beräknas förslaget</summary><p class="note">Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Dina manuella Fantasy Stars-positioner och sparade kortpositioner styr lagplatserna. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
 </section></div>
 <div id="view-more" class="app-view" data-view="more"><section class="panel"><h2>💾 Säkerhetskopia</h2><p class="note">Exportera kort och manuella positioner innan du rensar Safari eller byter telefon. Gamla säkerhetskopior med enbart kort går också att importera.</p><button id="export">Exportera JSON</button><label>Importera JSON<input id="import" type="file" accept=".json,application/json"></label><div class="section-line"></div><h2>🎯 Manuella positioner</h2><p class="note">Positionerna sparas lokalt på den här enheten och används i alla flikar. De överlever NHL-uppdateringar, men inte om webbläsarens webbplatsdata raderas.</p><div id="overrideList"></div></section></div>
 <p class="note foot">NHL-statistik från GitHub. Beräknade FPTS är simuleringar och ska inte förväxlas med Fantasy Stars officiella kortprognoser.</p></main>
@@ -175,6 +175,11 @@ function lineupScore(player,opponent,weights,data){
   const factor=Number.isFinite(allowed)&&league>0?Math.max(0.85,Math.min(1.15,allowed/league)):1;
   return {form,factor,score:(season*(1-formWeight)+(form??0)*formWeight)*factor};
 }
+function lineupPosition(player,card){
+  const manual=overrides[keyOf(player)];
+  if(POSITIONS.includes(manual))return manual;
+  return POSITIONS.includes(card?.pos)?card.pos:effectivePosition(player);
+}
 function pickLineup(candidates){
   const ranked=candidates.slice().sort((a,b)=>b.score-a.score||a.player.name.localeCompare(b.player.name,'sv'));
   const used=new Set();
@@ -205,11 +210,19 @@ function renderLineup(){
   }
   const owned=$('lineupScope').value==='owned';
   const w=levelWeights[$('lineupLevel').value]||levelWeights.gold;
+  const savedCards=new Map();
+  for(const card of cards){
+    if(!card?.name||card.sample)continue;
+    const key=cardKey(card),prior=savedCards.get(key);
+    if(!prior||(card.owned&&!prior.owned))savedCards.set(key,card);
+  }
   const candidates=[];
   for(const player of nhl){
     const game=matchups.get(player.team);
-    if(!game||player.id==null||player.games<=0||(owned&&!own(player)))continue;
-    const pos=effectivePosition(player);
+    if(!game||player.id==null||player.games<=0)continue;
+    const card=savedCards.get(keyOf(player));
+    if(owned&&!card?.owned)continue;
+    const pos=lineupPosition(player,card);
     if(POSITIONS.includes(pos))candidates.push({player,pos,...game,...lineupScore(player,game.opponent,w,lineupData)});
   }
   const lineup=pickLineup(candidates);
