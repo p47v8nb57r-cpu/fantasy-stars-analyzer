@@ -121,14 +121,9 @@ def localized(value):
     return value or ""
 
 
-def get_current_teams():
+def get_current_teams(standings):
     """Build player ID to current NHL team mapping."""
 
-    payload = fetch_json(
-        f"{WEB_BASE}/standings/now"
-    )
-
-    standings = payload.get("standings", [])
     abbreviations = [localized(row.get("teamAbbrev")) for row in standings]
     if (
         len(abbreviations) != NHL_TEAM_COUNT
@@ -455,6 +450,48 @@ def build_form(players, season):
     )
 
 
+def get_lineup_data(season, standings):
+    schedule = fetch_json(f"{WEB_BASE}/schedule/now")
+    days = schedule.get("gameWeek")
+    if not isinstance(days, list):
+        raise ValueError("NHL schedule has no gameWeek")
+
+    games = []
+    for day in days:
+        for game in day.get("games", []):
+            if (
+                str(game.get("season")) != season
+                or game.get("gameType") != 2
+                or game.get("gameState") not in ("FUT", "PRE")
+            ):
+                continue
+            home = localized(game.get("homeTeam", {}).get("abbrev"))
+            away = localized(game.get("awayTeam", {}).get("abbrev"))
+            start = game.get("startTimeUTC")
+            if home and away and start and day.get("date"):
+                games.append({"date": day["date"], "start": start, "home": home, "away": away})
+
+    defense = {}
+    total_games = 0
+    total_goals = 0
+    for row in standings:
+        if str(row.get("seasonId")) != season or row.get("gameTypeId") != 2:
+            continue
+        team = localized(row.get("teamAbbrev"))
+        played = row.get("gamesPlayed")
+        allowed = row.get("goalAgainst")
+        if team and isinstance(played, int) and played > 0 and isinstance(allowed, int) and allowed >= 0:
+            defense[team] = allowed / played
+            total_games += played
+            total_goals += allowed
+
+    return {
+        "games": games,
+        "goalsAgainstPerGame": defense,
+        "leagueGoalsAgainstPerGame": total_goals / total_games if total_games else None,
+    }
+
+
 def normalize(season):
     print(
         f"Processing NHL season {season}...",
@@ -476,7 +513,8 @@ def normalize(season):
         flush=True,
     )
 
-    current_teams = get_current_teams()
+    standings = fetch_json(f"{WEB_BASE}/standings/now").get("standings", [])
+    current_teams = get_current_teams(standings)
 
     real_by_id = {
         str(row.get("playerId")): row
@@ -590,6 +628,15 @@ def normalize(season):
     target = (
         OUT / f"nhl-{season}.json"
     )
+
+    try:
+        result["lineup"] = get_lineup_data(season, standings)
+    except (ValueError, RuntimeError) as exc:
+        print(f"::warning::Could not refresh lineup data: {exc}", flush=True)
+        if target.exists():
+            previous = json.loads(target.read_text(encoding="utf-8"))
+            if "lineup" in previous:
+                result["lineup"] = previous["lineup"]
 
     temp = target.with_suffix(
         ".tmp"
