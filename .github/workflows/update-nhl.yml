@@ -8,11 +8,17 @@ on:
       - main
     paths:
       - scripts/update_nhl.py
+      - .github/workflows/update-nhl.yml
   schedule:
     - cron: '15 7,19 * * *'
 
 permissions:
   contents: write
+  pages: write
+
+concurrency:
+  group: nhl-statistics
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -30,11 +36,52 @@ jobs:
         run: python scripts/update_nhl.py
 
       - name: Spara statistikfiler
+        id: save
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/nhl-20262027.json data/nhl-20252026.json
           if ! git diff --cached --quiet; then
             git commit -m "Update NHL statistics"
+            git pull --rebase origin main
             git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Starta publicering på GitHub Pages
+        if: steps.save.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
+
+      - name: Verifiera publicerad statistik
+        if: steps.save.outputs.changed == 'true'
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import time
+          from datetime import datetime
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+
+          owner, repo = os.environ["GITHUB_REPOSITORY"].lower().split("/", 1)
+          path = Path("data/nhl-20262027.json")
+          expected = datetime.fromisoformat(json.loads(path.read_text())["updated"])
+          for attempt in range(30):
+              url = f"https://{owner}.github.io/{repo}/{path}?check={time.time_ns()}"
+              try:
+                  request = Request(url, headers={"Cache-Control": "no-cache"})
+                  with urlopen(request, timeout=10) as response:
+                      published = datetime.fromisoformat(json.load(response)["updated"])
+                  if published >= expected:
+                      print(f"GitHub Pages serves NHL statistics from {published.isoformat()}")
+                      break
+                  print(f"Waiting for GitHub Pages: {published.isoformat()}", flush=True)
+              except (OSError, ValueError, KeyError) as error:
+                  print(f"Waiting for GitHub Pages: {error}", flush=True)
+              if attempt < 29:
+                  time.sleep(10)
+          else:
+              raise SystemExit(f"GitHub Pages has not published statistics from {expected.isoformat()}")
+          PY
