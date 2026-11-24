@@ -21,11 +21,10 @@
 <h2>🏒 Lagbygge</h2>
 <div class="grid">
   <div><label for="lineupDate">NHL-omgång</label><select id="lineupDate"></select></div>
-  <div><label for="lineupScope">Spelare</label><select id="lineupScope"><option value="owned">Mina kort</option><option value="all">Alla NHL-spelare</option></select></div>
   <div><label for="lineupLevel">Träningsnivå</label><select id="lineupLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select></div>
 </div>
 <p id="lineupStatus" class="note" role="status"></p><div id="lineupResults"></div>
-<details><summary>Så beräknas förslaget</summary><p class="note">Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Dina manuella Fantasy Stars-positioner och sparade kortpositioner styr lagplatserna. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
+<details><summary>Så beräknas förslaget</summary><p class="note">Förslaget utgår från alla spelare i appen som har match i den valda omgången. Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Dina manuella Fantasy Stars-positioner och sparade kortpositioner styr lagplatserna. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
 </section></div>
 <div id="view-more" class="app-view" data-view="more"><section class="panel"><h2>💾 Säkerhetskopia</h2><p class="note">Exportera kort och manuella positioner innan du rensar Safari eller byter telefon. Gamla säkerhetskopior med enbart kort går också att importera.</p><button id="export">Exportera JSON</button><label>Importera JSON<input id="import" type="file" accept=".json,application/json"></label><div class="section-line"></div><h2>🎯 Manuella positioner</h2><p class="note">Positionerna sparas lokalt på den här enheten och används i alla flikar. De överlever NHL-uppdateringar, men inte om webbläsarens webbplatsdata raderas.</p><div id="overrideList"></div></section></div>
 <p class="note foot">NHL-statistik från GitHub. Beräknade FPTS är simuleringar och ska inte förväxlas med Fantasy Stars officiella kortprognoser.</p></main>
@@ -208,7 +207,6 @@ function renderLineup(){
     if(!matchups.has(game.home))matchups.set(game.home,{opponent:game.away,venue:'hemma',start:game.start});
     if(!matchups.has(game.away))matchups.set(game.away,{opponent:game.home,venue:'borta',start:game.start});
   }
-  const owned=$('lineupScope').value==='owned';
   const w=levelWeights[$('lineupLevel').value]||levelWeights.gold;
   const savedCards=new Map();
   for(const card of cards){
@@ -221,7 +219,6 @@ function renderLineup(){
     const game=matchups.get(player.team);
     if(!game||player.id==null||player.games<=0)continue;
     const card=savedCards.get(keyOf(player));
-    if(owned&&!card?.owned)continue;
     const pos=lineupPosition(player,card);
     if(POSITIONS.includes(pos))candidates.push({player,pos,...game,...lineupScore(player,game.opponent,w,lineupData)});
   }
@@ -229,7 +226,7 @@ function renderLineup(){
   const selected=lineup.filter(row=>row.pick);
   const total=selected.reduce((sum,row)=>sum+row.pick.score,0);
   status.textContent=`${selected.length} av 6 platser fyllda · Prognos: ${fmt(total)} FPTS`+
-    (selected.length<6?(owned?' · Prova Alla NHL-spelare om du saknar kort som spelar.':' · Underlaget räcker inte för en full uppställning.'):'');
+    (selected.length<6?' · Underlaget räcker inte för en full uppställning.':'');
   results.innerHTML=lineup.map(({slot,pick})=>{
     if(!pick)return `<div class="player"><strong>${slot}</strong><span class="muted">Ingen tillgänglig spelare</span></div>`;
     const {player,pos,opponent,venue,start,form,factor,score}=pick;
@@ -333,7 +330,7 @@ $('formLeader').addEventListener('click',handlePlayerAction);
 $('cardPosition').addEventListener('change',renderCards);$('cardSort').addEventListener('change',renderCards);
 $('cardList').addEventListener('click',e=>{if(e.target.closest('#goTopCards')){showView('top');return;}const pos=e.target.closest('[data-position]');if(pos){openForm(pos.dataset.position);return;}const edit=e.target.closest('[data-card-edit]');if(edit){const i=Number(edit.dataset.cardEdit);if(cards[i])fill(cards[i]);return;}const form=e.target.closest('[data-card-form]');if(form){openForm(form.dataset.cardForm);return;}const del=e.target.closest('[data-card-delete]');if(del){const i=Number(del.dataset.cardDelete),c=cards[i];if(c&&confirm('Ta bort kortet för '+c.name+'?')){cards.splice(i,1);save();clear();refreshAll();}}});
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-pos]');if(b){position=b.dataset.pos;limit=40;render();}});$('topTabs').addEventListener('click',e=>{const b=e.target.closest('[data-pos]');if(b){topPosition=b.dataset.pos;renderTop();}});for(const id of ['topSort','topLevel','topMin'])$(id).addEventListener('change',renderTop);for(const id of ['query','sort','view'])$(id).addEventListener(id==='query'?'input':'change',()=>{limit=40;render();});$('more').addEventListener('click',()=>{limit+=40;render();});$('load').addEventListener('click',load);
-for(const id of ['lineupDate','lineupScope','lineupLevel']){
+for(const id of ['lineupDate','lineupLevel']){
   $(id).addEventListener('change',renderLineup);
 }
 $('lineupResults').addEventListener('click',handlePlayerAction);
