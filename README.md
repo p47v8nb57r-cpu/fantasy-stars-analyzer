@@ -21,7 +21,7 @@ python3 scripts/update_nhl.py
 python3 scripts/update_portraits.py
 ```
 
-The first command updates the active `data/nhl-*.json` file with NHL statistics, current roster status, and available match history. The second updates `assets/players/portraits.json` and the PNG files it references. Review the output for missing portrait IDs. The app shows initials for players whose portrait is unavailable.
+The first command updates the active `data/nhl-*.json` file with NHL statistics, current roster status, and available match history. It also writes `data/nhl-results-*.json` with official completed-game stats for saved lineup results. The second updates `assets/players/portraits.json` and the PNG files it references. Review the output for missing portrait IDs. The app shows initials for players whose portrait is unavailable.
 
 On GitHub, **Uppdatera NHL-statistik** runs twice daily or can be started with **Run workflow**. It refreshes statistics and portraits, commits the results, requests a GitHub Pages build, and checks that the public data file reaches the generated timestamp. **Publicera spelarporträtt** can rebuild the image files from the saved manifest. For new players or updated NHL sources, use the full NHL workflow.
 
@@ -29,7 +29,7 @@ On GitHub, **Uppdatera NHL-statistik** runs twice daily or can be started with *
 
 1. Set `SEASONS` in `scripts/update_nhl.py` to the new eight-digit NHL season ID, such as `20272028` for 2027/28. The portrait updater uses the first season listed by default.
 2. Run both refresh commands above. Confirm that the new season has enough regular-season data to pass the updater's validation and that the new JSON file contains players, team or roster status, and available form history.
-3. Update the season selector in `index.html`. In `.github/workflows/update-nhl.yml`, update the staged season-file paths and the path used to verify the public file. Keep prior season files in the repository.
+3. Update the season selector in `index.html`. In `.github/workflows/update-nhl.yml`, update the staged statistics and results paths and the paths used to verify the public files. Keep prior season files in the repository.
 4. Start the app locally. Confirm the selected season loads and check Top 50, Scout, Form and portraits. Publish the season changes together, then check the public file and follow the release checks below.
 
 ## Release checks

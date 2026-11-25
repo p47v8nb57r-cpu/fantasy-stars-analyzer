@@ -42,7 +42,11 @@
 <div id="lineupSchedule"></div>
 <p id="lineupStatus" class="note" role="status"></p>
 <div class="actions" id="lineupActions" hidden><button type="button" id="lineupSave" class="primary">Spara laget</button><button type="button" id="lineupNew">Nytt förslag</button><button type="button" id="lineupRestore" hidden>Visa sparat lag</button></div>
-<p id="lineupMessage" class="note" role="status"></p><div id="lineupResults"></div>
+<p id="lineupMessage" class="note" role="status"></p>
+<section id="savedLineupResults" class="form-player" aria-labelledby="savedOutcomeTitle" hidden>
+  <h3 id="savedOutcomeTitle">Utfall för sparat lag</h3><div id="savedLineupOutcome"></div>
+</section>
+<div id="lineupResults"></div>
 <details><summary>Så beräknas förslaget</summary><p class="note">Förslaget utgår från alla spelare i appen som har match i den valda omgången. Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Dina manuella Fantasy Stars-positioner och sparade kortpositioner styr lagplatserna. Lagkortets prognos använder NHL Fantasy Stars grundpoäng för vinst, special teams, insläppta mål, nolla och räddningar. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
 </section></div>
 <div id="view-more" class="app-view" data-view="more"><section class="panel"><button id="refreshAppVersion" type="button">Ladda om appen</button><div class="section-line"></div><h2>💾 Säkerhetskopia</h2>
@@ -174,7 +178,7 @@ function resetPosition(key){
 function positionBadge(p){return isOverridden(p)?'<span class="position-note">✏️ Fantasy Stars-position</span>':'';}
 function positionEditor(p){const actual=effectivePosition(p),original=p.pos||'Okänd';return `<div class="position-editor"><strong>🎯 Fantasy Stars-position</strong><div class="muted">NHL-position: ${esc(original)} · Analyzer: <strong>${esc(actual||'–')}</strong></div><div class="grid"><div><label for="positionChoice">Välj position</label><select id="positionChoice">${POSITIONS.map(pos=>`<option value="${pos}" ${pos===actual?'selected':''}>${pos}</option>`).join('')}</select></div><div><label>&nbsp;</label><button type="button" class="primary" data-save-position="${esc(p.id)}">Spara position</button></div></div><div class="actions"><button type="button" data-reset-position="${esc(keyOf(p))}" ${actual===original?'disabled':''}>Återställ NHL-position</button></div></div>`;}
 function refreshAll(){render();renderLineup();renderFormLeader();populateFormPlayers($('formPlayer').value);renderCards();renderOverrides();if($('name').value.trim()){const p=editorPlayer();if(p)$('pos').value=effectivePosition(p);} }
-function showView(view){if(!['top','scout','form','cards','lineup','more'].includes(view))view='top';document.querySelectorAll('.app-view').forEach(el=>el.classList.toggle('current',el.dataset.view===view));document.querySelectorAll('[data-view-target]').forEach(b=>{const selected=b.dataset.viewTarget===view;b.classList.toggle('selected',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(view==='scout')renderScoutTools();if(view==='cards')renderCards();if(view==='lineup')renderLineup();if(view==='more'){renderOverrides();renderBackupSummary();}window.scrollTo({top:0,behavior:'instant'});}
+function showView(view){if(!['top','scout','form','cards','lineup','more'].includes(view))view='top';document.querySelectorAll('.app-view').forEach(el=>el.classList.toggle('current',el.dataset.view===view));document.querySelectorAll('[data-view-target]').forEach(b=>{const selected=b.dataset.viewTarget===view;b.classList.toggle('selected',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(view==='scout')renderScoutTools();if(view==='cards')renderCards();if(view==='lineup'){renderLineup();loadLineupResults();}if(view==='more'){renderOverrides();renderBackupSummary();}window.scrollTo({top:0,behavior:'instant'});}
 document.querySelector('.bottom-nav').addEventListener('click',e=>{const b=e.target.closest('[data-view-target]');if(b)showView(b.dataset.viewTarget);});
 function normalize(raw){const root=Array.isArray(raw)?raw:pick(raw,['players','skaters','data','results','rows']);if(!Array.isArray(root))throw Error('JSON-filen innehåller ingen igenkänd spelarlista.');return root.map(p=>{const stats=p.stats&&typeof p.stats==='object'?p.stats:p;let name=pick(p,['name','playerName','fullName','skaterFullName']);if(name&&typeof name==='object')name=name.default||name.sv||Object.values(name)[0];if(!name){const first=pick(p,['firstName','first_name']),last=pick(p,['lastName','last_name']);name=[typeof first==='object'?first.default:first,typeof last==='object'?last.default:last].filter(Boolean).join(' ');}let pos=String(pick(p,['pos','position','positionCode','positionAbbreviation'])||'').toUpperCase();if(pos==='L')pos='LW';if(pos==='R')pos='RW';let team=pick(p,['team','teamAbbrev','teamAbbreviation','teamCode','teamName','teamAbbrevs'])||'';if(team&&typeof team==='object')team=team.abbrev||team.default||team.en||'';const last5=Array.isArray(p.last5)?p.last5.map(g=>({gameId:g.gameId,date:String(g.date||''),opponent:String(g.opponent||''),homeAway:String(g.homeAway||''),goals:number(g.goals),assists:number(g.assists),shots:number(g.shots),hits:number(g.hits),blocks:number(g.blocks)})).sort((a,b)=>a.date.localeCompare(b.date)).slice(-5):[];return {id:p.id,rosterStatus:p.rosterStatus,name:String(name||'').trim(),pos,team:String(team).trim().toUpperCase(),games:number(pick(stats,['games','gamesPlayed','gp'])),goals:number(pick(stats,['goals','g'])),assists:number(pick(stats,['assists','a'])),shots:number(pick(stats,['shots','shotsOnGoal','sog'])),hits:number(pick(stats,['hits','hitsTotal'])),blocks:number(pick(stats,['blocks','blockedShots','blockedShotAttempts'])),last5};}).filter(p=>p.name&&p.games>0);}
 const calc=(p,w)=>p?.games>0?(p.goals*w.g+p.assists*w.a+p.shots*w.s+p.hits*w.h+p.blocks*w.b)/p.games:null;
@@ -326,8 +330,8 @@ function gameProgress(game,now){
 function makeMatchups(games){
   const matchups=new Map();
   for(const game of games){
-    if(!matchups.has(game.home))matchups.set(game.home,{opponent:game.away,venue:'hemma',start:game.start});
-    if(!matchups.has(game.away))matchups.set(game.away,{opponent:game.home,venue:'borta',start:game.start});
+    if(!matchups.has(game.home))matchups.set(game.home,{opponent:game.away,venue:'hemma',start:game.start,gameId:game.id});
+    if(!matchups.has(game.away))matchups.set(game.away,{opponent:game.home,venue:'borta',start:game.start,gameId:game.id});
   }
   return matchups;
 }
@@ -380,6 +384,7 @@ function renderLineup(){
   results.innerHTML='';
   if(!dates.length){
     activeLineup=null;
+    renderSavedLineupResults();
     status.textContent=!nhl.length?'Väntar på NHL-statistik…':lineupData?'Inga matcher finns i det inlästa NHL-schemat.':'NHL-schemat saknas i den inlästa statistiken.';
     return;
   }
@@ -395,8 +400,8 @@ function renderLineup(){
   const rankedTeams=teamLineupCandidates(matchups);
   const selectedTeam=lineupTeamDrafts.has(key)?lineupTeamDrafts.get(key):saved?.team?.code??rankedTeams[0]?.team.code;
   const teamPick=rankedTeams.find(row=>row.team.code===selectedTeam);
-  const teamEntry=teamPick?{code:teamPick.team.code,name:teamPick.team.name,score:teamPick.score}:
-    saved?.team?.code===selectedTeam?saved.team:null;
+  const teamEntry=teamPick?{code:teamPick.team.code,name:teamPick.team.name,score:teamPick.score,gameId:teamPick.gameId??(saved?.team?.code===teamPick.team.code?saved.team.gameId:null)??null}:
+    saved?.team&&saved.team.code===selectedTeam?saved.team:null;
   const ranked=[];
   for(const player of nhl){
     const game=matchups.get(player.team);
@@ -413,6 +418,7 @@ function renderLineup(){
     return candidate&&fitsSlot(candidate,lineupSlots[i])?candidate:null;
   });
   activeLineup={key,level,entries,picks,rankedById,teamEntry,rankedTeams};
+  renderSavedLineupResults(key);
   const eligible=picks.filter(Boolean);
   const total=eligible.reduce((sum,row)=>sum+row.score,teamPick?.score??0);
   $('lineupSave').disabled=!selected.size&&!teamEntry;
@@ -461,10 +467,14 @@ function saveLineup(){
   if(!activeLineup||(!activeLineup.entries.some(Boolean)&&!activeLineup.teamEntry))return;
   const {key,level,entries,picks,teamEntry}=activeLineup;
   const previous=savedLineups[key]?.slots||[];
-  const slots=entries.map((entry,i)=>entry?{
-    id:String(entry.id),name:entry.name,
-    score:picks[i]?.score??previous.find(row=>String(row?.id)===String(entry.id))?.score??null
-  }:null);
+  const slots=entries.map((entry,i)=>{
+    if(!entry)return null;
+    const old=previous.find(row=>String(row?.id)===String(entry.id));
+    const pick=picks[i];
+    return {id:String(entry.id),name:entry.name,score:pick?.score??old?.score??null,
+      level:pick?level:old?.level??savedLineups[key]?.level??level,
+      gameId:pick?.gameId??old?.gameId??null,team:pick?.player.team??old?.team??null};
+  });
   const updated={...savedLineups,[key]:{level,slots,team:teamEntry}};
   try{
     localStorage.setItem(LINEUP_KEY,JSON.stringify(updated));
@@ -473,7 +483,107 @@ function saveLineup(){
     lineupTeamDrafts.delete(key);
     $('lineupMessage').textContent='Laget är sparat i den här installationen.';
     renderLineup();
+    loadLineupResults();
   }catch(err){$('lineupMessage').textContent='Laget kunde inte sparas: '+err.message;}
+}
+let lineupResultsData=null;
+let lineupResultsRequest=null;
+let lineupResultsCheckedAt=0;
+let lineupResultsError='';
+
+async function loadLineupResults(){
+  const season=$('season').value;
+  if(!Object.keys(savedLineups).some(key=>key.startsWith(season+':')))return;
+  if(lineupResultsRequest?.season===season||lineupResultsData?.season===season&&Date.now()-lineupResultsCheckedAt<60000)return;
+  const request={season};
+  lineupResultsRequest=request;
+  lineupResultsError='';
+  try{
+    const res=await fetch('data/nhl-results-'+season+'.json?ts='+Date.now(),{cache:'no-store'});
+    if(!res.ok)throw Error('HTTP '+res.status);
+    const data=await res.json();
+    if(data.season!==season||!data.games||typeof data.games!=='object'||Array.isArray(data.games)){
+      throw Error('Felaktigt matchutfall');
+    }
+    if(lineupResultsRequest!==request)return;
+    lineupResultsData=data;
+    lineupResultsCheckedAt=Date.now();
+  }catch(err){
+    if(lineupResultsRequest!==request)return;
+    lineupResultsError='Matchutfallet kunde inte läsas in. Öppna Lagbygge igen för att försöka på nytt.';
+    console.warn('Matchutfall kunde inte läsas',err);
+  }finally{
+    if(lineupResultsRequest===request){
+      lineupResultsRequest=null;
+      renderSavedLineupResults(activeLineup?.key);
+    }
+  }
+}
+const finiteStats=(values,size)=>Array.isArray(values)&&values.length===size&&values.every(Number.isFinite);
+function resultGame(entry,date,games,isTeam){
+  if(entry.gameId!=null)return games[String(entry.gameId)];
+  const sameDay=Object.values(games).filter(game=>game.date===date);
+  const code=isTeam?entry.code:entry.team;
+  if(code){
+    const matches=sameDay.filter(game=>Object.hasOwn(game.teams,code));
+    return matches.length===1?matches[0]:undefined;
+  }
+  const appearances=sameDay.filter(game=>Object.hasOwn(game.skaters??{},String(entry.id)));
+  return appearances.length===1?appearances[0]:undefined;
+}
+function savedSkaterResult(entry,date,games,weights){
+  const game=resultGame(entry,date,games,false);
+  if(!game)return {actual:null,status:'Väntar på verifierat matchutfall'};
+  const row=game.skaters?.[String(entry.id)];
+  if(finiteStats(row,5)){
+    const [goals,assists,shots,hits,blocks]=row;
+    return {actual:gameFpts({goals,assists,shots,hits,blocks},weights),status:''};
+  }
+  if(game.skaters&&entry.team&&Object.hasOwn(game.teams,entry.team)&&row===undefined){
+    return {actual:0,status:'Spelade inte i den sparade matchen'};
+  }
+  return {actual:null,status:'Saknar komplett spelarstatistik'};
+}
+function savedTeamResult(entry,date,games){
+  const game=resultGame(entry,date,games,true);
+  const row=game?.teams?.[entry.code];
+  if(!finiteStats(row,6))return {actual:null,status:'Väntar på verifierat matchutfall'};
+  const [win,ppg,shg,against,shutout,saves]=row;
+  return {actual:teamCardScore({win,ppg,shg,against,shutout,saves}),status:''};
+}
+function renderSavedLineupResults(key){
+  const panel=$('savedLineupResults'),target=$('savedLineupOutcome');
+  const saved=savedLineups[key];
+  panel.hidden=!saved;
+  target.innerHTML='';
+  if(!saved)return;
+  const [season,date]=key.split(':');
+  const games=lineupResultsData?.season===season?lineupResultsData.games:{};
+  const weights=levelWeights[saved.level]||levelWeights.gold;
+  const rows=saved.slots.flatMap((entry,i)=>entry?[{
+    name:entry.name,slot:lineupSlots[i],expected:entry.score,...savedSkaterResult(entry,date,games,levelWeights[entry.level]||weights)
+  }]:[]);
+  if(saved.team)rows.push({name:saved.team.name,slot:'Lagkort',expected:saved.team.score,...savedTeamResult(saved.team,date,games)});
+  const confirmed=rows.filter(row=>Number.isFinite(row.actual)).length;
+  const total=rows.every(row=>Number.isFinite(row.expected))?rows.reduce((sum,row)=>sum+row.expected,0):null;
+  const actual=rows.length&&confirmed===rows.length?rows.reduce((sum,row)=>sum+row.actual,0):null;
+  const difference=(expected,observed)=>{
+    if(!Number.isFinite(expected)||!Number.isFinite(observed))return '–';
+    const delta=observed-expected;
+    return Math.abs(delta)<0.05?'0':(delta>0?'+':'')+fmt(delta);
+  };
+  const updated=Date.parse(lineupResultsData?.season===season?lineupResultsData.updated:'');
+  target.innerHTML=`<p class="note">${confirmed} av ${rows.length} utfall bekräftade${Number.isFinite(updated)?' · Uppdaterat '+esc(lineupClock.format(new Date(updated))):''}.</p>
+    ${lineupResultsError?`<p class="note">${esc(lineupResultsError)}</p>`:''}
+    <details ${confirmed?'open':''}><summary>Prognos och utfall i FPTS</summary>
+    <div class="scout-compare-scroll" tabindex="0" role="region" aria-label="Prognos och utfall">
+      <table class="scout-compare">
+        <thead><tr><th scope="col">Kort</th><th scope="col">Prognos</th><th scope="col">Utfall</th><th scope="col">Skillnad</th></tr></thead>
+        <tbody>${rows.map(row=>`<tr><th scope="row">${esc(row.slot)} · ${esc(row.name)}${row.status?`<div class="muted">${esc(row.status)}</div>`:''}</th>
+          <td>${fmt(row.expected)}</td><td>${fmt(row.actual)}</td><td>${difference(row.expected,row.actual)}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><th scope="row">Totalt FPTS</th><td>${fmt(total)}</td><td>${fmt(actual)}</td><td>${difference(total,actual)}</td></tr></tfoot>
+      </table>
+    </div></details>`;
 }
 function parseWatchlist(rows){
   if(!Array.isArray(rows)||rows.some(row=>!row||!/^[1-9][0-9]*$/.test(String(row.id))||

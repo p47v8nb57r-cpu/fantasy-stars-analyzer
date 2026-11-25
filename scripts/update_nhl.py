@@ -8,7 +8,7 @@ import time
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "data"
@@ -477,7 +477,7 @@ def get_lineup_data(season, standings):
             start = game.get("startTimeUTC")
             if home and away and start and day.get("date"):
                 games.append({
-                    "date": day["date"], "start": start, "home": home, "away": away,
+                    "id": game.get("id"), "date": day["date"], "start": start, "home": home, "away": away,
                     "state": game.get("gameState", ""),
                 })
 
@@ -531,6 +531,7 @@ def get_team_cards(season):
         totals["against"] += row["goalsAgainst"]
 
     teams = {}
+    outcomes = {}
     for game, sides in by_game.items():
         if len(sides) != 2:
             raise ValueError(f"Missing opposing team in game {game}")
@@ -542,14 +543,17 @@ def get_team_cards(season):
             if not code or key not in pp or key not in pk or our_goalies is None or their_goalies is None:
                 raise ValueError(f"Incomplete team or goalie reports for {code} in game {game}")
             team = teams.setdefault(code, {"code": code, "name": row["teamFullName"], "results": []})
-            team["results"].append({
+            result = {
                 "date": row["gameDate"], "game": game, "win": row["wins"],
                 "ppg": pp[key]["powerPlayGoalsFor"], "shg": pk[key]["shGoalsFor"],
                 "against": our_goalies["against"], "shutout": row["teamShutouts"],
                 "saves": our_goalies["saves"], "shotsFor": row["shotsForPerGame"],
                 "goalsFor": their_goalies["against"], "ppAgainst": pk[key]["ppGoalsAgainst"],
                 "shAgainst": pp[key]["shGoalsAgainst"], "scoreless": opponent["teamShutouts"],
-            })
+            }
+            team["results"].append(result)
+            outcome = outcomes.setdefault(str(game), {"date": row["gameDate"], "teams": {}})
+            outcome["teams"][code] = [result[key] for key in ("win", "ppg", "shg", "against", "shutout", "saves")]
 
     team_cards = []
     for team in teams.values():
@@ -562,7 +566,68 @@ def get_team_cards(season):
         team["last5"] = games[-FORM_LIMIT:]
         team_cards.append(team)
     print(f"Team cards: {len(team_cards)} teams, {len(by_game)} completed games", flush=True)
-    return sorted(team_cards, key=lambda team: team["code"])
+    return sorted(team_cards, key=lambda team: team["code"]), outcomes
+
+
+def get_result_skaters(game_id, season, team_codes):
+    payload = fetch_json(f"{WEB_BASE}/gamecenter/{game_id}/boxscore")
+    if (
+        str(payload.get("id")) != game_id
+        or str(payload.get("season")) != season
+        or payload.get("gameType") != 2
+        or payload.get("gameState") not in ("FINAL", "OFF")
+    ):
+        raise ValueError(f"No final boxscore for game {game_id}")
+    skaters = {}
+    codes = set()
+    for side, groups in payload["playerByGameStats"].items():
+        code = payload[side]["abbrev"]
+        codes.add(code)
+        players = groups["forwards"] + groups["defense"]
+        if not players:
+            raise ValueError(f"No skater rows for {code} in game {game_id}")
+        for player in players:
+            pid = str(player["playerId"])
+            values = [player[field] for field in ("goals", "assists", "sog", "hits", "blockedShots")]
+            if not pid.isdigit() or pid in skaters or any(type(value) is not int or value < 0 for value in values):
+                raise ValueError(f"Incomplete skater statistics for {pid} in game {game_id}")
+            skaters[pid] = values
+    if codes != set(team_codes):
+        raise ValueError(f"Team mismatch in game {game_id}")
+    return skaters
+
+
+def write_round_results(season, games):
+    path = OUT / f"nhl-results-{season}.json"
+    old = json.loads(path.read_text(encoding="utf-8")).get("games", {}) if path.exists() else {}
+    refresh_since = (datetime.now(timezone.utc).date() - timedelta(days=3)).isoformat()
+    results = dict(old)
+
+    def complete_game(game_id, entry):
+        previous = old.get(game_id, {}).get("skaters")
+        if previous and entry["date"] < refresh_since:
+            return game_id, {**entry, "skaters": previous}
+        try:
+            return game_id, {**entry, "skaters": get_result_skaters(game_id, season, entry["teams"])}
+        except (KeyError, TypeError, RuntimeError, ValueError) as exc:
+            print(f"::warning::Skater outcome unavailable for {game_id}: {exc}", flush=True)
+            return game_id, {**entry, "skaters": previous} if previous else None
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        for game_id, entry in pool.map(lambda item: complete_game(*item), games.items()):
+            if entry is not None:
+                results[game_id] = entry
+    output = {"season": season, "updated": datetime.now(timezone.utc).isoformat(), "games": results}
+    temp = path.with_suffix(".tmp")
+    temp.write_text(json.dumps(output, separators=(",", ":")), encoding="utf-8")
+    temp.replace(path)
+    print(f"Round results: {len(results)} games, {sum('skaters' in row for row in results.values())} with skaters", flush=True)
+
+
+def refresh_team_cards(season):
+    cards, results = get_team_cards(season)
+    write_round_results(season, results)
+    return cards
 
 
 def normalize(season):
@@ -704,7 +769,7 @@ def normalize(season):
 
     for field, fetch in (
         ("lineup", lambda: get_lineup_data(season, standings)),
-        ("teamCards", lambda: get_team_cards(season)),
+        ("teamCards", lambda: refresh_team_cards(season)),
     ):
         try:
             result[field] = fetch()

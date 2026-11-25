@@ -46,6 +46,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/nhl-20262027.json data/nhl-20252026.json assets/players/portraits.json assets/players/*.png
+          if test -f data/nhl-results-20262027.json; then git add data/nhl-results-20262027.json; fi
           if ! git diff --cached --quiet; then
             git commit -m "Update NHL statistics"
             for delay in 2 5 10; do
@@ -78,22 +79,29 @@ jobs:
           from urllib.request import Request, urlopen
 
           owner, repo = os.environ["GITHUB_REPOSITORY"].lower().split("/", 1)
-          path = Path("data/nhl-20262027.json")
-          expected = datetime.fromisoformat(json.loads(path.read_text())["updated"])
+          paths = (Path("data/nhl-20262027.json"), Path("data/nhl-results-20262027.json"))
+          pending = {
+              path: datetime.fromisoformat(json.loads(path.read_text())["updated"])
+              for path in paths if path.exists()
+          }
           for attempt in range(30):
-              url = f"https://{owner}.github.io/{repo}/{path}?check={time.time_ns()}"
-              try:
-                  request = Request(url, headers={"Cache-Control": "no-cache"})
-                  with urlopen(request, timeout=10) as response:
-                      published = datetime.fromisoformat(json.load(response)["updated"])
-                  if published >= expected:
-                      print(f"GitHub Pages serves NHL statistics from {published.isoformat()}")
-                      break
-                  print(f"Waiting for GitHub Pages: {published.isoformat()}", flush=True)
-              except (OSError, ValueError, KeyError) as error:
-                  print(f"Waiting for GitHub Pages: {error}", flush=True)
+              for path, expected in list(pending.items()):
+                  url = f"https://{owner}.github.io/{repo}/{path}?check={time.time_ns()}"
+                  try:
+                      request = Request(url, headers={"Cache-Control": "no-cache"})
+                      with urlopen(request, timeout=10) as response:
+                          published = datetime.fromisoformat(json.load(response)["updated"])
+                      if published >= expected:
+                          print(f"GitHub Pages serves {path} from {published.isoformat()}")
+                          del pending[path]
+                      else:
+                          print(f"Waiting for {path}: {published.isoformat()}", flush=True)
+                  except (OSError, ValueError, KeyError) as error:
+                      print(f"Waiting for {path}: {error}", flush=True)
+              if not pending:
+                  break
               if attempt < 29:
                   time.sleep(10)
           else:
-              raise SystemExit(f"GitHub Pages has not published statistics from {expected.isoformat()}")
+              raise SystemExit(f"GitHub Pages has not published {', '.join(map(str, pending))}")
           PY
