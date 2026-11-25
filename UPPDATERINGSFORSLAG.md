@@ -18,3 +18,11 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 
 - [x] **Jämför spelare sida vid sida.** Jämför två eller tre spelare från Scout på samma träningsnivå. Visa säsongssnitt, senaste form, Fantasy Stars-position och nästa motståndare där uppgifterna finns.
 - [x] **Följ spelare i en bevakningslista.** Stjärnmärk spelare direkt i Scout och sortera bevakningslistan efter formlyft eller nästa match. Spara listan tillsammans med kort och positioner i JSON-säkerhetskopian.
+
+## Nästa fem uppdateringar
+
+1. [ ] **Visa utfallet för sparade lag.** Jämför den sparade prognosen med faktiskt utfall efter omgången. Visa skillnaden för varje spelare, lagkortet och hela uppställningen.
+2. [ ] **Lås val i Lagbygge.** Behåll valda spelare eller lagkort och räkna om de övriga platserna. Kontrollera Fantasy Stars-positioner och uteslut dubbletter.
+3. [ ] **Visa spelstatus inför match.** Markera bekräftad frånvaro och osäker spelstatus när det finns en verifierad källa. Visa statusen i Lagbygge så att en ersättare kan väljas inför matchstart.
+4. [ ] **Visa tre kommande matcher i Bevakning.** Visa motståndare och matchtid för varje bevakad spelare, så att spelare med liknande form kan jämföras över flera omgångar.
+5. [ ] **Ta med sparade lag i JSON-säkerhetskopian.** Exportera och återställ sparade uppställningar tillsammans med kort, manuella positioner och bevakning. Förhandsgranska vilka sparade lag som påverkas vid import.
