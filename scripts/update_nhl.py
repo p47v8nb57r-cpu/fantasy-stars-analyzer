@@ -462,14 +462,17 @@ def get_lineup_data(season, standings):
             if (
                 str(game.get("season")) != season
                 or game.get("gameType") != 2
-                or game.get("gameState") not in ("FUT", "PRE")
+                or game.get("gameScheduleState") in ("PPD", "CNCL")
             ):
                 continue
             home = localized(game.get("homeTeam", {}).get("abbrev"))
             away = localized(game.get("awayTeam", {}).get("abbrev"))
             start = game.get("startTimeUTC")
             if home and away and start and day.get("date"):
-                games.append({"date": day["date"], "start": start, "home": home, "away": away})
+                games.append({
+                    "date": day["date"], "start": start, "home": home, "away": away,
+                    "state": game.get("gameState", ""),
+                })
 
     defense = {}
     total_games = 0
@@ -486,6 +489,7 @@ def get_lineup_data(season, standings):
             total_goals += allowed
 
     return {
+        "updated": datetime.now(timezone.utc).isoformat(),
         "games": games,
         "goalsAgainstPerGame": defense,
         "leagueGoalsAgainstPerGame": total_goals / total_games if total_games else None,

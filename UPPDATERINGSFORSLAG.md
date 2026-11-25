@@ -9,10 +9,10 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 
 ## P2 Förbättra Lagbygge
 
-- [ ] **Gör det tydligt vilken omgång som föreslås.** Visa antal matcher per omgång, första matchstart i svensk tid och när schemat uppdaterades. Visa vilka matcher som redan har startat om den valda omgången är i gång.
-- [ ] **Visa hur varje prognos räknas fram.** Visa säsongssnitt, formsnitt, antal kompletta matcher och motståndarjustering bredvid den beräknade poängen. Användaren ska kunna se varför en spelare rankas högre än en annan.
-- [ ] **Visa ersättare per position.** Låt användaren se de tre högst rankade tillgängliga ersättarna för en plats. När en spelare byts ut ska laget behålla rätt positioner, räkna om totalprognosen och undvika dubbletter.
-- [ ] **Spara en uppställning för en omgång.** Låt användaren spara ett förslag och öppna det igen med samma spelare. Visa en markering om någon spelare senare saknar en kommande match eller om prognosen har ändrats sedan laget sparades.
+- [x] **Gör det tydligt vilken omgång som föreslås.** Visa antal matcher per omgång, första matchstart i svensk tid och när schemat uppdaterades. Visa vilka matcher som redan har startat om den valda omgången är i gång.
+- [x] **Visa hur varje prognos räknas fram.** Visa säsongssnitt, formsnitt, antal kompletta matcher och motståndarjustering bredvid den beräknade poängen. Användaren ska kunna se varför en spelare rankas högre än en annan.
+- [x] **Visa ersättare per position.** Låt användaren se de tre högst rankade tillgängliga ersättarna för en plats. När en spelare byts ut ska laget behålla rätt positioner, räkna om totalprognosen och undvika dubbletter.
+- [x] **Spara en uppställning för en omgång.** Låt användaren spara ett förslag och öppna det igen med samma spelare. Visa en markering om någon spelare senare saknar en kommande match eller om prognosen har ändrats sedan laget sparades.
 
 ## P3 Underlätta scouting
 
