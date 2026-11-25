@@ -26,7 +26,18 @@
 <p id="lineupStatus" class="note" role="status"></p><div id="lineupResults"></div>
 <details><summary>Så beräknas förslaget</summary><p class="note">Förslaget utgår från alla spelare i appen som har match i den valda omgången. Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Dina manuella Fantasy Stars-positioner och sparade kortpositioner styr lagplatserna. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
 </section></div>
-<div id="view-more" class="app-view" data-view="more"><section class="panel"><button id="refreshAppVersion" type="button">Ladda om appen</button><div class="section-line"></div><h2>💾 Säkerhetskopia</h2><p class="note">Exportera kort och manuella positioner innan du rensar Safari eller byter telefon. Gamla säkerhetskopior med enbart kort går också att importera.</p><button id="export">Exportera JSON</button><label>Importera JSON<input id="import" type="file" accept=".json,application/json"></label><div class="section-line"></div><h2>🎯 Manuella positioner</h2><p class="note">Positionerna sparas lokalt på den här enheten och används i alla flikar. De överlever NHL-uppdateringar, men inte om webbläsarens webbplatsdata raderas.</p><div id="overrideList"></div></section></div>
+<div id="view-more" class="app-view" data-view="more"><section class="panel"><button id="refreshAppVersion" type="button">Ladda om appen</button><div class="section-line"></div><h2>💾 Säkerhetskopia</h2>
+<p class="note"><strong>Den här installationen:</strong> <span id="backupCardCount"></span><br><strong>Senaste export:</strong> <span id="backupLastExport"></span></p>
+<p class="note">Vid byte av hemskärmsikon, exportera från den gamla appen och öppna JSON-filen med Importera i den nya. Behåll den gamla ikonen tills den nya visar rätt samling.</p>
+<button id="export" type="button">Exportera JSON</button>
+<label for="import">Importera JSON</label><input id="import" type="file" accept=".json,application/json">
+<p class="note" id="backupStatus" role="status"></p>
+<section class="form-player" id="backupPreview" tabindex="-1" aria-labelledby="backupPreviewTitle" hidden>
+  <h3 id="backupPreviewTitle">Förhandsgranska import</h3>
+  <p id="backupPreviewCounts"></p><p class="note" id="backupPreviewMerge"></p>
+  <div id="backupConflicts"></div><p class="note">Manuella positioner används före positionen på kortet.</p>
+  <div class="actions"><button type="button" id="backupMerge" class="primary">Slå ihop</button><button type="button" id="backupReplace">Ersätt samlingen</button><button type="button" id="backupCancel">Avbryt</button></div>
+</section><div class="section-line"></div><h2>🎯 Manuella positioner</h2><p class="note">Positionerna sparas lokalt på den här enheten och används i alla flikar. De överlever NHL-uppdateringar, men inte om webbläsarens webbplatsdata raderas.</p><div id="overrideList"></div></section></div>
 <p class="note foot">NHL-statistik från GitHub. Beräknade FPTS är simuleringar och ska inte förväxlas med Fantasy Stars officiella kortprognoser.</p></main>
 <nav class="bottom-nav" aria-label="Appens huvudmeny"><button type="button" data-view-target="top" class="selected" aria-current="page"><span class="nav-icon">🏆</span>Top 50</button><button type="button" data-view-target="scout"><span class="nav-icon">🔎</span>Scout</button><button type="button" data-view-target="form"><span class="nav-icon">📈</span>Form</button><button type="button" data-view-target="cards"><span class="nav-icon">🃏</span>Mina kort</button><button type="button" data-view-target="lineup"><span class="nav-icon">🏒</span>Lagbygge</button><button type="button" data-view-target="more"><span class="nav-icon">☰</span>Mer</button></nav>
 <dialog id="portraitDialog" class="portrait-dialog" aria-labelledby="portraitTitle">
@@ -38,12 +49,14 @@
 const $=id=>document.getElementById(id);
 const KEY='fantasy-stars-analyzer-v2'; // Viktigt: oförändrad lagringsnyckel för befintliga kort
 const POS_KEY='fantasy-stars-analyzer-position-overrides-v1';
+const BACKUP_EXPORT_KEY='fantasy-stars-last-backup-export-v1';
 const POSITIONS=['LW','RW','C','D'];
 const seed=[{name:'Brady Tkachuk',pos:'LW',team:'OTT',fpts:39.9,owned:true,level:'Full guld'},{name:'Cutter Gauthier',pos:'LW',team:'ANA',fpts:33.4,owned:true,level:'Full guld'}];
 let nhlUpdated='';
 let lineupData=null;
 let portraitIds=new Set();
-let cards=seed.map(c=>({...c,sample:true})),overrides={},nhl=[],position='ALL',topPosition='ALL',limit=40,editing=-1;
+const sampleCards=()=>seed.map(card=>({...card,sample:true}));
+let cards=sampleCards(),overrides={},nhl=[],position='ALL',topPosition='ALL',limit=40,editing=-1;
 try{const saved=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(saved))cards=saved;}catch(e){console.warn('Kort kunde inte läsas',e);}
 function readPositions(raw){
   const saved=JSON.parse(raw);
@@ -137,14 +150,14 @@ function resetPosition(key){
 function positionBadge(p){return isOverridden(p)?'<span class="position-note">✏️ Fantasy Stars-position</span>':'';}
 function positionEditor(p){const actual=effectivePosition(p),original=p.pos||'Okänd';return `<div class="position-editor"><strong>🎯 Fantasy Stars-position</strong><div class="muted">NHL-position: ${esc(original)} · Analyzer: <strong>${esc(actual||'–')}</strong></div><div class="grid"><div><label for="positionChoice">Välj position</label><select id="positionChoice">${POSITIONS.map(pos=>`<option value="${pos}" ${pos===actual?'selected':''}>${pos}</option>`).join('')}</select></div><div><label>&nbsp;</label><button type="button" class="primary" data-save-position="${esc(p.id)}">Spara position</button></div></div><div class="actions"><button type="button" data-reset-position="${esc(keyOf(p))}" ${actual===original?'disabled':''}>Återställ NHL-position</button></div></div>`;}
 function refreshAll(){render();renderLineup();renderFormLeader();populateFormPlayers($('formPlayer').value);renderCards();renderOverrides();if($('name').value.trim()){const p=editorPlayer();if(p)$('pos').value=effectivePosition(p);} }
-function showView(view){if(!['top','scout','form','cards','lineup','more'].includes(view))view='top';document.querySelectorAll('.app-view').forEach(el=>el.classList.toggle('current',el.dataset.view===view));document.querySelectorAll('[data-view-target]').forEach(b=>{const selected=b.dataset.viewTarget===view;b.classList.toggle('selected',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(view==='cards')renderCards();if(view==='lineup')renderLineup();if(view==='more')renderOverrides();window.scrollTo({top:0,behavior:'instant'});}
+function showView(view){if(!['top','scout','form','cards','lineup','more'].includes(view))view='top';document.querySelectorAll('.app-view').forEach(el=>el.classList.toggle('current',el.dataset.view===view));document.querySelectorAll('[data-view-target]').forEach(b=>{const selected=b.dataset.viewTarget===view;b.classList.toggle('selected',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(view==='cards')renderCards();if(view==='lineup')renderLineup();if(view==='more'){renderOverrides();renderBackupSummary();}window.scrollTo({top:0,behavior:'instant'});}
 document.querySelector('.bottom-nav').addEventListener('click',e=>{const b=e.target.closest('[data-view-target]');if(b)showView(b.dataset.viewTarget);});
 function normalize(raw){const root=Array.isArray(raw)?raw:pick(raw,['players','skaters','data','results','rows']);if(!Array.isArray(root))throw Error('JSON-filen innehåller ingen igenkänd spelarlista.');return root.map(p=>{const stats=p.stats&&typeof p.stats==='object'?p.stats:p;let name=pick(p,['name','playerName','fullName','skaterFullName']);if(name&&typeof name==='object')name=name.default||name.sv||Object.values(name)[0];if(!name){const first=pick(p,['firstName','first_name']),last=pick(p,['lastName','last_name']);name=[typeof first==='object'?first.default:first,typeof last==='object'?last.default:last].filter(Boolean).join(' ');}let pos=String(pick(p,['pos','position','positionCode','positionAbbreviation'])||'').toUpperCase();if(pos==='L')pos='LW';if(pos==='R')pos='RW';let team=pick(p,['team','teamAbbrev','teamAbbreviation','teamCode','teamName','teamAbbrevs'])||'';if(team&&typeof team==='object')team=team.abbrev||team.default||team.en||'';const last5=Array.isArray(p.last5)?p.last5.map(g=>({gameId:g.gameId,date:String(g.date||''),opponent:String(g.opponent||''),homeAway:String(g.homeAway||''),goals:number(g.goals),assists:number(g.assists),shots:number(g.shots),hits:number(g.hits),blocks:number(g.blocks)})).sort((a,b)=>a.date.localeCompare(b.date)).slice(-5):[];return {id:p.id,rosterStatus:p.rosterStatus,name:String(name||'').trim(),pos,team:String(team).trim().toUpperCase(),games:number(pick(stats,['games','gamesPlayed','gp'])),goals:number(pick(stats,['goals','g'])),assists:number(pick(stats,['assists','a'])),shots:number(pick(stats,['shots','shotsOnGoal','sog'])),hits:number(pick(stats,['hits','hitsTotal'])),blocks:number(pick(stats,['blocks','blockedShots','blockedShotAttempts'])),last5};}).filter(p=>p.name&&p.games>0);}
 const calc=(p,w)=>p?.games>0?(p.goals*w.g+p.assists*w.a+p.shots*w.s+p.hits*w.h+p.blocks*w.b)/p.games:null;
 const gameFpts=(g,w)=>g.goals*w.g+g.assists*w.a+g.shots*w.s+g.hits*w.h+g.blocks*w.b;
 const formAverage=(p,w=levelWeights.gold)=>p?.last5?.length?p.last5.reduce((sum,g)=>sum+gameFpts(g,w),0)/p.last5.length:null;
 function cardScore(c){if(c.fpts!==null&&c.fpts!==undefined&&c.fpts!==''){const value=Number(c.fpts);if(Number.isFinite(value))return value;}const p=findNhl(c);return p?calc(p,levelWeights.gold):null;}
-function linkSavedPlayers(){
+function linkSavedPlayers(persist=true){
   let cardsChanged=false,positionsChanged=false;
   for(const c of cards){
     const p=findNhl(c);
@@ -161,8 +174,8 @@ function linkSavedPlayers(){
     delete overrides[key];
     positionsChanged=true;
   }
-  if(cardsChanged&&cards.some(c=>!c.sample))save();
-  if(positionsChanged)savePositions();
+  if(persist&&cardsChanged&&cards.some(c=>!c.sample))save();
+  if(persist&&positionsChanged)savePositions();
 }
 let selectedPlayer=null;
 function editorPlayer(){
@@ -374,9 +387,219 @@ const i=editing>=0?editing:existing;const oldCards=cards.map(c=>({...c})),oldOve
 if(i>=0){cards[i]={...cards[i],...p};delete cards[i].sample;if(p.id==null)delete cards[i].id;}else cards.push(p);
 if(p.id!=null&&legacyKey&&!cards.some(c=>c.id==null&&nameKey(c)===legacyKey))delete overrides[legacyKey];
 const key=keyOf(p);if(nhlPlayer){if(p.pos===nhlPlayer.pos)delete overrides[key];else overrides[key]=p.pos;}else if(POSITIONS.includes(p.pos))overrides[key]=p.pos;try{save();savePositions();}catch(err){cards=oldCards;overrides=oldOverrides;try{save();savePositions();}catch{}alert('Kortet eller positionen kunde inte sparas: '+err.message);return;}clear();refreshAll();$('cardList').scrollIntoView({behavior:'smooth'});});
-function downloadBackup(){const payload={version:'3.7',cards:cards.filter(c=>!c.sample),positionOverrides:overrides};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='fantasy-stars-backup-3.7.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+const backupCardFields={
+  name:'Namn',pos:'Kortposition',fpts:'FPTS/match',owned:'Äger',level:'Träningsnivå',
+  rank:'Ranking',shots:'Skott',hits:'Tacklingar',blocks:'Block',games:'Matcher'
+};
+const personalCards=()=>cards.filter(card=>card?.name&&!card.sample);
+const ownedCount=collection=>collection.filter(card=>card.owned).length;
+const cardCountLabel=collection=>`${collection.length} registrerade · ${ownedCount(collection)} ägda`;
+let pendingBackup=null;
+let backupRequest=0;
+
+function renderBackupSummary(){
+  $('backupCardCount').textContent=cardCountLabel(personalCards());
+  let latest=null;
+  try{latest=localStorage.getItem(BACKUP_EXPORT_KEY);}catch{}
+  const date=new Date(latest??'');
+  $('backupLastExport').textContent=Number.isNaN(date.getTime())?'Ingen export registrerad här':date.toLocaleString('sv-SE');
+}
+function downloadBackup(){
+  const exportedAt=new Date().toISOString();
+  const payload={version:'4.0',exportedAt,cards:personalCards(),positionOverrides:overrides};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;
+  a.download=`fantasy-stars-backup-${exportedAt.slice(0,10)}.json`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  try{localStorage.setItem(BACKUP_EXPORT_KEY,exportedAt);}catch{}
+  renderBackupSummary();
+}
+function parseBackup(raw){
+  const incoming=Array.isArray(raw)?raw:raw?.cards;
+  const positions=Array.isArray(raw)?null:raw?.positionOverrides??null;
+  if(!Array.isArray(incoming)||!incoming.every(card=>card&&typeof card.name==='string'&&card.name.trim()&&
+    POSITIONS.includes(card.pos)&&(card.id==null||/^[1-9][0-9]*$/.test(String(card.id))))){
+    throw Error('Felaktigt kortformat');
+  }
+  if(positions!==null&&(typeof positions!=='object'||Array.isArray(positions)||
+    Object.entries(positions).some(([key,pos])=>!/^(?:nhl:[1-9][0-9]*|[a-z0-9]+)$/.test(key)||!POSITIONS.includes(pos)))){
+    throw Error('Felaktigt positionsformat');
+  }
+  return {cards:incoming.filter(card=>!card.sample),positions};
+}
+function backupIdentity(collection){
+  const nameIds=new Map();
+  for(const row of [...nhl,...collection]){
+    if(row.id==null)continue;
+    const name=nameKey(row);
+    if(!nameIds.has(name))nameIds.set(name,new Set());
+    nameIds.get(name).add(String(row.id));
+  }
+  function legacyKey(name){
+    const ids=nameIds.get(name);
+    if(!ids?.size)return name;
+    return ids.size===1?'nhl:'+ids.values().next().value:null;
+  }
+  return {card:row=>idKey(row)||legacyKey(nameKey(row)),position:key=>key.startsWith('nhl:')?key:legacyKey(key)||key};
+}
+function uniqueCardIndexes(collection,keyFor){
+  const indexes=new Map();
+  for(const [index,card] of collection.entries()){
+    const key=keyFor(card);
+    if(key)indexes.set(key,indexes.has(key)?null:index);
+  }
+  return indexes;
+}
+function positionEntries(positions,keyFor){
+  const result=new Map();
+  for(const [key,pos] of Object.entries(positions??{})){
+    const resolved=keyFor(key);
+    if(key===resolved||!result.has(resolved))result.set(resolved,pos);
+  }
+  return result;
+}
+const fieldValue=(card,key)=>key==='owned'?(card.owned?'Ja':'Nej'):String(card[key]??'').trim();
+const backupState=()=>JSON.stringify([cards,overrides,nhl.length]);
+function storedBackupState(){
+  try{return JSON.stringify([localStorage.getItem(KEY),localStorage.getItem(POS_KEY)]);}
+  catch{return null;}
+}
+function withLinkedId(preferred,other){
+  return preferred.id==null&&other.id!=null?{...preferred,id:other.id}:{...preferred};
+}
+function planBackup(backup){
+  const existing=personalCards(),incoming=backup.cards;
+  const identity=backupIdentity([...existing,...incoming]);
+  const existingKeys=uniqueCardIndexes(existing,identity.card);
+  const incomingKeys=uniqueCardIndexes(incoming,identity.card);
+  const merged=existing.map(card=>({...card}));
+  const cardConflicts=[];
+  let overlap=0;
+  for(const [index,card] of incoming.entries()){
+    const key=identity.card(card),matched=existingKeys.get(key);
+    if(matched==null||incomingKeys.get(key)!==index){merged.push({...card});continue;}
+    overlap++;
+    const current=existing[matched];
+    const fields=Object.keys(backupCardFields).filter(field=>fieldValue(current,field)!==fieldValue(card,field));
+    merged[matched]=withLinkedId(current,card);
+    if(fields.length)cardConflicts.push({index:matched,current,card,fields});
+  }
+
+  const positions=positionEntries(overrides,identity.position);
+  const incomingPositions=positionEntries(backup.positions,identity.position);
+  const positionConflicts=[];
+  for(const [key,value] of incomingPositions){
+    const current=positions.get(key)??existing[existingKeys.get(key)]?.pos;
+    if(current&&current!==value)positionConflicts.push({key,current,value});
+    else positions.set(key,value);
+  }
+  return {backup,existing,merged,overlap,positions,cardConflicts,positionConflicts,state:backupState(),stored:storedBackupState()};
+}
+function renderBackupPreview(){
+  const {backup,existing,merged,overlap,cardConflicts,positionConflicts}=pendingBackup;
+  $('backupPreviewCounts').textContent=`I appen: ${cardCountLabel(existing)}. I filen: ${cardCountLabel(backup.cards)}.`;
+  $('backupPreviewMerge').textContent=`Slå ihop: ${merged.length} kort efter import, varav ${overlap} matchar befintliga kort. Ersätt: ${backup.cards.length} kort efter import.`;
+  $('backupConflicts').innerHTML=cardConflicts.map(({current,card,fields},i)=>`
+    <div class="form-player"><strong>${esc(current.name)}</strong>
+    <ul class="note">${fields.map(key=>`<li>${backupCardFields[key]}: ${esc(fieldValue(current,key)||'–')} i appen · ${esc(fieldValue(card,key)||'–')} i filen</li>`).join('')}</ul>
+    <label for="backupCard${i}">Kortuppgifter vid sammanslagning</label>
+    <select id="backupCard${i}"><option value="current">Behåll appens kortuppgifter</option><option value="incoming">Använd filens kortuppgifter</option></select></div>`
+  ).join('')+positionConflicts.map(({key,current,value},i)=>{
+    const name=(key.startsWith('nhl:')?byId(key.slice(4))?.name:null)||key;
+    return `<div class="form-player"><strong>${esc(name)}</strong>
+      <label for="backupPosition${i}">Manuell position vid sammanslagning</label>
+      <select id="backupPosition${i}"><option value="current">Behåll ${esc(current)} från appen</option><option value="incoming">Använd ${esc(value)} från filen</option></select></div>`;
+  }).join('');
+  $('backupPreview').hidden=false;
+}
+function cancelBackup(){
+  backupRequest++;
+  pendingBackup=null;
+  $('backupPreview').hidden=true;
+}
+function applyBackup(mode){
+  if(!pendingBackup)return;
+  if(pendingBackup.stored!==storedBackupState()){
+    cancelBackup();
+    $('backupStatus').textContent='Samlingen i webbläsaren har ändrats. Ladda om appen och välj filen igen för att importera.';
+    return;
+  }
+  if(pendingBackup.state!==backupState()){
+    pendingBackup=planBackup(pendingBackup.backup);
+    renderBackupPreview();
+    $('backupStatus').textContent='Samlingen ändrades efter förhandsgranskningen. Kontrollera de uppdaterade siffrorna och välj igen.';
+    return;
+  }
+  const {backup,existing,merged,positions,cardConflicts,positionConflicts}=pendingBackup;
+  const replace=mode==='replace';
+  if(replace&&!confirm(`Ersätta de ${existing.length} registrerade korten med ${backup.cards.length} kort från filen? ${backup.positions===null?'Dina manuella positioner behålls.':'Dina manuella positioner ersätts också.'}`))return;
+
+  const nextCards=(replace?backup.cards:merged).map(card=>({...card}));
+  const nextPositions=new Map(replace?Object.entries(backup.positions??overrides):positions);
+  if(!replace){
+    for(const [i,conflict] of cardConflicts.entries()){
+      if($('backupCard'+i).value==='incoming'){
+        nextCards[conflict.index]=withLinkedId(conflict.card,conflict.current);
+      }
+    }
+    for(const [i,conflict] of positionConflicts.entries()){
+      if($('backupPosition'+i).value==='incoming')nextPositions.set(conflict.key,conflict.value);
+    }
+  }
+
+  const previousCards=cards,previousOverrides=overrides;
+  try{
+    const rawCards=localStorage.getItem(KEY),rawPositions=localStorage.getItem(POS_KEY);
+    cards=nextCards;
+    overrides=Object.fromEntries(nextPositions);
+    try{
+      linkSavedPlayers(false);
+      save();
+      savePositions();
+    }catch(err){
+      if(rawCards===null)localStorage.removeItem(KEY);else localStorage.setItem(KEY,rawCards);
+      if(rawPositions===null)localStorage.removeItem(POS_KEY);else localStorage.setItem(POS_KEY,rawPositions);
+      throw err;
+    }
+  }catch(err){
+    cards=previousCards;
+    overrides=previousOverrides;
+    $('backupStatus').textContent='Importen kunde inte sparas: '+err.message;
+    return;
+  }
+  cancelBackup();
+  clear();
+  refreshAll();
+  renderBackupSummary();
+  $('backupStatus').textContent=`Importen är klar. ${cardCountLabel(personalCards())}.`;
+}
 $('export').addEventListener('click',downloadBackup);
-$('import').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text()),importCards=Array.isArray(data)?data:data?.cards,importOverrides=Array.isArray(data)?null:data?.positionOverrides;if(!Array.isArray(importCards)||!importCards.every(p=>p&&typeof p.name==='string'&&POSITIONS.includes(p.pos)&&(p.id==null||/^[1-9][0-9]*$/.test(String(p.id)))))throw Error('Felaktigt kortformat');if(importOverrides!==null&&importOverrides!==undefined&&(typeof importOverrides!=='object'||Array.isArray(importOverrides)||Object.entries(importOverrides).some(([key,pos])=>!(/^(?:nhl:[1-9][0-9]*|[a-z0-9]+)$/.test(key))||!POSITIONS.includes(pos))))throw Error('Felaktigt positionsformat');if(confirm('Ersätta ditt lokala kortregister'+(importOverrides?' och dina manuella positioner':'')+' med filen?')){const oldCards=cards,oldOverrides=overrides;cards=importCards;overrides={...(importOverrides||overrides)};try{linkSavedPlayers();save();savePositions();}catch(err){cards=oldCards;overrides=oldOverrides;try{save();savePositions();}catch{}throw err;}clear();refreshAll();alert('Importen lyckades');}}catch(err){alert('Import misslyckades: '+err.message);}e.target.value='';});
+$('backupCancel').addEventListener('click',cancelBackup);
+$('backupMerge').addEventListener('click',()=>applyBackup('merge'));
+$('backupReplace').addEventListener('click',()=>applyBackup('replace'));
+$('import').addEventListener('change',async e=>{
+  const file=e.target.files[0];
+  e.target.value='';
+  cancelBackup();
+  $('backupStatus').textContent='';
+  if(!file)return;
+  const request=backupRequest;
+  try{
+    const backup=parseBackup(JSON.parse(await file.text()));
+    if(request!==backupRequest)return;
+    const saved=JSON.parse(localStorage.getItem(KEY));
+    if(saved!==null&&!Array.isArray(saved))throw Error('Den sparade samlingen gick inte att läsa');
+    cards=saved??sampleCards();
+    overrides=readPositions(localStorage.getItem(POS_KEY));
+    pendingBackup=planBackup(backup);
+    renderBackupPreview();
+    $('backupPreview').focus();
+  }catch(err){
+    if(request===backupRequest)$('backupStatus').textContent='Import misslyckades: '+err.message;
+  }
+});
 $('topSort').append(...Array.from($('sort').options,option=>option.cloneNode(true)));
 window.addEventListener('storage',e=>{
   if(e.key!==POS_KEY&&e.key!==null)return;
