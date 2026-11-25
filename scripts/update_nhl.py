@@ -7,13 +7,15 @@ import pathlib
 import time
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "data"
 OUT.mkdir(exist_ok=True)
 
-STATS_BASE = "https://api.nhle.com/stats/rest/en/skater/"
+STATS_ROOT = "https://api.nhle.com/stats/rest/en/"
+STATS_BASE = STATS_ROOT + "skater/"
 WEB_BASE = "https://api-web.nhle.com/v1"
 
 HEADERS = {
@@ -62,14 +64,20 @@ def fetch_json(url):
 
 
 def get_report(report, season):
+    rows = get_paged_report("skater/" + report, season, ("playerId",))
+    print(f"{report}: {len(rows)} skaters", flush=True)
+    return rows
+
+
+def get_paged_report(report, season, key_fields, *, games=False):
     filters = {
-        "isAggregate": "true",
-        "isGame": "false",
+        "isAggregate": "false" if games else "true",
+        "isGame": "true" if games else "false",
         "cayenneExp": (
             f"seasonId={season} and gameTypeId=2"
         ),
         "limit": REPORT_PAGE_SIZE,
-        "sort": json.dumps([{"property": "playerId", "direction": "ASC"}]),
+        "sort": json.dumps([{"property": key, "direction": "ASC"} for key in key_fields]),
     }
     rows = []
     seen_ids = set()
@@ -77,7 +85,7 @@ def get_report(report, season):
 
     while total is None or len(rows) < total:
         params = urllib.parse.urlencode({**filters, "start": len(rows)})
-        payload = fetch_json(STATS_BASE + report + "?" + params)
+        payload = fetch_json(STATS_ROOT + report + "?" + params)
         page = payload.get("data")
         reported_total = payload.get("total")
         if (
@@ -92,13 +100,12 @@ def get_report(report, season):
         total = reported_total
 
         for row in page:
-            pid = row.get("playerId")
-            if pid is None or pid in seen_ids:
-                raise ValueError(f"Missing or repeated player ID in {report}: {pid}")
-            seen_ids.add(pid)
+            key = tuple(row.get(field) for field in key_fields)
+            if None in key or key in seen_ids:
+                raise ValueError(f"Missing or repeated row key in {report}: {key}")
+            seen_ids.add(key)
         rows.extend(page)
 
-    print(f"{report}: {len(rows)} skaters", flush=True)
     return rows
 
 
@@ -496,6 +503,68 @@ def get_lineup_data(season, standings):
     }
 
 
+def get_team_cards(season):
+    reports = {
+        "team/summary": ("gameId", "teamId"),
+        "team/powerplay": ("gameId", "teamId"),
+        "team/penaltykill": ("gameId", "teamId"),
+        "goalie/summary": ("gameId", "playerId"),
+    }
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        jobs = {
+            report: pool.submit(get_paged_report, report, season, keys, games=True)
+            for report, keys in reports.items()
+        }
+        rows = {report: job.result() for report, job in jobs.items()}
+
+    key_for = lambda row: (row["gameId"], row["teamId"])
+    pp = {key_for(row): row for row in rows["team/powerplay"]}
+    pk = {key_for(row): row for row in rows["team/penaltykill"]}
+    by_game = {}
+    goalies = {}
+    for row in rows["team/summary"]:
+        by_game.setdefault(row["gameId"], []).append(row)
+    for row in rows["goalie/summary"]:
+        key = (row["gameId"], row.get("teamAbbrev"))
+        totals = goalies.setdefault(key, {"saves": 0, "against": 0})
+        totals["saves"] += row["saves"]
+        totals["against"] += row["goalsAgainst"]
+
+    teams = {}
+    for game, sides in by_game.items():
+        if len(sides) != 2:
+            raise ValueError(f"Missing opposing team in game {game}")
+        for row, opponent in (sides, sides[::-1]):
+            code = opponent["opponentTeamAbbrev"]
+            key = key_for(row)
+            our_goalies = goalies.get((game, code))
+            their_goalies = goalies.get((game, row["opponentTeamAbbrev"]))
+            if not code or key not in pp or key not in pk or our_goalies is None or their_goalies is None:
+                raise ValueError(f"Incomplete team or goalie reports for {code} in game {game}")
+            team = teams.setdefault(code, {"code": code, "name": row["teamFullName"], "results": []})
+            team["results"].append({
+                "date": row["gameDate"], "game": game, "win": row["wins"],
+                "ppg": pp[key]["powerPlayGoalsFor"], "shg": pk[key]["shGoalsFor"],
+                "against": our_goalies["against"], "shutout": row["teamShutouts"],
+                "saves": our_goalies["saves"], "shotsFor": row["shotsForPerGame"],
+                "goalsFor": their_goalies["against"], "ppAgainst": pk[key]["ppGoalsAgainst"],
+                "shAgainst": pp[key]["shGoalsAgainst"], "scoreless": opponent["teamShutouts"],
+            })
+
+    team_cards = []
+    for team in teams.values():
+        games = sorted(team.pop("results"), key=lambda row: (row["date"], row["game"]))
+        team["games"] = len(games)
+        team["season"] = {
+            field: sum(row[field] for row in games) / len(games)
+            for field in games[0] if field not in ("date", "game")
+        }
+        team["last5"] = games[-FORM_LIMIT:]
+        team_cards.append(team)
+    print(f"Team cards: {len(team_cards)} teams, {len(by_game)} completed games", flush=True)
+    return sorted(team_cards, key=lambda team: team["code"])
+
+
 def normalize(season):
     print(
         f"Processing NHL season {season}...",
@@ -633,14 +702,18 @@ def normalize(season):
         OUT / f"nhl-{season}.json"
     )
 
-    try:
-        result["lineup"] = get_lineup_data(season, standings)
-    except (ValueError, RuntimeError) as exc:
-        print(f"::warning::Could not refresh lineup data: {exc}", flush=True)
-        if target.exists():
-            previous = json.loads(target.read_text(encoding="utf-8"))
-            if "lineup" in previous:
-                result["lineup"] = previous["lineup"]
+    for field, fetch in (
+        ("lineup", lambda: get_lineup_data(season, standings)),
+        ("teamCards", lambda: get_team_cards(season)),
+    ):
+        try:
+            result[field] = fetch()
+        except (ValueError, RuntimeError, KeyError, TypeError) as exc:
+            print(f"::warning::Could not refresh {field}: {exc}", flush=True)
+            if target.exists():
+                previous = json.loads(target.read_text(encoding="utf-8"))
+                if field in previous:
+                    result[field] = previous[field]
 
     temp = target.with_suffix(
         ".tmp"
