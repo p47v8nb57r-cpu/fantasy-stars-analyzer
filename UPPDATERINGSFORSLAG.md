@@ -16,5 +16,5 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 
 ## P3 Underlätta scouting
 
-- [ ] **Jämför spelare sida vid sida.** Jämför två eller tre spelare från Scout på samma träningsnivå. Visa säsongssnitt, senaste form, Fantasy Stars-position och nästa motståndare där uppgifterna finns.
-- [ ] **Följ spelare i en bevakningslista.** Stjärnmärk spelare direkt i Scout och sortera bevakningslistan efter formlyft eller nästa match. Spara listan tillsammans med kort och positioner i JSON-säkerhetskopian.
+- [x] **Jämför spelare sida vid sida.** Jämför två eller tre spelare från Scout på samma träningsnivå. Visa säsongssnitt, senaste form, Fantasy Stars-position och nästa motståndare där uppgifterna finns.
+- [x] **Följ spelare i en bevakningslista.** Stjärnmärk spelare direkt i Scout och sortera bevakningslistan efter formlyft eller nästa match. Spara listan tillsammans med kort och positioner i JSON-säkerhetskopian.

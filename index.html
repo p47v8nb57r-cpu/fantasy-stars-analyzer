@@ -12,10 +12,25 @@
 .portrait-dialog h2{margin:0}
 .portrait-dialog img{display:block;width:100%;height:auto;margin-top:12px;border-radius:12px;background:#222d4a}
 #lineupActions[hidden]{display:none}
+.scout-compare-scroll{overflow-x:auto;margin-top:10px}
+.scout-compare{width:100%;min-width:340px;border-collapse:collapse;font-size:.86rem}
+.scout-compare th,.scout-compare td{padding:8px;text-align:left;vertical-align:top;border-bottom:1px solid #354060;overflow-wrap:anywhere}
+.scout-compare thead th{color:#fff}
+.scout-tools details{margin-top:10px}
+.scout-compare-hint{display:none}
+@media(max-width:480px){.scout-compare-hint{display:block}}
 </style></head><body>
 <header><h1>🏒 Fantasy Stars Analyzer 4.0</h1><p>Top 50 · Scout · Formkurvor · Mina kort · Lagbygge</p><button id="appUpdateNotice" type="button" hidden>Uppdatera appen</button></header><main class="wrap">
 <div id="view-top" class="app-view current" data-view="top"><section class="panel"><div class="top-head"><h2>🏆 Top 50 Fantasy Stars</h2><span class="pill">4.0</span></div><p class="note">Visar upp till 50 spelare enligt vald sortering. Manuella Fantasy Stars-positioner används i filtreringen.</p><div class="tabs" id="topTabs"></div><div class="grid"><div><label for="topSort">Sortera efter</label><select id="topSort"><option value="level">FPTS/match, vald träningsnivå</option><option value="form">Form, senaste 5</option></select></div><div><label for="topLevel">Träningsnivå</label><select id="topLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select></div><div><label for="topMin">Minst antal matcher</label><select id="topMin"><option value="0">Alla spelare</option><option value="5">5 matcher</option><option value="10" selected>10 matcher</option><option value="20">20 matcher</option><option value="30">30 matcher</option></select></div></div><p class="note" id="topCount">Väntar på NHL-statistik…</p><div id="topResults"></div></section></div>
-<div id="view-scout" class="app-view" data-view="scout"><section class="panel"><h2>🔎 NHL-scout</h2><p class="note">Sök bland spelare som har spelat i NHL den här säsongen. En spelare utanför aktuell NHL-trupp kan fortfarande ha NHL-statistik.</p><div class="grid"><div><label for="season">Säsong</label><select id="season"><option value="20262027">2026/27</option></select></div><div><label for="query">Sök spelare eller lag</label><input id="query" placeholder="Ex. Matt Boldy eller MIN" autocomplete="off"></div></div><p><button id="load" class="primary">Uppdatera spelarlista</button></p><div id="status" class="status" role="status">Läser in NHL-statistik…</div><div class="tabs" id="tabs"></div><div class="grid"><div><label for="sort">Sortera efter</label><select id="sort"><option value="full">FPTS/match, full guld</option><option value="base">FPTS/match, otränad</option><option value="points">Poäng (mål + assist)</option><option value="goals">Mål</option><option value="assists">Assist</option><option value="name">Namn</option><option value="shots">Skott</option><option value="hits">Tacklingar</option><option value="blocks">Täckta skott</option></select></div><div><label for="view">Visa</label><select id="view"><option value="all">Alla NHL-spelare</option><option value="owned">Bara mina kort</option><option value="missing">Spelare jag inte äger</option></select></div></div><p class="note" id="count"></p><div id="results"></div><p><button id="more" class="hide">Visa fler</button></p></section></div>
+<div id="view-scout" class="app-view" data-view="scout"><section class="panel"><h2>🔎 NHL-scout</h2><p class="note">Sök bland spelare som har spelat i NHL den här säsongen. En spelare utanför aktuell NHL-trupp kan fortfarande ha NHL-statistik.</p><div class="grid"><div><label for="season">Säsong</label><select id="season"><option value="20262027">2026/27</option></select></div><div><label for="query">Sök spelare eller lag</label><input id="query" placeholder="Ex. Matt Boldy eller MIN" autocomplete="off"></div></div><p><button id="load" class="primary">Uppdatera spelarlista</button></p><div id="status" class="status" role="status">Läser in NHL-statistik…</div><div class="tabs" id="tabs"></div><div class="grid"><div><label for="sort">Sortera efter</label><select id="sort"><option value="full">FPTS/match, full guld</option><option value="base">FPTS/match, otränad</option><option value="points">Poäng (mål + assist)</option><option value="goals">Mål</option><option value="assists">Assist</option><option value="name">Namn</option><option value="shots">Skott</option><option value="hits">Tacklingar</option><option value="blocks">Täckta skott</option></select></div><div><label for="view">Visa</label><select id="view"><option value="all">Alla NHL-spelare</option><option value="owned">Bara mina kort</option><option value="missing">Spelare jag inte äger</option></select></div></div><section class="form-player scout-tools" aria-labelledby="scoutToolsTitle">
+<h3 id="scoutToolsTitle">Jämför och bevaka</h3>
+<label for="scoutLevel">Träningsnivå för jämförelse och bevakning</label><select id="scoutLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select>
+<details><summary>Jämförelse · <span id="compareCount">0/3</span></summary><div id="scoutComparison"></div></details>
+<details><summary>Bevakningslista · <span id="watchCount">0</span></summary>
+<label for="watchSort">Sortera bevakning efter</label><select id="watchSort"><option value="lift">Störst formlyft</option><option value="next">Nästa match</option></select>
+<div id="scoutWatchlist"></div></details>
+<p class="note" id="scoutToolStatus" role="status"></p></section>
+<p class="note" id="count"></p><div id="results"></div><p><button id="more" class="hide">Visa fler</button></p></section></div>
 <div id="view-form" class="app-view" data-view="form"><section class="panel"><div class="top-head"><h2>📈 NHL-formkurvor</h2><span class="pill">5 senaste</span></div><p class="note">Analysera de fem senaste grundseriematcherna och jämför med säsongssnittet. FPTS är simulerade värden.</p><label for="formSearch">Sök spelare</label><input id="formSearch" placeholder="Ex. Cole Caufield" autocomplete="off"><label for="formPlayer">Välj spelare</label><select id="formPlayer"><option value="">Välj en NHL-spelare</option></select><label for="formLevel">Träningsnivå</label><select id="formLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select><section class="form-player" aria-labelledby="formLeaderTitle"><h3 id="formLeaderTitle">Dagens formledare</h3><div id="formLeader" aria-live="polite"><p class="muted">Väntar på NHL-statistik…</p></div></section><div id="formResults"><p class="muted">Välj en spelare för att visa formkurvan.</p></div></section></div>
 <div id="view-cards" class="app-view" data-view="cards"><section class="panel"><div class="top-head"><div><h2>🃏 Min kortsamling</h2><div class="card-count" id="cardCount">0 kort</div></div><span class="pill">POSITION AUTO · 4.0</span></div><p class="note">Dina befintliga kort behålls. Lag hämtas automatiskt. Manuella Fantasy Stars-positioner används även här.</p><div class="grid"><div><label for="cardPosition">Position</label><select id="cardPosition"><option value="ALL">Alla positioner</option><option value="LW">LW</option><option value="RW">RW</option><option value="C">C</option><option value="D">D</option></select></div><div><label for="cardSort">Sortera kort</label><select id="cardSort"><option value="fpts">FPTS, högst först</option><option value="form">Form, senaste fem</option><option value="points">Poäng (mål + assist)</option><option value="goals">Mål</option><option value="assists">Assist</option><option value="position">Position</option><option value="name">Namn A–Ö</option></select></div></div><div id="cardWelcome" class="form-player" hidden><p>Dina kort sparas i den här webbläsaren. Eventuella startkort är exempel. Har du en tidigare samling kan du importera en JSON-säkerhetskopia.</p><button type="button" id="openCardImport">Importera sparade kort</button></div><div id="cardList"></div><div class="section-line"></div><h2 id="formTitle">➕ Registrera nytt kort</h2><p class="note">Ändrar du positionen här används den i hela Analyzer. Välj ”Återställ NHL-position” i spelarens positionsredigering för att ta bort en manuell ändring.</p><form id="form"><div class="grid"><div class="full"><label for="name">Spelare</label><input id="name" required autocomplete="off"></div><div class="full" id="cardPlayerChoice" hidden><label for="cardPlayerId">Flera NHL-spelare har samma namn</label><select id="cardPlayerId"></select></div><div><label for="pos">Position på Fantasy Stars-kortet</label><select id="pos"><option>LW</option><option>RW</option><option>C</option><option>D</option></select></div><div><label for="team">Lag</label><input id="team" placeholder="Hämtas automatiskt"></div><div><label for="fpts">Kortets FPTS/match (valfritt)</label><input id="fpts" type="number" min="0" step="0.1"></div><div><label for="rank">Ranking</label><input id="rank" type="number" min="1"></div><div><label for="shots">Skott</label><input id="shots" type="number" min="0"></div><div><label for="hits">Tacklingar</label><input id="hits" type="number" min="0"></div><div><label for="blocks">Täckta skott</label><input id="blocks" type="number" min="0"></div><div><label for="games">Matcher</label><input id="games" type="number" min="0"></div><div class="full check"><input id="owned" type="checkbox" checked><label for="owned">Jag äger kortet</label></div><div class="full"><label for="level">Kortnivå / kommentar</label><input id="level" placeholder="Ex. Full guld"></div><div class="full actions"><button class="primary" type="submit">Spara kort</button><button type="button" id="cancel">Avbryt</button></div></div></form></section></div>
 <div id="view-lineup" class="app-view" data-view="lineup"><section class="panel">
@@ -38,7 +53,7 @@
 <p class="note" id="backupStatus" role="status"></p>
 <section class="form-player" id="backupPreview" tabindex="-1" aria-labelledby="backupPreviewTitle" hidden>
   <h3 id="backupPreviewTitle">Förhandsgranska import</h3>
-  <p id="backupPreviewCounts"></p><p class="note" id="backupPreviewMerge"></p>
+  <p id="backupPreviewCounts"></p><p class="note" id="backupPreviewMerge"></p><p class="note" id="backupPreviewWatch"></p>
   <div id="backupConflicts"></div><p class="note">Manuella positioner används före positionen på kortet.</p>
   <div class="actions"><button type="button" id="backupMerge" class="primary">Slå ihop</button><button type="button" id="backupReplace">Ersätt samlingen</button><button type="button" id="backupCancel">Avbryt</button></div>
 </section><div class="section-line"></div><h2>🎯 Manuella positioner</h2><p class="note">Positionerna sparas lokalt på den här enheten och används i alla flikar. De överlever NHL-uppdateringar, men inte om webbläsarens webbplatsdata raderas.</p><div id="overrideList"></div></section></div>
@@ -53,6 +68,10 @@
 const $=id=>document.getElementById(id);
 const KEY='fantasy-stars-analyzer-v2'; // Viktigt: oförändrad lagringsnyckel för befintliga kort
 const POS_KEY='fantasy-stars-analyzer-position-overrides-v1';
+const WATCH_KEY='fantasy-stars-analyzer-watchlist-v1';
+let comparisonIds=[];
+let watchlist=new Map();
+try{watchlist=readWatchlist();}catch(err){console.warn('Bevakningslistan kunde inte läsas',err);}
 const BACKUP_EXPORT_KEY='fantasy-stars-last-backup-export-v1';
 const POSITIONS=['LW','RW','C','D'];
 const seed=[{name:'Brady Tkachuk',pos:'LW',team:'OTT',fpts:39.9,owned:true,level:'Full guld'},{name:'Cutter Gauthier',pos:'LW',team:'ANA',fpts:33.4,owned:true,level:'Full guld'}];
@@ -154,7 +173,7 @@ function resetPosition(key){
 function positionBadge(p){return isOverridden(p)?'<span class="position-note">✏️ Fantasy Stars-position</span>':'';}
 function positionEditor(p){const actual=effectivePosition(p),original=p.pos||'Okänd';return `<div class="position-editor"><strong>🎯 Fantasy Stars-position</strong><div class="muted">NHL-position: ${esc(original)} · Analyzer: <strong>${esc(actual||'–')}</strong></div><div class="grid"><div><label for="positionChoice">Välj position</label><select id="positionChoice">${POSITIONS.map(pos=>`<option value="${pos}" ${pos===actual?'selected':''}>${pos}</option>`).join('')}</select></div><div><label>&nbsp;</label><button type="button" class="primary" data-save-position="${esc(p.id)}">Spara position</button></div></div><div class="actions"><button type="button" data-reset-position="${esc(keyOf(p))}" ${actual===original?'disabled':''}>Återställ NHL-position</button></div></div>`;}
 function refreshAll(){render();renderLineup();renderFormLeader();populateFormPlayers($('formPlayer').value);renderCards();renderOverrides();if($('name').value.trim()){const p=editorPlayer();if(p)$('pos').value=effectivePosition(p);} }
-function showView(view){if(!['top','scout','form','cards','lineup','more'].includes(view))view='top';document.querySelectorAll('.app-view').forEach(el=>el.classList.toggle('current',el.dataset.view===view));document.querySelectorAll('[data-view-target]').forEach(b=>{const selected=b.dataset.viewTarget===view;b.classList.toggle('selected',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(view==='cards')renderCards();if(view==='lineup')renderLineup();if(view==='more'){renderOverrides();renderBackupSummary();}window.scrollTo({top:0,behavior:'instant'});}
+function showView(view){if(!['top','scout','form','cards','lineup','more'].includes(view))view='top';document.querySelectorAll('.app-view').forEach(el=>el.classList.toggle('current',el.dataset.view===view));document.querySelectorAll('[data-view-target]').forEach(b=>{const selected=b.dataset.viewTarget===view;b.classList.toggle('selected',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(view==='scout')renderScoutTools();if(view==='cards')renderCards();if(view==='lineup')renderLineup();if(view==='more'){renderOverrides();renderBackupSummary();}window.scrollTo({top:0,behavior:'instant'});}
 document.querySelector('.bottom-nav').addEventListener('click',e=>{const b=e.target.closest('[data-view-target]');if(b)showView(b.dataset.viewTarget);});
 function normalize(raw){const root=Array.isArray(raw)?raw:pick(raw,['players','skaters','data','results','rows']);if(!Array.isArray(root))throw Error('JSON-filen innehåller ingen igenkänd spelarlista.');return root.map(p=>{const stats=p.stats&&typeof p.stats==='object'?p.stats:p;let name=pick(p,['name','playerName','fullName','skaterFullName']);if(name&&typeof name==='object')name=name.default||name.sv||Object.values(name)[0];if(!name){const first=pick(p,['firstName','first_name']),last=pick(p,['lastName','last_name']);name=[typeof first==='object'?first.default:first,typeof last==='object'?last.default:last].filter(Boolean).join(' ');}let pos=String(pick(p,['pos','position','positionCode','positionAbbreviation'])||'').toUpperCase();if(pos==='L')pos='LW';if(pos==='R')pos='RW';let team=pick(p,['team','teamAbbrev','teamAbbreviation','teamCode','teamName','teamAbbrevs'])||'';if(team&&typeof team==='object')team=team.abbrev||team.default||team.en||'';const last5=Array.isArray(p.last5)?p.last5.map(g=>({gameId:g.gameId,date:String(g.date||''),opponent:String(g.opponent||''),homeAway:String(g.homeAway||''),goals:number(g.goals),assists:number(g.assists),shots:number(g.shots),hits:number(g.hits),blocks:number(g.blocks)})).sort((a,b)=>a.date.localeCompare(b.date)).slice(-5):[];return {id:p.id,rosterStatus:p.rosterStatus,name:String(name||'').trim(),pos,team:String(team).trim().toUpperCase(),games:number(pick(stats,['games','gamesPlayed','gp'])),goals:number(pick(stats,['goals','g'])),assists:number(pick(stats,['assists','a'])),shots:number(pick(stats,['shots','shotsOnGoal','sog'])),hits:number(pick(stats,['hits','hitsTotal'])),blocks:number(pick(stats,['blocks','blockedShots','blockedShotAttempts'])),last5};}).filter(p=>p.name&&p.games>0);}
 const calc=(p,w)=>p?.games>0?(p.goals*w.g+p.assists*w.a+p.shots*w.s+p.hits*w.h+p.blocks*w.b)/p.games:null;
@@ -216,7 +235,7 @@ function comparePlayers(a,b,sort,level){
 }
 const topScoreLabels={points:'Poäng',goals:'Mål',assists:'Assist',shots:'Skott',hits:'Tacklingar',blocks:'Täckta skott'};
 function renderTop(){tabs('topTabs',topPosition);const sort=$('topSort').value,level=levelWeights[$('topLevel').value]||levelWeights.gold,min=Number($('topMin').value);$('topLevel').disabled=!['level','name','form'].includes(sort);const ranked=nhl.filter(p=>(topPosition==='ALL'||effectivePosition(p)===topPosition)&&p.games>=min&&(sort!=='form'||p.last5.length>0)).sort((a,b)=>comparePlayers(a,b,sort,level)).slice(0,50);$('topCount').textContent=nhl.length?`Visar ${ranked.length} spelare · ${topPosition==='ALL'?'Alla positioner':topPosition} · Minst ${min} matcher`:'Väntar på NHL-statistik…';$('topResults').innerHTML=ranked.map((p,i)=>`<div class="player top-player"><div class="rank">${i+1}.</div><div class="details"><div class="player-heading portrait-in-list">${playerPortrait(p)}<div><strong>${esc(p.name)}</strong>${own(p)?'<span class="pill">✓ Mitt kort</span>':''}<div class="muted"><span class="team-pill">${esc(displayTeam(p))}</span> · ${esc(effectivePosition(p))} · ${p.games} matcher</div>${positionBadge(p)}<div class="muted">${p.goals} M · ${p.assists} A · ${p.shots} S · ${p.hits} T · ${p.blocks} B</div></div></div>${playerButtons(p,!!own(p))}</div><div class="score">${fmt(rankingMetric(p,sort==='name'?'level':sort,level))}<small>${sort==='form'?'Form-FPTS/match · '+p.last5.length+'/5':topScoreLabels[sort]||'FPTS/match'}</small></div></div>`).join('')||(nhl.length?'<p class="muted">Inga spelare uppfyller filtret.</p>':'<p class="muted">Topplistan visas när statistiken har lästs in.</p>');}
-function render(){renderTop();tabs('tabs',position);const q=normalizeName($('query').value),view=$('view').value,sort=$('sort').value;const rows=nhl.filter(p=>(position==='ALL'||effectivePosition(p)===position)&&(!q||normalizeName(p.name).includes(q)||normalizeName(displayTeam(p)).includes(q))&&(view==='all'||(view==='owned'?!!own(p):!own(p))));rows.sort((a,b)=>comparePlayers(a,b,sort));$('count').textContent=rows.length+' spelare hittade'+(nhl.length?' av '+nhl.length+' i statistiken':'');$('results').innerHTML=rows.slice(0,limit).map(p=>`<div class="player"><div><div class="player-heading portrait-in-list">${playerPortrait(p)}<div><strong>${esc(p.name)}</strong>${own(p)?'<span class="pill">✓ Mitt kort</span>':''}<div class="muted"><span class="team-pill">${esc(displayTeam(p))}</span> · ${esc(effectivePosition(p))} · ${p.games} matcher</div>${positionBadge(p)}<div class="muted">${p.goals} mål · ${p.assists} assist · ${p.goals+p.assists} poäng · ${p.shots} skott · ${p.hits} tacklingar · ${p.blocks} block</div>${own(p)?.level?`<div class="muted">Mitt kort: ${esc(own(p).level)}</div>`:''}</div></div></div><div><div class="score">${fmt(calc(p,weights))}<small>Sim. FPTS/match</small></div>${playerButtons(p,!!own(p))}</div></div>`).join('')||'<p class="muted">Inga spelare matchar sökningen.</p>';$('more').classList.toggle('hide',rows.length<=limit);}
+function render(){renderTop();tabs('tabs',position);const q=normalizeName($('query').value),view=$('view').value,sort=$('sort').value;const rows=nhl.filter(p=>(position==='ALL'||effectivePosition(p)===position)&&(!q||normalizeName(p.name).includes(q)||normalizeName(displayTeam(p)).includes(q))&&(view==='all'||(view==='owned'?!!own(p):!own(p))));rows.sort((a,b)=>comparePlayers(a,b,sort));$('count').textContent=rows.length+' spelare hittade'+(nhl.length?' av '+nhl.length+' i statistiken':'');$('results').innerHTML=rows.slice(0,limit).map(p=>`<div class="player"><div><div class="player-heading portrait-in-list">${playerPortrait(p)}<div><strong>${esc(p.name)}</strong>${own(p)?'<span class="pill">✓ Mitt kort</span>':''}<div class="muted"><span class="team-pill">${esc(displayTeam(p))}</span> · ${esc(effectivePosition(p))} · ${p.games} matcher</div>${positionBadge(p)}<div class="muted">${p.goals} mål · ${p.assists} assist · ${p.goals+p.assists} poäng · ${p.shots} skott · ${p.hits} tacklingar · ${p.blocks} block</div>${own(p)?.level?`<div class="muted">Mitt kort: ${esc(own(p).level)}</div>`:''}</div></div></div><div><div class="score">${fmt(calc(p,weights))}<small>Sim. FPTS/match</small></div>${scoutPlayerButtons(p,!!own(p))}</div></div>`).join('')||'<p class="muted">Inga spelare matchar sökningen.</p>';$('more').classList.toggle('hide',rows.length<=limit);renderScoutTools();}
 const lineupSlots=['D','D','RW','C','LW','Flex'];
 const lineupClock=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 const LINEUP_KEY='fantasy-stars-saved-lineups-v1';
@@ -390,6 +409,114 @@ function saveLineup(){
     renderLineup();
   }catch(err){$('lineupMessage').textContent='Laget kunde inte sparas: '+err.message;}
 }
+function parseWatchlist(rows){
+  if(!Array.isArray(rows)||rows.some(row=>!row||!/^[1-9][0-9]*$/.test(String(row.id))||
+    typeof row.name!=='string'||!row.name.trim()))throw Error('Felaktigt bevakningsformat');
+  return new Map(rows.map(row=>[String(row.id),{id:String(row.id),name:row.name.trim()}]));
+}
+function readWatchlist(){
+  const raw=localStorage.getItem(WATCH_KEY);
+  return raw===null?new Map():parseWatchlist(JSON.parse(raw));
+}
+function scoutChoiceButton(type,id,active,addText,activeText){
+  return `<button type="button" data-scout-${type}="${esc(id)}" aria-pressed="${active}">${active?activeText:addText}</button>`;
+}
+function scoutPlayerButtons(player,owned){
+  const id=String(player.id);
+  return playerButtons(player,owned)+`<div class="actions">
+    ${scoutChoiceButton('compare',id,comparisonIds.includes(id),'Jämför','Vald för jämförelse')}
+    ${scoutChoiceButton('watch',id,watchlist.has(id),'☆ Bevaka','★ Bevakas')}
+  </div>`;
+}
+function nextScoutGames(){
+  const now=Date.now();
+  return makeMatchups(lineupGames(lineupData).filter(game=>!gameProgress(game,now)));
+}
+function scoutMatchLabel(match){
+  return match?`${match.opponent} · ${match.venue} · ${lineupClock.format(new Date(match.start))} svensk tid`:'Ingen kommande match i schemat';
+}
+function scoutFormLabel(player,weights){
+  const form=formAverage(player,weights);
+  return form===null?'–':`${fmt(form)} · ${player.last5.length}/5 matcher`;
+}
+function renderScoutTools(){
+  const next=nextScoutGames();
+  const weights=levelWeights[$('scoutLevel').value]||levelWeights.gold;
+  if(nhl.length)comparisonIds=comparisonIds.filter(id=>byId(id));
+  $('compareCount').textContent=`${comparisonIds.length}/3`;
+  $('watchCount').textContent=watchlist.size;
+  const compared=comparisonIds.map(byId).filter(Boolean);
+  const names=compared.map(p=>`<th scope="col">${esc(p.name)}</th>`).join('');
+  const metrics=[
+    ['Position',p=>effectivePosition(p)||'–'],
+    ['Lagstatus',displayTeam],
+    ['Säsong, FPTS/match',p=>fmt(calc(p,weights))],
+    ['Form, FPTS/match',p=>scoutFormLabel(p,weights)],
+    ['Nästa match',p=>scoutMatchLabel(next.get(p.team))]
+  ];
+  $('scoutComparison').innerHTML=(compared.length<2?'<p class="note">Välj två eller tre spelare med Jämför i sökresultaten.</p>':'')+
+    (compared.length===3?'<p class="note scout-compare-hint">Svep i tabellen för att se fler kolumner.</p>':'')+
+    (compared.length?`<div class="scout-compare-scroll" tabindex="0" role="region" aria-label="Jämförelsetabell">
+      <table class="scout-compare"><thead><tr><th scope="col">Mått</th>${names}</tr></thead>
+      <tbody>${metrics.map(([label,value])=>`<tr><th scope="row">${label}</th>${compared.map(p=>`<td>${esc(value(p))}</td>`).join('')}</tr>`).join('')}
+      <tr><th scope="row">Val</th>${compared.map(p=>`<td><button type="button" data-scout-compare="${esc(p.id)}">Ta bort</button></td>`).join('')}</tr></tbody></table></div>`:'');
+  const watched=[...watchlist.values()].map(entry=>{
+    const p=byId(entry.id),match=next.get(p?.team);
+    const form=formAverage(p,weights),season=calc(p,weights);
+    const lift=form!==null&&season!==null?form-season:null;
+    return {entry,p,match,lift};
+  });
+  const sort=$('watchSort').value;
+  watched.sort((a,b)=>{
+    const order=sort==='next'
+      ?(Date.parse(a.match?.start)||Infinity)-(Date.parse(b.match?.start)||Infinity)
+      :(b.lift??-Infinity)-(a.lift??-Infinity);
+    return order||(a.p?.name||a.entry.name).localeCompare(b.p?.name||b.entry.name,'sv');
+  });
+  $('scoutWatchlist').innerHTML=watched.length?watched.map(({entry,p,match,lift})=>`
+    <div class="player"><div><strong>${esc(p?.name||entry.name)}</strong>
+    <div class="muted">${p?`${esc(displayTeam(p))} · ${esc(effectivePosition(p)||'–')}`:'Spelaren saknas i säsongsfilen'}</div>
+    <div class="muted">Formlyft: ${lift===null?'–':(lift>0?'+':'')+fmt(lift)+' FPTS/match'} · Form: ${esc(scoutFormLabel(p,weights))}</div>
+    <div class="muted">${esc(scoutMatchLabel(match))}</div>
+    <div class="actions">${p?`<button type="button" data-form="${esc(p.id)}">Visa form</button>`:''}
+    <button type="button" data-scout-watch="${esc(entry.id)}">Ta bort bevakning</button></div></div></div>`
+  ).join(''):'<p class="note">Tryck på Bevaka vid en spelare i Scout för att lägga till den här.</p>';
+}
+function updateScoutChoices(){
+  renderScoutTools();
+  for(const button of $('results').querySelectorAll('[data-scout-compare],[data-scout-watch]')){
+    const compare=button.hasAttribute('data-scout-compare');
+    const active=compare?comparisonIds.includes(button.dataset.scoutCompare):watchlist.has(button.dataset.scoutWatch);
+    button.setAttribute('aria-pressed',String(active));
+    button.textContent=compare?(active?'Vald för jämförelse':'Jämför'):(active?'★ Bevakas':'☆ Bevaka');
+  }
+}
+function handleScoutAction(event){
+  const compare=event.target.closest('[data-scout-compare]');
+  const watch=event.target.closest('[data-scout-watch]');
+  const status=$('scoutToolStatus');
+  if(compare){
+    const id=compare.dataset.scoutCompare;
+    if(comparisonIds.includes(id))comparisonIds=comparisonIds.filter(key=>key!==id);
+    else if(comparisonIds.length===3){status.textContent='Du kan jämföra högst tre spelare. Ta bort en spelare först.';return;}
+    else if(byId(id))comparisonIds.push(id);
+    status.textContent=`${comparisonIds.length} valda för jämförelse.`;
+  }else if(watch){
+    const id=watch.dataset.scoutWatch,p=byId(id);
+    const updated=new Map(watchlist);
+    if(updated.has(id))updated.delete(id);
+    else if(p)updated.set(id,{id,name:p.name});
+    try{
+      localStorage.setItem(WATCH_KEY,JSON.stringify([...updated.values()]));
+      watchlist=updated;
+    }catch(err){status.textContent='Bevakningen kunde inte sparas: '+err.message;return;}
+    status.textContent=watchlist.has(id)?`${p.name} bevakas.`:'Bevakningen togs bort.';
+  }else{
+    handlePlayerAction(event);
+    return;
+  }
+  updateScoutChoices();
+}
 function populateFormPlayers(preferredName){const previous=preferredName||$('formPlayer').value,q=normalizeName($('formSearch').value);const matches=nhl.filter(p=>!q||normalizeName(p.name).includes(q)||normalizeName(displayTeam(p)).includes(q)).sort((a,b)=>a.name.localeCompare(b.name,'sv'));$('formPlayer').innerHTML='<option value="">Välj en NHL-spelare</option>'+matches.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} (${esc(displayTeam(p))} · ${esc(effectivePosition(p))})</option>`).join('');if(matches.some(p=>String(p.id)===String(previous)))$('formPlayer').value=previous;else if(q&&matches.length===1)$('formPlayer').value=matches[0].id;renderForm();}
 function openForm(name){$('formSearch').value='';populateFormPlayers(name);showView('form');}
 function makeChart(games,w,seasonAvg){const values=games.map(g=>gameFpts(g,w)),max=Math.max(10,...values,seasonAvg||0),ceiling=Math.ceil(max/10)*10,left=37,right=315,bottom=170,width=right-left,height=150,x=i=>left+(games.length===1?width/2:i*width/(games.length-1)),y=v=>bottom-v/ceiling*height;const grid=[0,.25,.5,.75,1].map(t=>{const value=ceiling*t,yy=y(value);return `<line x1="${left}" y1="${yy}" x2="${right}" y2="${yy}" stroke="#354060" stroke-dasharray="3 4"/><text x="30" y="${yy+4}" text-anchor="end" font-size="10" fill="#aeb8d5">${fmt(value)}</text>`;}).join(''),points=values.map((v,i)=>`${x(i)},${y(v)}`).join(' '),dots=values.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="5" fill="#b56cf0" stroke="#fff" stroke-width="1.5"/><text x="${x(i)}" y="${Math.max(12,y(v)-11)}" text-anchor="middle" font-size="11" font-weight="bold" fill="#e9d0ff">${fmt(v)}</text><text x="${x(i)}" y="188" text-anchor="middle" font-size="10" fill="#c1c6df">${esc(games[i].date.slice(5))}</text>`).join(''),avgLine=seasonAvg!==null?`<line x1="${left}" y1="${y(seasonAvg)}" x2="${right}" y2="${y(seasonAvg)}" stroke="#f2c66d" stroke-width="2" stroke-dasharray="6 4"/>`:'';return `<div class="chart-wrap"><svg viewBox="0 0 335 215" role="img" aria-label="Formkurva för de senaste ${games.length} matcherna">${grid}${avgLine}<polyline points="${points}" fill="none" stroke="#b56cf0" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${dots}<line x1="45" y1="204" x2="65" y2="204" stroke="#b56cf0" stroke-width="3"/><text x="70" y="208" font-size="10" fill="#c1c6df">Match-FPTS</text><line x1="178" y1="204" x2="198" y2="204" stroke="#f2c66d" stroke-width="2" stroke-dasharray="5 3"/><text x="203" y="208" font-size="10" fill="#c1c6df">Säsongssnitt</text></svg></div>`;}
@@ -453,7 +580,11 @@ function renderOverrides(){const entries=Object.entries(overrides).sort(([a],[b]
 function fill(p){editing=cards.indexOf(p);if(editing<0)editing=cards.findIndex(c=>!c.sample&&cardKey(c)===keyOf(p));const c=editing>=0?cards[editing]:p;selectedPlayer={name:c.name,id:(findNhl(p)||p).id};for(const id of ['name','team','fpts','rank','shots','hits','blocks','games','level'])$(id).value=c[id]??'';populateCardPlayerChoice();$('pos').value=effectivePosition(p)||'LW';$('team').readOnly=false;fillTeamFromNhl();$('owned').checked=editing>=0?!!c.owned:true;$('formTitle').textContent=editing>=0?'✏️ Redigera kort: '+p.name:'➕ Lägg till kort: '+p.name;showView('cards');$('form').scrollIntoView({behavior:'smooth'});}
 function clear(){editing=-1;selectedPlayer=null;$('form').reset();populateCardPlayerChoice();$('team').readOnly=false;$('team').title='';$('owned').checked=true;$('formTitle').textContent='➕ Registrera nytt kort';}
 function handlePlayerAction(e){const formButton=e.target.closest('[data-form]');if(formButton){openForm(formButton.dataset.form);return;}const posButton=e.target.closest('[data-position]');if(posButton){openForm(posButton.dataset.position);document.querySelector('#formResults .position-editor')?.scrollIntoView({block:'start'});return;}const addButton=e.target.closest('[data-add]');if(addButton){const p=byId(addButton.dataset.add);if(p)fill(p);}}
-$('results').addEventListener('click',handlePlayerAction);$('topResults').addEventListener('click',handlePlayerAction);
+$('results').addEventListener('click',handleScoutAction);
+$('scoutComparison').addEventListener('click',handleScoutAction);
+$('scoutWatchlist').addEventListener('click',handleScoutAction);
+$('scoutLevel').addEventListener('change',renderScoutTools);
+$('watchSort').addEventListener('change',renderScoutTools);$('topResults').addEventListener('click',handlePlayerAction);
 document.addEventListener('error',e=>{
   if(!e.target.matches?.('.player-portrait img'))return;
   const link=e.target.parentElement;
@@ -529,7 +660,7 @@ let pendingBackup=null;
 let backupRequest=0;
 
 function renderBackupSummary(){
-  $('backupCardCount').textContent=cardCountLabel(personalCards());
+  $('backupCardCount').textContent=cardCountLabel(personalCards())+' · '+watchlist.size+' bevakade spelare';
   let latest=null;
   try{latest=localStorage.getItem(BACKUP_EXPORT_KEY);}catch{}
   const date=new Date(latest??'');
@@ -537,7 +668,7 @@ function renderBackupSummary(){
 }
 function downloadBackup(){
   const exportedAt=new Date().toISOString();
-  const payload={version:'4.0',exportedAt,cards:personalCards(),positionOverrides:overrides};
+  const payload={version:'4.0',exportedAt,cards:personalCards(),positionOverrides:overrides,watchlist:[...watchlist.values()]};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;
@@ -558,7 +689,8 @@ function parseBackup(raw){
     Object.entries(positions).some(([key,pos])=>!/^(?:nhl:[1-9][0-9]*|[a-z0-9]+)$/.test(key)||!POSITIONS.includes(pos)))){
     throw Error('Felaktigt positionsformat');
   }
-  return {cards:incoming.filter(card=>!card.sample),positions};
+  const watched=Array.isArray(raw)||raw?.watchlist===undefined?null:parseWatchlist(raw.watchlist);
+  return {cards:incoming.filter(card=>!card.sample),positions,watchlist:watched};
 }
 function backupIdentity(collection){
   const nameIds=new Map();
@@ -592,9 +724,9 @@ function positionEntries(positions,keyFor){
   return result;
 }
 const fieldValue=(card,key)=>key==='owned'?(card.owned?'Ja':'Nej'):String(card[key]??'').trim();
-const backupState=()=>JSON.stringify([cards,overrides,nhl.length]);
+const backupState=()=>JSON.stringify([cards,overrides,[...watchlist.values()],nhl.length]);
 function storedBackupState(){
-  try{return JSON.stringify([localStorage.getItem(KEY),localStorage.getItem(POS_KEY)]);}
+  try{return JSON.stringify([localStorage.getItem(KEY),localStorage.getItem(POS_KEY),localStorage.getItem(WATCH_KEY)]);}
   catch{return null;}
 }
 function withLinkedId(preferred,other){
@@ -626,12 +758,14 @@ function planBackup(backup){
     if(current&&current!==value)positionConflicts.push({key,current,value});
     else positions.set(key,value);
   }
-  return {backup,existing,merged,overlap,positions,cardConflicts,positionConflicts,state:backupState(),stored:storedBackupState()};
+  const watched=new Map([...(backup.watchlist??[]),...watchlist]);
+  return {backup,existing,merged,overlap,positions,watched,cardConflicts,positionConflicts,state:backupState(),stored:storedBackupState()};
 }
 function renderBackupPreview(){
-  const {backup,existing,merged,overlap,cardConflicts,positionConflicts}=pendingBackup;
+  const {backup,existing,merged,overlap,watched,cardConflicts,positionConflicts}=pendingBackup;
   $('backupPreviewCounts').textContent=`I appen: ${cardCountLabel(existing)}. I filen: ${cardCountLabel(backup.cards)}.`;
   $('backupPreviewMerge').textContent=`Slå ihop: ${merged.length} kort efter import, varav ${overlap} matchar befintliga kort. Ersätt: ${backup.cards.length} kort efter import.`;
+  $('backupPreviewWatch').textContent=backup.watchlist===null?'Den befintliga bevakningslistan behålls.':`Bevakning: ${watchlist.size} i appen, ${backup.watchlist.size} i filen, ${watched.size} efter sammanslagning.`;
   $('backupConflicts').innerHTML=cardConflicts.map(({current,card,fields},i)=>`
     <div class="form-player"><strong>${esc(current.name)}</strong>
     <ul class="note">${fields.map(key=>`<li>${backupCardFields[key]}: ${esc(fieldValue(current,key)||'–')} i appen · ${esc(fieldValue(card,key)||'–')} i filen</li>`).join('')}</ul>
@@ -663,9 +797,9 @@ function applyBackup(mode){
     $('backupStatus').textContent='Samlingen ändrades efter förhandsgranskningen. Kontrollera de uppdaterade siffrorna och välj igen.';
     return;
   }
-  const {backup,existing,merged,positions,cardConflicts,positionConflicts}=pendingBackup;
+  const {backup,existing,merged,positions,watched,cardConflicts,positionConflicts}=pendingBackup;
   const replace=mode==='replace';
-  if(replace&&!confirm(`Ersätta de ${existing.length} registrerade korten med ${backup.cards.length} kort från filen? ${backup.positions===null?'Dina manuella positioner behålls.':'Dina manuella positioner ersätts också.'}`))return;
+  if(replace&&!confirm(`Ersätta de ${existing.length} registrerade korten med ${backup.cards.length} kort från filen? ${backup.positions===null?'Dina manuella positioner behålls.':'Dina manuella positioner ersätts också.'} ${backup.watchlist===null?'Bevakningslistan behålls.':'Bevakningslistan ersätts också.'}`))return;
 
   const nextCards=(replace?backup.cards:merged).map(card=>({...card}));
   const nextPositions=new Map(replace?Object.entries(backup.positions??overrides):positions);
@@ -680,23 +814,27 @@ function applyBackup(mode){
     }
   }
 
-  const previousCards=cards,previousOverrides=overrides;
+  const previousCards=cards,previousOverrides=overrides,previousWatchlist=watchlist;
   try{
-    const rawCards=localStorage.getItem(KEY),rawPositions=localStorage.getItem(POS_KEY);
+    const rawCards=localStorage.getItem(KEY),rawPositions=localStorage.getItem(POS_KEY),rawWatchlist=localStorage.getItem(WATCH_KEY);
     cards=nextCards;
     overrides=Object.fromEntries(nextPositions);
+    watchlist=replace?(backup.watchlist??watchlist):watched;
     try{
       linkSavedPlayers(false);
       save();
       savePositions();
+      if(watchlist!==previousWatchlist)localStorage.setItem(WATCH_KEY,JSON.stringify([...watchlist.values()]));
     }catch(err){
       if(rawCards===null)localStorage.removeItem(KEY);else localStorage.setItem(KEY,rawCards);
       if(rawPositions===null)localStorage.removeItem(POS_KEY);else localStorage.setItem(POS_KEY,rawPositions);
+      if(rawWatchlist===null)localStorage.removeItem(WATCH_KEY);else localStorage.setItem(WATCH_KEY,rawWatchlist);
       throw err;
     }
   }catch(err){
     cards=previousCards;
     overrides=previousOverrides;
+    watchlist=previousWatchlist;
     $('backupStatus').textContent='Importen kunde inte sparas: '+err.message;
     return;
   }
@@ -724,6 +862,7 @@ $('import').addEventListener('change',async e=>{
     if(saved!==null&&!Array.isArray(saved))throw Error('Den sparade samlingen gick inte att läsa');
     cards=saved??sampleCards();
     overrides=readPositions(localStorage.getItem(POS_KEY));
+    watchlist=readWatchlist();
     pendingBackup=planBackup(backup);
     renderBackupPreview();
     $('backupPreview').focus();
@@ -733,9 +872,12 @@ $('import').addEventListener('change',async e=>{
 });
 $('topSort').append(...Array.from($('sort').options,option=>option.cloneNode(true)));
 window.addEventListener('storage',e=>{
-  if(e.key!==POS_KEY&&e.key!==null)return;
-  try{overrides=readPositions(e.key===null?null:e.newValue);}catch(err){
-    console.warn('Positioner kunde inte läsas',err);
+  if(e.key!==POS_KEY&&e.key!==WATCH_KEY&&e.key!==null)return;
+  try{
+    if(e.key===POS_KEY||e.key===null)overrides=readPositions(e.key===null?null:e.newValue);
+    if(e.key===WATCH_KEY||e.key===null)watchlist=readWatchlist();
+  }catch(err){
+    console.warn('Sparade uppgifter kunde inte läsas',err);
     return;
   }
   refreshAll();
