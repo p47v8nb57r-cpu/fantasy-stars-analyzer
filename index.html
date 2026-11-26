@@ -373,6 +373,44 @@ function pickLineup(ranked,locked=new Map()){
     return lineupEntry(row);
   });
 }
+function alternativeLineup(entries,rankedById,locked){
+  let best=null,bestScore=-Infinity;
+  const ranked=[...rankedById.values()];
+  for(const [index,entry] of entries.entries()){
+    if(!entry||locked.has(index))continue;
+    const alternative=pickLineup(ranked.filter(row=>String(row.player.id)!==entry.id),locked);
+    if(entries.some((previous,i)=>previous&&!alternative[i]))continue;
+    const score=alternative.reduce((sum,row)=>sum+(rankedById.get(row?.id)?.score??0),0);
+    if(score>bestScore){best=alternative;bestScore=score;}
+  }
+  return best;
+}
+function recalculateLineup(){
+  if(!activeLineup)return;
+  const {key,entries,teamEntry,rankedById,rankedTeams,locks}=activeLineup;
+  let next=pickLineup([...rankedById.values()],locks.slots);
+  let team=locks.team?.code??rankedTeams[0]?.team.code;
+  const memberIds=rows=>rows.filter(Boolean).map(row=>String(row.id)).sort().join(',');
+  let message='Övriga platser är omräknade. Dina låsta val är kvar.';
+  if(memberIds(next)===memberIds(entries)){
+    const alternative=alternativeLineup(next,rankedById,locks.slots);
+    if(alternative){
+      next=alternative;
+      message='Ett alternativt förslag visas. Dina låsta val är kvar.';
+    }else{
+      if(!locks.team&&team===teamEntry?.code)team=rankedTeams.find(row=>row.team.code!==team)?.team.code??team;
+      if(team===teamEntry?.code){
+        $('lineupMessage').textContent='Det finns inget annat förslag som kan fylla samma platser med de val som är låsta.';
+        return;
+      }
+      message='Lagkortet ändrades. Det finns inga andra utespelare som fyller samma platser.';
+    }
+  }
+  lineupDrafts.set(key,next);
+  lineupTeamDrafts.set(key,team);
+  $('lineupMessage').textContent=message;
+  renderLineup();
+}
 function lineupLockButton(slot,locked,name){
   return `<button type="button" data-lineup-lock="${slot}" aria-pressed="${Boolean(locked)}" aria-label="${locked?'Lås upp':'Lås'} ${esc(name||'lagkortet')}">${locked?'Lås upp':'Lås'}</button>`;
 }
@@ -841,14 +879,7 @@ for(const id of ['lineupDate','lineupLevel']){
   $(id).addEventListener('change',()=>{$('lineupMessage').textContent='';renderLineup();});
 }
 $('lineupSave').addEventListener('click',saveLineup);
-$('lineupNew').addEventListener('click',()=>{
-  if(!activeLineup)return;
-  const {key,rankedById,rankedTeams,locks}=activeLineup;
-  lineupDrafts.set(key,pickLineup([...rankedById.values()],locks.slots));
-  lineupTeamDrafts.set(key,locks.team?.code??rankedTeams[0]?.team.code);
-  $('lineupMessage').textContent=locks.slots.size||locks.team?'Övriga platser är omräknade. Dina låsta val är kvar.':'Nytt förslag. Spara laget om du vill behålla det.';
-  renderLineup();
-});
+$('lineupNew').addEventListener('click',recalculateLineup);
 $('lineupRestore').addEventListener('click',()=>{
   if(!activeLineup)return;
   const {key}=activeLineup;
