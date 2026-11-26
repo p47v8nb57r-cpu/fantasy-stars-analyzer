@@ -34,7 +34,7 @@ On GitHub, **Uppdatera NHL-statistik** runs twice daily or can be started with *
 
 ## Release checks
 
-For each app release, bump the version in the HTML title, the heading and the Apple web app title in `index.html` (for example, 4.1 → 4.2). Add a release entry with the same version and a short Swedish summary to the `appReleases` JSON block. Keep previous entries so users can see what changed when skipping a version. Automatic NHL data refreshes keep the current app version.
+For each app release, update the version in the HTML title, the heading and the Apple web app title in `index.html`. Use patch versions for smaller updates (4.1.1, 4.1.2, and so on). Ask Mattias for explicit approval before moving to 5.0. Add a release entry with the same version and a short Swedish summary to the `appReleases` JSON block. Keep previous entries so users can see what changed when skipping a version. Automatic NHL data refreshes keep the current app version.
 
 1. Start from an up-to-date copy of GitHub `main`. Review local changes with `git status` and preserve any work in progress before bringing in upstream changes. Commit only the intended release files and publish them to `main`.
 2. Wait for GitHub Pages to serve the new version at the existing URL. For an NHL data release, compare the season file's `updated` value on Pages and on `main`. Check the NHL workflow if the values differ after deployment.

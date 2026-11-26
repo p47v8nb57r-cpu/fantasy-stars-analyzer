@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-title" content="FSA 4.1"><title>Fantasy Stars Analyzer 4.1</title>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-title" content="FSA 4.1.1"><title>Fantasy Stars Analyzer 4.1.1</title>
 <style>
 :root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1020;color:#eef0ff}header{padding:24px 17px;background:linear-gradient(120deg,#182345,#43206b)}h1{margin:0 0 7px;font-size:1.7rem}header p{margin:0;color:#c5c8e0}.wrap{max-width:900px;margin:auto;padding:14px 14px 110px}.panel{background:#171e34;border:1px solid #354060;border-radius:17px;padding:16px;margin-bottom:15px}h2{font-size:1.16rem;margin:0 0 12px}h3{font-size:1rem;margin:15px 0 8px}button,input,select{font:inherit}button{border:0;border-radius:10px;background:#354066;color:#fff;padding:10px 13px;cursor:pointer}button.primary,.active{background:#9d2dd0}button.danger{background:#713046}button:disabled{opacity:.55}input,select{width:100%;min-width:0;background:#10172a;border:1px solid #475475;color:white;border-radius:9px;padding:11px}input:read-only{background:#202944;color:#c6d9ef}label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.full{grid-column:1/-1}.tabs,.actions{display:flex;gap:7px;flex-wrap:wrap}.tabs{margin:12px 0}.note,.muted{color:#b9bfd8;font-size:.87rem;line-height:1.5}.status{margin:12px 0;color:#b8f0d1}.error{color:#ffb1b1}.player{border-top:1px solid #36405d;padding:13px 0;display:flex;justify-content:space-between;gap:12px}.player:first-child{border-top:0}.player strong{font-size:1rem}.score{font-size:1.4rem;font-weight:750;color:#a6f5c6;text-align:right;white-space:nowrap}.score small{display:block;font-size:.7rem;font-weight:400;color:#b9bfd8}.actions{justify-content:flex-end;margin-top:7px}.actions button{padding:7px 9px;font-size:.8rem}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.check label{margin:0}.pill{display:inline-block;background:#293553;border-radius:6px;padding:2px 6px;font-size:.75rem;margin-left:5px}.hide{display:none}.foot{padding:8px 0 20px}.rank{min-width:31px;font-size:1.05rem;font-weight:800;color:#e7c2ff}.top-player{align-items:center}.top-player .details{flex:1;min-width:0}.top-player .score{min-width:75px}.top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.app-view{display:none}.app-view.current{display:block}.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;background:#12192d;border-top:1px solid #455171;padding:8px max(5px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left));box-shadow:0 -6px 22px #0005}.bottom-nav button{min-width:0;padding:9px 1px 7px;background:transparent;color:#b9bfd8;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:10px;font-size:.63rem;line-height:1.15}.bottom-nav button .nav-icon{font-size:1.3rem;line-height:1.2}.bottom-nav button.selected{background:#51246f;color:white}.form-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}.metric{background:#222c49;border-radius:12px;padding:12px 7px;text-align:center}.metric strong{display:block;font-size:1.35rem;color:#a6f5c6}.metric small{display:block;font-size:.72rem;color:#c1c6df;margin-top:5px}.chart-wrap{background:#10172a;border:1px solid #354060;border-radius:13px;padding:12px 8px;margin:14px 0}.chart-wrap svg{width:100%;height:auto;display:block}.game-row{display:grid;grid-template-columns:75px 1fr 65px;gap:8px;align-items:center;border-top:1px solid #36405d;padding:12px 0}.game-row strong{color:#a6f5c6;text-align:right}.form-up{color:#a6f5c6}.form-down{color:#ffb1b1}.form-neutral{color:#c1c6df}.form-player{background:#222c49;border-radius:12px;padding:14px;margin-top:12px}.card-item{background:#202944;border:1px solid #3c4868;border-radius:13px;padding:13px;margin:10px 0}.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.card-head strong{font-size:1.05rem}.card-meta{margin-top:5px;color:#bdc7df;font-size:.84rem}.card-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}.card-stat{background:#111a30;border-radius:9px;padding:9px}.card-stat strong{display:block;color:#a6f5c6;font-size:1.1rem}.card-stat small{font-size:.72rem;color:#b9bfd8}.card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.card-actions button{font-size:.8rem;padding:8px 10px}.card-count{font-size:1.7rem;font-weight:800;color:#a6f5c6}.section-line{border-top:1px solid #36405d;margin:19px 0}.team-pill{display:inline-block;background:#253e57;color:#b7e2ff;border:1px solid #42617c;border-radius:6px;padding:2px 7px;font-size:.76rem;font-weight:700}.team-note{font-size:.76rem;color:#a6f5c6;margin-top:4px}.position-note{color:#e7c2ff;font-size:.76rem;margin-top:4px}.position-editor{background:#222c49;border:1px solid #465378;border-radius:12px;padding:13px;margin:12px 0}.position-editor .actions{justify-content:flex-start}.position-editor button{font-size:.83rem}.inline-position{margin-top:5px}.inline-position button{padding:4px 7px;font-size:.74rem;background:#47315f}@media(max-width:480px){.grid{grid-template-columns:1fr}.score{font-size:1.2rem}.top-player{gap:8px}.rank{min-width:25px}.form-summary{gap:5px}.metric{padding:10px 4px}.metric strong{font-size:1.12rem}}@media(min-width:900px){.bottom-nav{max-width:900px;left:50%;transform:translateX(-50%);border-left:1px solid #455171;border-right:1px solid #455171;border-radius:14px 14px 0 0}}
 .player-heading{display:flex;align-items:center;gap:12px}
@@ -17,10 +17,11 @@
 .scout-compare th,.scout-compare td{padding:8px;text-align:left;vertical-align:top;border-bottom:1px solid #354060;overflow-wrap:anywhere}
 .scout-compare thead th{color:#fff}
 .scout-tools details{margin-top:10px}
+.scout-fixtures{margin:6px 0;padding-inline-start:18px}
 .scout-compare-hint{display:none}
 @media(max-width:480px){.scout-compare-hint{display:block}}
 </style></head><body>
-<header><h1>🏒 Fantasy Stars Analyzer 4.1</h1><p>Top 50 · Scout · Formkurvor · Mina kort · Lagbygge</p><button id="appUpdateNotice" type="button" hidden>Visa appuppdatering</button></header><main class="wrap">
+<header><h1>🏒 Fantasy Stars Analyzer 4.1.1</h1><p>Top 50 · Scout · Formkurvor · Mina kort · Lagbygge</p><button id="appUpdateNotice" type="button" hidden>Visa appuppdatering</button></header><main class="wrap">
 <div id="view-top" class="app-view current" data-view="top"><section class="panel"><div class="top-head"><h2>🏆 Top 50 Fantasy Stars</h2></div><p class="note">Rangordna spelare och lagkort. Manuella Fantasy Stars-positioner används när du filtrerar spelare.</p><div class="tabs" id="topTabs"></div><div class="grid" id="topPlayerControls"><div><label for="topSort">Sortera efter</label><select id="topSort"><option value="level">FPTS/match, vald träningsnivå</option><option value="form">Form, senaste 5</option></select></div><div><label for="topLevel">Träningsnivå</label><select id="topLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select></div><div><label for="topMin">Minst antal matcher</label><select id="topMin"><option value="0">Alla spelare</option><option value="5">5 matcher</option><option value="10" selected>10 matcher</option><option value="20">20 matcher</option><option value="30">30 matcher</option></select></div></div><div id="topTeamControls" hidden><label for="topTeamSort">Sortera lagkort efter</label><select id="topTeamSort"><option value="season">Säsongssnitt</option><option value="form">Form, senaste 5</option><option value="name">Lagnamn</option></select></div><p class="note" id="topCount">Väntar på NHL-statistik…</p><div id="topResults"></div></section></div>
 <div id="view-scout" class="app-view" data-view="scout"><section class="panel"><h2>🔎 NHL-scout</h2><p class="note">Sök bland spelare som har spelat i NHL den här säsongen. En spelare utanför aktuell NHL-trupp kan fortfarande ha NHL-statistik.</p><div class="grid"><div><label for="season">Säsong</label><select id="season"><option value="20262027">2026/27</option></select></div><div><label for="query">Sök spelare eller lag</label><input id="query" placeholder="Ex. Matt Boldy eller MIN" autocomplete="off"></div></div><p><button id="load" class="primary">Uppdatera spelarlista</button></p><div id="status" class="status" role="status">Läser in NHL-statistik…</div><div class="tabs" id="tabs"></div><div class="grid"><div><label for="sort">Sortera efter</label><select id="sort"><option value="full">FPTS/match, full guld</option><option value="base">FPTS/match, otränad</option><option value="points">Poäng (mål + assist)</option><option value="goals">Mål</option><option value="assists">Assist</option><option value="name">Namn</option><option value="shots">Skott</option><option value="hits">Tacklingar</option><option value="blocks">Täckta skott</option></select></div><div><label for="view">Visa</label><select id="view"><option value="all">Alla NHL-spelare</option><option value="owned">Bara mina kort</option><option value="missing">Spelare jag inte äger</option></select></div></div><section class="form-player scout-tools" aria-labelledby="scoutToolsTitle">
 <h3 id="scoutToolsTitle">Jämför och bevaka</h3>
@@ -74,6 +75,10 @@
 </dialog>
 <script id="appReleases" type="application/json">
 [
+  {
+    "version": "4.1.1",
+    "summary": "Bevakningslistan i Scout visar upp till tre kommande matcher per spelare, med motståndare, hemma eller borta och matchstart i svensk tid."
+  },
   {
     "version": "4.1",
     "summary": "Mer visar vad som är nytt innan du laddar om appen. Lagbygge visar också osäker spelstatus och bekräftad frånvaro med länkar till NHL:s matchrapporter."
@@ -748,9 +753,24 @@ function scoutPlayerButtons(player,owned){
     ${scoutChoiceButton('watch',id,watchlist.has(id),'☆ Bevaka','★ Bevakas')}
   </div>`;
 }
-function nextScoutGames(){
-  const now=Date.now();
-  return makeMatchups(lineupGames(lineupData).filter(game=>!gameProgress(game,now)));
+function scoutMatches(){
+  const extra=Array.isArray(lineupData?.scoutGames)?lineupData.scoutGames:[];
+  const unique=new Map();
+  for(const game of [...extra,...lineupGames(lineupData)]){
+    if(!game)continue;
+    unique.set(game.id??[game.start,game.home,game.away].join(':'),game);
+  }
+  const now=Date.now(),byTeam=new Map();
+  for(const game of lineupGames({games:[...unique.values()]})){
+    if(gameProgress(game,now))continue;
+    for(const [team,match] of makeMatchups([game])){
+      const matches=byTeam.get(team)??[];
+      if(matches.length===3)continue;
+      matches.push(match);
+      byTeam.set(team,matches);
+    }
+  }
+  return byTeam;
 }
 function scoutMatchLabel(match){
   return match?`${match.opponent} · ${match.venue} · ${lineupClock.format(new Date(match.start))} svensk tid`:'Ingen kommande match i schemat';
@@ -760,7 +780,7 @@ function scoutFormLabel(player,weights){
   return form===null?'–':`${fmt(form)} · ${player.last5.length}/5 matcher`;
 }
 function renderScoutTools(){
-  const next=nextScoutGames();
+  const fixtures=scoutMatches();
   const weights=levelWeights[$('scoutLevel').value]||levelWeights.gold;
   if(nhl.length)comparisonIds=comparisonIds.filter(id=>byId(id));
   $('compareCount').textContent=`${comparisonIds.length}/3`;
@@ -772,7 +792,7 @@ function renderScoutTools(){
     ['Lagstatus',displayTeam],
     ['Säsong, FPTS/match',p=>fmt(calc(p,weights))],
     ['Form, FPTS/match',p=>scoutFormLabel(p,weights)],
-    ['Nästa match',p=>scoutMatchLabel(next.get(p.team))]
+    ['Nästa match',p=>scoutMatchLabel(fixtures.get(p.team)?.[0])]
   ];
   $('scoutComparison').innerHTML=(compared.length<2?'<p class="note">Välj två eller tre spelare med Jämför i sökresultaten.</p>':'')+
     (compared.length===3?'<p class="note scout-compare-hint">Svep i tabellen för att se fler kolumner.</p>':'')+
@@ -781,23 +801,24 @@ function renderScoutTools(){
       <tbody>${metrics.map(([label,value])=>`<tr><th scope="row">${label}</th>${compared.map(p=>`<td>${esc(value(p))}</td>`).join('')}</tr>`).join('')}
       <tr><th scope="row">Val</th>${compared.map(p=>`<td><button type="button" data-scout-compare="${esc(p.id)}">Ta bort</button></td>`).join('')}</tr></tbody></table></div>`:'');
   const watched=[...watchlist.values()].map(entry=>{
-    const p=byId(entry.id),match=next.get(p?.team);
+    const p=byId(entry.id),matches=fixtures.get(p?.team)??[];
     const form=formAverage(p,weights),season=calc(p,weights);
     const lift=form!==null&&season!==null?form-season:null;
-    return {entry,p,match,lift};
+    return {entry,p,matches,lift};
   });
   const sort=$('watchSort').value;
   watched.sort((a,b)=>{
     const order=sort==='next'
-      ?(Date.parse(a.match?.start)||Infinity)-(Date.parse(b.match?.start)||Infinity)
+      ?(Date.parse(a.matches[0]?.start)||Infinity)-(Date.parse(b.matches[0]?.start)||Infinity)
       :(b.lift??-Infinity)-(a.lift??-Infinity);
     return order||(a.p?.name||a.entry.name).localeCompare(b.p?.name||b.entry.name,'sv');
   });
-  $('scoutWatchlist').innerHTML=watched.length?watched.map(({entry,p,match,lift})=>`
+  $('scoutWatchlist').innerHTML=watched.length?watched.map(({entry,p,matches,lift})=>`
     <div class="player"><div><strong>${esc(p?.name||entry.name)}</strong>
     <div class="muted">${p?`${esc(displayTeam(p))} · ${esc(effectivePosition(p)||'–')}`:'Spelaren saknas i säsongsfilen'}</div>
     <div class="muted">Formlyft: ${lift===null?'–':(lift>0?'+':'')+fmt(lift)+' FPTS/match'} · Form: ${esc(scoutFormLabel(p,weights))}</div>
-    <div class="muted">${esc(scoutMatchLabel(match))}</div>
+    ${matches.length?`<ul class="muted scout-fixtures">${matches.map(match=>`<li>${esc(scoutMatchLabel(match))}</li>`).join('')}</ul>`
+      :`<div class="muted">${esc(scoutMatchLabel())}</div>`}
     <div class="actions">${p?`<button type="button" data-form="${esc(p.id)}">Visa form</button>`:''}
     <button type="button" data-scout-watch="${esc(entry.id)}">Ta bort bevakning</button></div></div></div>`
   ).join(''):'<p class="note">Tryck på Bevaka vid en spelare i Scout för att lägga till den här.</p>';
@@ -1214,20 +1235,20 @@ $('refreshAppVersion').addEventListener('click',refreshAppVersion);
 $('appUpdateNotice').addEventListener('click',()=>showView('more'));
 
 function compareAppVersions(a,b){
-  const [majorA,minorA]=a.split('.').map(Number);
-  const [majorB,minorB]=b.split('.').map(Number);
-  return majorA-majorB||minorA-minorB;
+  const [majorA,minorA,patchA=0]=a.split('.').map(Number);
+  const [majorB,minorB,patchB=0]=b.split('.').map(Number);
+  return majorA-majorB||minorA-minorB||patchA-patchB;
 }
 function parseAppReleases(json){
   try{
     const rows=JSON.parse(json||'[]');
     if(!Array.isArray(rows))return [];
-    return rows.filter(row=>row&&/^\d+\.\d+$/.test(row.version)&&typeof row.version==='string'&&
+    return rows.filter(row=>row&&/^\d+\.\d+(?:\.\d+)?$/.test(row.version)&&typeof row.version==='string'&&
       typeof row.summary==='string'&&row.summary.trim()).sort((a,b)=>compareAppVersions(b.version,a.version));
   }catch{return [];}
 }
 const installedReleases=parseAppReleases($('appReleases').textContent);
-const installedVersion=document.title?.match(/Fantasy Stars Analyzer (\d+\.\d+)$/)?.[1];
+const installedVersion=document.title?.match(/Fantasy Stars Analyzer (\d+\.\d+(?:\.\d+)?)$/)?.[1];
 if(installedVersion){
   const installed=installedReleases.find(row=>row.version===installedVersion);
   $('installedAppRelease').textContent=`Installerad version ${installedVersion}${installed?' · '+installed.summary:''}`;
@@ -1247,7 +1268,7 @@ async function checkAppVersion(){
     const response=await fetch(url,{cache:'no-store'});
     if(!response.ok)return;
     const html=await response.text();
-    const latest=html.match(/<title>Fantasy Stars Analyzer (\d+\.\d+)<\/title>/)?.[1];
+    const latest=html.match(/<title>Fantasy Stars Analyzer (\d+\.\d+(?:\.\d+)?)<\/title>/)?.[1];
     if(!latest)return;
     const update=compareAppVersions(latest,installedVersion)>0;
     const releases=parseAppReleases(html.match(/<script id="appReleases" type="application\/json">([\s\S]*?)<\/script>/)?.[1])

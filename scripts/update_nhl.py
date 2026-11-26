@@ -459,14 +459,7 @@ def build_form(players, season):
     )
 
 
-def get_lineup_data(season, standings, players=()):
-    schedule = fetch_json(f"{WEB_BASE}/schedule/now")
-    days = schedule.get("gameWeek")
-    if not isinstance(days, list):
-        raise ValueError("NHL schedule has no gameWeek")
-
-    games = []
-    previews = []
+def scheduled_games(days, season):
     for day in days:
         for game in day.get("games", []):
             if (
@@ -479,20 +472,44 @@ def get_lineup_data(season, standings, players=()):
             away = localized(game.get("awayTeam", {}).get("abbrev"))
             start = game.get("startTimeUTC")
             if home and away and start and day.get("date"):
-                match = {
+                yield {
                     "id": game.get("id"), "date": day["date"], "start": start, "home": home, "away": away,
                     "state": game.get("gameState", ""),
-                }
-                games.append(match)
-                away_nick = localized(game["awayTeam"].get("commonName"))
-                home_nick = localized(game["homeTeam"].get("commonName"))
-                if away_nick and home_nick:
-                    previews.append({
-                        **match,
-                        "awayNick": away_nick, "homeNick": home_nick,
-                        "awayName": f'{localized(game["awayTeam"].get("placeName"))} {away_nick}',
-                        "homeName": f'{localized(game["homeTeam"].get("placeName"))} {home_nick}',
-                    })
+                }, game
+
+
+def get_lineup_data(season, standings, players=()):
+    schedule = fetch_json(f"{WEB_BASE}/schedule/now")
+    days = schedule.get("gameWeek")
+    if not isinstance(days, list):
+        raise ValueError("NHL schedule has no gameWeek")
+
+    games = []
+    previews = []
+    for match, game in scheduled_games(days, season):
+        games.append(match)
+        away_nick = localized(game["awayTeam"].get("commonName"))
+        home_nick = localized(game["homeTeam"].get("commonName"))
+        if away_nick and home_nick:
+            previews.append({
+                **match,
+                "awayNick": away_nick, "homeNick": home_nick,
+                "awayName": f'{localized(game["awayTeam"].get("placeName"))} {away_nick}',
+                "homeName": f'{localized(game["homeTeam"].get("placeName"))} {home_nick}',
+            })
+
+    scout_games = []
+    if games:
+        for _ in range(2):
+            next_date = schedule.get("nextStartDate")
+            if not next_date:
+                break
+            try:
+                schedule = fetch_json(f"{WEB_BASE}/schedule/{next_date}")
+                scout_games.extend(match for match, _ in scheduled_games(schedule["gameWeek"], season))
+            except (OSError, ValueError, KeyError, TypeError) as exc:
+                print(f"::warning::Extended NHL schedule could not be read: {exc}", flush=True)
+                break
 
     defense = {}
     total_games = 0
@@ -518,6 +535,7 @@ def get_lineup_data(season, standings, players=()):
     return {
         "updated": datetime.now(timezone.utc).isoformat(),
         "games": games,
+        "scoutGames": scout_games,
         "availability": availability,
         "goalsAgainstPerGame": defense,
         "leagueGoalsAgainstPerGame": total_goals / total_games if total_games else None,
