@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - scripts/update_nhl.py
+      - scripts/nhl_availability.py
       - scripts/update_portraits.py
       - .github/workflows/update-nhl.yml
   schedule:

@@ -10,6 +10,8 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
+from nhl_availability import forecast_availability
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "data"
 OUT.mkdir(exist_ok=True)
@@ -457,13 +459,14 @@ def build_form(players, season):
     )
 
 
-def get_lineup_data(season, standings):
+def get_lineup_data(season, standings, players=()):
     schedule = fetch_json(f"{WEB_BASE}/schedule/now")
     days = schedule.get("gameWeek")
     if not isinstance(days, list):
         raise ValueError("NHL schedule has no gameWeek")
 
     games = []
+    previews = []
     for day in days:
         for game in day.get("games", []):
             if (
@@ -476,10 +479,20 @@ def get_lineup_data(season, standings):
             away = localized(game.get("awayTeam", {}).get("abbrev"))
             start = game.get("startTimeUTC")
             if home and away and start and day.get("date"):
-                games.append({
+                match = {
                     "id": game.get("id"), "date": day["date"], "start": start, "home": home, "away": away,
                     "state": game.get("gameState", ""),
-                })
+                }
+                games.append(match)
+                away_nick = localized(game["awayTeam"].get("commonName"))
+                home_nick = localized(game["homeTeam"].get("commonName"))
+                if away_nick and home_nick:
+                    previews.append({
+                        **match,
+                        "awayNick": away_nick, "homeNick": home_nick,
+                        "awayName": f'{localized(game["awayTeam"].get("placeName"))} {away_nick}',
+                        "homeName": f'{localized(game["homeTeam"].get("placeName"))} {home_nick}',
+                    })
 
     defense = {}
     total_games = 0
@@ -495,9 +508,17 @@ def get_lineup_data(season, standings):
             total_games += played
             total_goals += allowed
 
+    availability = {}
+    if players:
+        try:
+            availability = forecast_availability(previews, players, HEADERS)
+        except (ValueError, TypeError) as exc:
+            print(f"::warning::NHL availability reports could not be read: {exc}", flush=True)
+    print(f"NHL availability: {len(availability)} match previews", flush=True)
     return {
         "updated": datetime.now(timezone.utc).isoformat(),
         "games": games,
+        "availability": availability,
         "goalsAgainstPerGame": defense,
         "leagueGoalsAgainstPerGame": total_goals / total_games if total_games else None,
     }
@@ -768,7 +789,7 @@ def normalize(season):
     )
 
     for field, fetch in (
-        ("lineup", lambda: get_lineup_data(season, standings)),
+        ("lineup", lambda: get_lineup_data(season, standings, players)),
         ("teamCards", lambda: refresh_team_cards(season)),
     ):
         try:

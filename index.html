@@ -40,6 +40,7 @@
   <div><label for="lineupLevel">Träningsnivå</label><select id="lineupLevel"><option value="base">Otränad</option><option value="bronze">Brons</option><option value="silver">Silver</option><option value="gold" selected>Full guld</option></select></div>
 </div>
 <div id="lineupSchedule"></div>
+<div id="lineupAvailability"></div>
 <p id="lineupStatus" class="note" role="status"></p>
 <div class="actions" id="lineupActions" hidden><button type="button" id="lineupSave" class="primary">Spara laget</button><button type="button" id="lineupNew">Nytt förslag</button><button type="button" id="lineupRestore" hidden>Visa sparat lag</button></div>
 <p id="lineupMessage" class="note" role="status"></p>
@@ -446,6 +447,38 @@ function renderRoundSchedule(games,now){
       return `<li>${esc(game.away)} hos ${esc(game.home)} · ${esc(lineupClock.format(new Date(game.start)))}${progress?` · <strong>${esc(progress)}</strong>`:''}</li>`;
     }).join('')}</ul></details>`:'');
 }
+function lineupAvailabilityLabel(status){
+  if(status.state==='out')return 'Bekräftad frånvaro';
+  if(status.reason==='injured')return 'Osäker spelstatus · på NHL:s skadelista inför matchen';
+  if(status.reason==='scratch')return 'Osäker spelstatus · utanför NHL:s preliminära laguppställning';
+  return 'Osäker spelstatus';
+}
+function renderLineupAvailability(games){
+  const reports=new Map();
+  for(const game of games){
+    const report=lineupData?.availability?.[game.id];
+    if(!report?.players||!/^https:\/\/www\.nhl\.com\/news\/[a-z0-9-]+$/i.test(report.source))continue;
+    reports.set(game.id,report);
+  }
+  if(!games.length)return reports;
+  if(!reports.size){
+    $('lineupAvailability').innerHTML='<p class="note">Ingen NHL-rapport om spelstatus finns inläst för omgångens kommande matcher.</p>';
+    return reports;
+  }
+  const summary=[...reports.values()].flatMap(report=>Object.values(report.players));
+  const out=summary.filter(status=>status.state==='out').length;
+  const uncertain=summary.filter(status=>status.state==='uncertain').length;
+  $('lineupAvailability').innerHTML=`<details class="note"><summary>Spelstatus · ${reports.size} av ${games.length} matcher med NHL-rapport · ${out} bekräftat borta · ${uncertain} osäkra</summary>
+    ${games.filter(game=>reports.has(game.id)).map(game=>{
+      const report=reports.get(game.id);
+      const updated=Date.parse(report.updated);
+      const time=Number.isFinite(updated)?` · ${esc(new Date(updated).toLocaleString('sv-SE',{timeZone:'Europe/Stockholm'}))} svensk tid`:'';
+      const statuses=Object.values(report.players);
+      return `<p><a href="${esc(report.source)}" target="_blank" rel="noopener">NHL-rapport · ${esc(game.away)}–${esc(game.home)}</a>${time}</p>
+        ${statuses.length?`<ul>${statuses.map(status=>`<li>${esc(status.name)} · ${lineupAvailabilityLabel(status)}</li>`).join('')}</ul>`:'<p>Inga berörda spelare identifierades i rapporten.</p>'}`;
+    }).join('')}</details>`;
+  return reports;
+}
 function renderLineup(){
   const select=$('lineupDate'),status=$('lineupStatus'),results=$('lineupResults');
   const season=$('season').value,previous=select.value,now=Date.now();
@@ -461,6 +494,7 @@ function renderLineup(){
   select.disabled=!dates.length;
   $('lineupActions').hidden=!dates.length;
   $('lineupSchedule').innerHTML='';
+  $('lineupAvailability').innerHTML='';
   results.innerHTML='';
   if(!dates.length){
     activeLineup=null;
@@ -476,7 +510,9 @@ function renderLineup(){
   const level=levelWeights[levelSelect.value]?levelSelect.value:'gold';
   const round=games.filter(game=>game.date===select.value);
   renderRoundSchedule(round,now);
-  const matchups=makeMatchups(round.filter(game=>!gameProgress(game,now)));
+  const upcoming=round.filter(game=>!gameProgress(game,now));
+  const matchups=makeMatchups(upcoming);
+  const reports=renderLineupAvailability(upcoming);
   const started=makeMatchups(round.filter(game=>gameProgress(game,now)));
   const rankedTeams=teamLineupCandidates(matchups);
   const selectedTeam=locks.team?.code??(lineupTeamDrafts.has(key)?lineupTeamDrafts.get(key):saved?.team?.code??rankedTeams[0]?.team.code);
@@ -487,8 +523,10 @@ function renderLineup(){
   for(const player of nhl){
     const game=matchups.get(player.team);
     if(!game||player.id==null||player.games<=0)continue;
+    const availability=reports.get(game.gameId)?.players[player.id];
+    if(availability?.state==='out')continue;
     const position=positionChoiceFor(player);
-    if(position.pos)ranked.push({player,...position,...game,...lineupScore(player,game.opponent,levelWeights[level],lineupData)});
+    if(position.pos)ranked.push({player,availability,...position,...game,...lineupScore(player,game.opponent,levelWeights[level],lineupData)});
   }
   ranked.sort((a,b)=>b.score-a.score||a.player.name.localeCompare(b.player.name,'sv'));
   const entries=lineupDrafts.get(key)||saved?.slots||pickLineup(ranked,locks.slots);
@@ -515,13 +553,20 @@ function renderLineup(){
     const lockButton=entry?lineupLockButton(i,locked,entry.name):'';
     const alternatives=locked?[]:ranked.filter(row=>!selected.has(String(row.player.id))&&fitsSlot(row,slot)).slice(0,3);
     const replacement=alternatives.length?`<details><summary>Ersättare (${alternatives.length})</summary><div class="actions">${alternatives.map(row=>
-      `<button type="button" data-lineup-slot="${i}" data-lineup-player="${esc(row.player.id)}">${esc(row.player.name)} · ${fmt(row.score)} FPTS</button>`
+      `<button type="button" data-lineup-slot="${i}" data-lineup-player="${esc(row.player.id)}">${esc(row.player.name)} · ${fmt(row.score)} FPTS${row.availability?' · osäker spelstatus':''}</button>`
     ).join('')}</div></details>`:'';
     if(!pick){
       if(!entry)return `<div class="player"><div><strong>${slot}</strong><div class="muted">Ingen tillgänglig spelare</div>${replacement}</div></div>`;
       const player=byId(entry.id);
       const reason=rankedById.has(String(entry.id))?'Positionen passar inte längre':started.has(player?.team)?'Matchen har startat eller starttiden har passerat':'Ingen verifierad kommande match i omgången';
-      return `<div class="player"><div><strong>${slot} · ${esc(player?.name||entry.name)}</strong><div class="muted">${reason}</div>${lockButton}${replacement}</div></div>`;
+      const gameId=matchups.get(player?.team||entry.team)?.gameId??entry.gameId;
+      const report=reports.get(gameId)??(!player?.team&&!entry.team?[...reports.values()].find(report=>report.players[entry.id]):null);
+      const availability=report?.players[entry.id];
+      const message=availability?.state==='out'?'Bekräftad frånvaro':reason;
+      return `<div class="player"><div><strong>${slot} · ${esc(player?.name||entry.name)}</strong>
+        <div class="muted">${message}${availability?.state==='out'&&locked?' · Lås upp för att välja ersättare':''}</div>
+        ${availability?`<div class="muted">${availability.state==='uncertain'?lineupAvailabilityLabel(availability)+' · ':''}<a href="${esc(report.source)}" target="_blank" rel="noopener">NHL-rapport</a></div>`:''}
+        ${lockButton}${replacement}</div></div>`;
     }
     const {player,pos,source,opponent,venue,start,season:seasonAverage,form,formGames,factor,score}=pick;
     const adjustment=Math.round((factor-1)*100);
@@ -529,6 +574,7 @@ function renderLineup(){
     const changed=Number.isFinite(old?.score)&&fmt(old.score)!==fmt(score);
     return `<div class="player"><div><strong>${slot} · ${esc(player.name)}</strong>${slot==='Flex'?` <span class="pill">${esc(pos)}</span>`:''}
       <div class="muted">${esc(player.team)} mot ${esc(opponent)} · ${venue} · ${esc(lineupClock.format(new Date(start)))} svensk tid</div>
+      ${pick.availability?`<div><strong>${lineupAvailabilityLabel(pick.availability)}</strong> · <a href="${esc(reports.get(pick.gameId).source)}" target="_blank" rel="noopener">NHL-rapport</a></div>`:''}
       <div class="muted">Säsong: ${fmt(seasonAverage)} FPTS/match · Form: ${form===null?'–':fmt(form)+' FPTS/match'} (${formGames}/5) · Motstånd: ${adjustment>0?'+':''}${adjustment} %</div>
       ${changed?`<div class="muted">Ändrad prognos sedan sparning: ${fmt(old.score)} → ${fmt(score)} FPTS</div>`:''}
       <div class="muted">Position: ${esc(pos)} · ${esc(source)}</div>
