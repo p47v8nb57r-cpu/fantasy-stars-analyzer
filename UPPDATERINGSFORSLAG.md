@@ -22,7 +22,7 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 ## Nästa fem uppdateringar
 
 1. [x] **Visa utfallet för sparade lag.** Jämför den sparade prognosen med faktiskt utfall efter omgången. Visa skillnaden för varje spelare, lagkortet och hela uppställningen.
-2. [ ] **Lås val i Lagbygge.** Behåll valda spelare eller lagkort och räkna om de övriga platserna. Kontrollera Fantasy Stars-positioner och uteslut dubbletter.
+2. [x] **Lås val i Lagbygge.** Behåll valda spelare eller lagkort och räkna om de övriga platserna. Kontrollera Fantasy Stars-positioner och uteslut dubbletter.
 3. [ ] **Visa spelstatus inför match.** Markera bekräftad frånvaro och osäker spelstatus när det finns en verifierad källa. Visa statusen i Lagbygge så att en ersättare kan väljas inför matchstart.
 4. [ ] **Visa tre kommande matcher i Bevakning.** Visa motståndare och matchtid för varje bevakad spelare, så att spelare med liknande form kan jämföras över flera omgångar.
 5. [ ] **Ta med sparade lag i JSON-säkerhetskopian.** Exportera och återställ sparade uppställningar tillsammans med kort, manuella positioner och bevakning. Förhandsgranska vilka sparade lag som påverkas vid import.

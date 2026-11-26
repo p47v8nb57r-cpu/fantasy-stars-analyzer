@@ -286,7 +286,7 @@ function teamLineupCandidates(matchups){
   }
   return ranked.sort((a,b)=>b.score-a.score||a.team.name.localeCompare(b.team.name,'sv'));
 }
-function renderLineupTeam(pick,entry,saved,alternatives,started){
+function renderLineupTeam(pick,entry,saved,alternatives,started,locked){
   const {code,name}=entry??{};
   const score=pick?.score;
   const changed=Number.isFinite(saved?.score)&&saved.code===code&&Number.isFinite(score)&&fmt(saved.score)!==fmt(score);
@@ -295,7 +295,8 @@ function renderLineupTeam(pick,entry,saved,alternatives,started){
       <div class="muted">Prognos: ${fmt(pick.projection.saves)} räddningar · ${fmt(pick.projection.against)} insläppta mål · ${fmt(pick.projection.win*100)} % vinstchans</div>`
       :`<div class="muted">${code?(started.has(code)?'Matchen har startat eller starttiden har passerat':'Ingen verifierad kommande match för det sparade lagkortet'):'Lagkortsunderlag saknas för omgången'}</div>`}
     ${changed?`<div class="muted">Ändrad lagkortsprognos: ${fmt(saved.score)} → ${fmt(score)} FPTS</div>`:''}
-    ${alternatives.length?`<details><summary>Ersättare (${alternatives.length})</summary><div class="actions">${alternatives.map(row=>
+    ${entry?lineupLockButton('team',locked,name):''}
+    ${!locked&&alternatives.length?`<details><summary>Ersättare (${alternatives.length})</summary><div class="actions">${alternatives.map(row=>
       `<button type="button" data-lineup-team="${esc(row.team.code)}">${esc(row.team.name)} · ${fmt(row.score)} FPTS</button>`).join('')}</div></details>`:''}</div>
     ${pick?`<div class="score">${fmt(score)}<small>Prognos FPTS</small></div>`:''}</div>`;
 }
@@ -304,6 +305,7 @@ const lineupClock=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',d
 const LINEUP_KEY='fantasy-stars-saved-lineups-v1';
 const lineupDrafts=new Map();
 const lineupTeamDrafts=new Map();
+const lineupLockDrafts=new Map();
 let savedLineups={};
 let activeLineup=null;
 try{
@@ -347,13 +349,53 @@ function lineupScore(player,opponent,weights,data){
 }
 const fitsSlot=(row,slot)=>slot==='Flex'||row.pos===slot;
 const lineupEntry=row=>row?{id:String(row.player.id),name:row.player.name}:null;
-function pickLineup(ranked){
-  const used=new Set();
-  return lineupSlots.map(slot=>{
+function getLineupLocks(key,saved){
+  const draft=lineupLockDrafts.get(key);
+  if(draft)return draft;
+  const slots=new Map(),used=new Set();
+  if(Array.isArray(saved?.lockedSlots)){
+    for(const index of saved.lockedSlots){
+      const entry=saved.slots[index],id=String(entry?.id);
+      if(Number.isInteger(index)&&lineupSlots[index]&&entry&&!used.has(id)){
+        slots.set(index,entry);
+        used.add(id);
+      }
+    }
+  }
+  return {slots,team:saved?.teamLocked===true?saved.team??null:null};
+}
+function pickLineup(ranked,locked=new Map()){
+  const used=new Set([...locked.values()].map(entry=>String(entry.id)));
+  return lineupSlots.map((slot,index)=>{
+    if(locked.has(index))return locked.get(index);
     const row=ranked.find(candidate=>!used.has(String(candidate.player.id))&&fitsSlot(candidate,slot));
     if(row)used.add(String(row.player.id));
     return lineupEntry(row);
   });
+}
+function lineupLockButton(slot,locked,name){
+  return `<button type="button" data-lineup-lock="${slot}" aria-pressed="${Boolean(locked)}" aria-label="${locked?'Lås upp':'Lås'} ${esc(name||'lagkortet')}">${locked?'Lås upp':'Lås'}</button>`;
+}
+function toggleLineupLock(slot){
+  if(!activeLineup)return;
+  const {key,entries,teamEntry,locks}=activeLineup;
+  const next={slots:new Map(locks.slots),team:locks.team};
+  let locked;
+  if(slot==='team'){
+    if(!teamEntry)return;
+    next.team=next.team?null:teamEntry;
+    locked=Boolean(next.team);
+  }else{
+    const index=Number(slot);
+    if(!Number.isInteger(index)||!lineupSlots[index]||!entries[index])return;
+    if(next.slots.has(index)){next.slots.delete(index);locked=false;}
+    else{next.slots.set(index,entries[index]);locked=true;}
+  }
+  lineupDrafts.set(key,entries.slice());
+  lineupTeamDrafts.set(key,teamEntry?.code);
+  lineupLockDrafts.set(key,next);
+  $('lineupMessage').textContent=locked?'Valet behålls när du räknar om laget. Spara laget för att behålla låset.':'Valet är upplåst.';
+  renderLineup();
 }
 function renderRoundSchedule(games,now){
   const updated=Date.parse(lineupData?.updated);
@@ -390,6 +432,7 @@ function renderLineup(){
   }
   select.value=dates.includes(previous)?previous:next||dates[dates.length-1];
   const key=season+':'+select.value,saved=savedLineups[key];
+  const locks=getLineupLocks(key,saved);
   const levelSelect=$('lineupLevel');
   if(activeLineup?.key!==key&&saved&&!lineupDrafts.has(key))levelSelect.value=saved.level;
   const level=levelWeights[levelSelect.value]?levelSelect.value:'gold';
@@ -398,10 +441,10 @@ function renderLineup(){
   const matchups=makeMatchups(round.filter(game=>!gameProgress(game,now)));
   const started=makeMatchups(round.filter(game=>gameProgress(game,now)));
   const rankedTeams=teamLineupCandidates(matchups);
-  const selectedTeam=lineupTeamDrafts.has(key)?lineupTeamDrafts.get(key):saved?.team?.code??rankedTeams[0]?.team.code;
+  const selectedTeam=locks.team?.code??(lineupTeamDrafts.has(key)?lineupTeamDrafts.get(key):saved?.team?.code??rankedTeams[0]?.team.code);
   const teamPick=rankedTeams.find(row=>row.team.code===selectedTeam);
   const teamEntry=teamPick?{code:teamPick.team.code,name:teamPick.team.name,score:teamPick.score,gameId:teamPick.gameId??(saved?.team?.code===teamPick.team.code?saved.team.gameId:null)??null}:
-    saved?.team&&saved.team.code===selectedTeam?saved.team:null;
+    locks.team??(saved?.team&&saved.team.code===selectedTeam?saved.team:null);
   const ranked=[];
   for(const player of nhl){
     const game=matchups.get(player.team);
@@ -410,25 +453,29 @@ function renderLineup(){
     if(position.pos)ranked.push({player,...position,...game,...lineupScore(player,game.opponent,levelWeights[level],lineupData)});
   }
   ranked.sort((a,b)=>b.score-a.score||a.player.name.localeCompare(b.player.name,'sv'));
-  const entries=lineupDrafts.get(key)||saved?.slots||pickLineup(ranked);
+  const entries=lineupDrafts.get(key)||saved?.slots||pickLineup(ranked,locks.slots);
   const selected=new Set(entries.filter(Boolean).map(row=>String(row.id)));
   const rankedById=new Map(ranked.map(row=>[String(row.player.id),row]));
   const picks=entries.map((entry,i)=>{
     const candidate=rankedById.get(String(entry?.id));
     return candidate&&fitsSlot(candidate,lineupSlots[i])?candidate:null;
   });
-  activeLineup={key,level,entries,picks,rankedById,teamEntry,rankedTeams};
+  activeLineup={key,level,entries,picks,rankedById,teamEntry,rankedTeams,locks};
   renderSavedLineupResults(key);
   const eligible=picks.filter(Boolean);
   const total=eligible.reduce((sum,row)=>sum+row.score,teamPick?.score??0);
   $('lineupSave').disabled=!selected.size&&!teamEntry;
   $('lineupRestore').hidden=!saved;
-  $('lineupNew').disabled=!ranked.length&&!rankedTeams.length;
+  const lockCount=locks.slots.size+Number(Boolean(locks.team));
+  $('lineupNew').textContent=lockCount?'Räkna om övriga':'Nytt förslag';
+  $('lineupNew').disabled=lockCount===7||!ranked.length&&!rankedTeams.length;
   status.textContent=`${eligible.length} av 6 utespelare · ${teamPick?'1 lagkort':'0 lagkort'} · Prognos: ${fmt(total)} FPTS`+
+    (lockCount?` · ${lockCount} låsta val`:'')+
     (saved&&!lineupDrafts.has(key)&&!lineupTeamDrafts.has(key)?' · Sparat lag':'');
   results.innerHTML=lineupSlots.map((slot,i)=>{
-    const entry=entries[i],pick=picks[i];
-    const alternatives=ranked.filter(row=>!selected.has(String(row.player.id))&&fitsSlot(row,slot)).slice(0,3);
+    const entry=entries[i],pick=picks[i],locked=locks.slots.has(i);
+    const lockButton=entry?lineupLockButton(i,locked,entry.name):'';
+    const alternatives=locked?[]:ranked.filter(row=>!selected.has(String(row.player.id))&&fitsSlot(row,slot)).slice(0,3);
     const replacement=alternatives.length?`<details><summary>Ersättare (${alternatives.length})</summary><div class="actions">${alternatives.map(row=>
       `<button type="button" data-lineup-slot="${i}" data-lineup-player="${esc(row.player.id)}">${esc(row.player.name)} · ${fmt(row.score)} FPTS</button>`
     ).join('')}</div></details>`:'';
@@ -436,7 +483,7 @@ function renderLineup(){
       if(!entry)return `<div class="player"><div><strong>${slot}</strong><div class="muted">Ingen tillgänglig spelare</div>${replacement}</div></div>`;
       const player=byId(entry.id);
       const reason=rankedById.has(String(entry.id))?'Positionen passar inte längre':started.has(player?.team)?'Matchen har startat eller starttiden har passerat':'Ingen verifierad kommande match i omgången';
-      return `<div class="player"><div><strong>${slot} · ${esc(player?.name||entry.name)}</strong><div class="muted">${reason}</div>${replacement}</div></div>`;
+      return `<div class="player"><div><strong>${slot} · ${esc(player?.name||entry.name)}</strong><div class="muted">${reason}</div>${lockButton}${replacement}</div></div>`;
     }
     const {player,pos,source,opponent,venue,start,season:seasonAverage,form,formGames,factor,score}=pick;
     const adjustment=Math.round((factor-1)*100);
@@ -447,16 +494,16 @@ function renderLineup(){
       <div class="muted">Säsong: ${fmt(seasonAverage)} FPTS/match · Form: ${form===null?'–':fmt(form)+' FPTS/match'} (${formGames}/5) · Motstånd: ${adjustment>0?'+':''}${adjustment} %</div>
       ${changed?`<div class="muted">Ändrad prognos sedan sparning: ${fmt(old.score)} → ${fmt(score)} FPTS</div>`:''}
       <div class="muted">Position: ${esc(pos)} · ${esc(source)}</div>
-      <div class="actions"><button type="button" data-form="${esc(player.id)}">Visa form</button><button type="button" data-position="${esc(player.id)}">Ändra position</button></div>
+      <div class="actions"><button type="button" data-form="${esc(player.id)}">Visa form</button><button type="button" data-position="${esc(player.id)}">Ändra position</button>${lockButton}</div>
       ${replacement}</div><div class="score">${fmt(score)}<small>Prognos FPTS</small></div></div>`;
-  }).join('')+renderLineupTeam(teamPick,teamEntry,saved?.team,rankedTeams.filter(row=>row.team.code!==selectedTeam).slice(0,3),started);
+  }).join('')+renderLineupTeam(teamPick,teamEntry,saved?.team,rankedTeams.filter(row=>row.team.code!==selectedTeam).slice(0,3),started,Boolean(locks.team));
 }
 function replaceLineupPlayer(button){
   if(!activeLineup)return;
-  const {key,entries,rankedById}=activeLineup;
+  const {key,entries,rankedById,locks}=activeLineup;
   const index=Number(button.dataset.lineupSlot),id=button.dataset.lineupPlayer;
   const row=rankedById.get(id);
-  if(!lineupSlots[index]||!row||!fitsSlot(row,lineupSlots[index])||entries.some(entry=>String(entry?.id)===id))return;
+  if(!lineupSlots[index]||locks.slots.has(index)||!row||!fitsSlot(row,lineupSlots[index])||entries.some(entry=>String(entry?.id)===id))return;
   const updated=entries.slice();
   updated[index]=lineupEntry(row);
   lineupDrafts.set(key,updated);
@@ -465,7 +512,7 @@ function replaceLineupPlayer(button){
 }
 function saveLineup(){
   if(!activeLineup||(!activeLineup.entries.some(Boolean)&&!activeLineup.teamEntry))return;
-  const {key,level,entries,picks,teamEntry}=activeLineup;
+  const {key,level,entries,picks,teamEntry,locks}=activeLineup;
   const previous=savedLineups[key]?.slots||[];
   const slots=entries.map((entry,i)=>{
     if(!entry)return null;
@@ -475,12 +522,13 @@ function saveLineup(){
       level:pick?level:old?.level??savedLineups[key]?.level??level,
       gameId:pick?.gameId??old?.gameId??null,team:pick?.player.team??old?.team??null};
   });
-  const updated={...savedLineups,[key]:{level,slots,team:teamEntry}};
+  const updated={...savedLineups,[key]:{level,slots,team:teamEntry,lockedSlots:[...locks.slots.keys()],teamLocked:Boolean(locks.team)}};
   try{
     localStorage.setItem(LINEUP_KEY,JSON.stringify(updated));
     savedLineups=updated;
     lineupDrafts.delete(key);
     lineupTeamDrafts.delete(key);
+    lineupLockDrafts.delete(key);
     $('lineupMessage').textContent='Laget är sparat i den här installationen.';
     renderLineup();
     loadLineupResults();
@@ -795,10 +843,10 @@ for(const id of ['lineupDate','lineupLevel']){
 $('lineupSave').addEventListener('click',saveLineup);
 $('lineupNew').addEventListener('click',()=>{
   if(!activeLineup)return;
-  const {key,rankedById,rankedTeams}=activeLineup;
-  lineupDrafts.set(key,pickLineup([...rankedById.values()]));
-  lineupTeamDrafts.set(key,rankedTeams[0]?.team.code);
-  $('lineupMessage').textContent='Nytt förslag. Spara laget om du vill behålla det.';
+  const {key,rankedById,rankedTeams,locks}=activeLineup;
+  lineupDrafts.set(key,pickLineup([...rankedById.values()],locks.slots));
+  lineupTeamDrafts.set(key,locks.team?.code??rankedTeams[0]?.team.code);
+  $('lineupMessage').textContent=locks.slots.size||locks.team?'Övriga platser är omräknade. Dina låsta val är kvar.':'Nytt förslag. Spara laget om du vill behålla det.';
   renderLineup();
 });
 $('lineupRestore').addEventListener('click',()=>{
@@ -808,15 +856,18 @@ $('lineupRestore').addEventListener('click',()=>{
   if(!saved)return;
   lineupDrafts.delete(key);
   lineupTeamDrafts.delete(key);
+  lineupLockDrafts.delete(key);
   $('lineupLevel').value=saved.level;
   $('lineupMessage').textContent='';
   renderLineup();
 });
 $('lineupResults').addEventListener('click',e=>{
+  const lock=e.target.closest('[data-lineup-lock]');
+  if(lock){toggleLineupLock(lock.dataset.lineupLock);return;}
   const replacement=e.target.closest('[data-lineup-player]');
   if(replacement){replaceLineupPlayer(replacement);return;}
   const team=e.target.closest('[data-lineup-team]');
-  if(team&&activeLineup?.rankedTeams.some(row=>row.team.code===team.dataset.lineupTeam)){
+  if(team&&!activeLineup?.locks.team&&activeLineup?.rankedTeams.some(row=>row.team.code===team.dataset.lineupTeam)){
     lineupTeamDrafts.set(activeLineup.key,team.dataset.lineupTeam);
     $('lineupMessage').textContent='Lagkortet är bytt. Spara laget om du vill behålla ändringen.';
     renderLineup();
