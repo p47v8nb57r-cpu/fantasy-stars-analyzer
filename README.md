@@ -10,7 +10,7 @@ From the repository root, start a local server with Python 3.
 python3 -m http.server 8765 --bind 127.0.0.1
 ```
 
-Open [the local app](http://127.0.0.1:8765/). Keep the server running while you use the app and press Ctrl+C to stop it. The localhost address has its own card collection. To move your collection between the public app and localhost, export a JSON backup under **Mer** and import it at the other address.
+Open [the local app](http://127.0.0.1:8765/). Keep the server running while you use the app and press Ctrl+C to stop it. The localhost address has its own card collection. To move your collection between the public app and localhost, export a JSON backup under **Mer** and import it at the other address. The backup includes saved lineups, and the import preview shows which rounds would be added, changed, or removed. Backups that omit saved lineups preserve the lineups already in the app.
 
 ## Refresh NHL data and portraits
 
