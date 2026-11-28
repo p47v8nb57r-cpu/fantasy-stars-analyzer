@@ -27,10 +27,25 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 4. [x] **Visa tre kommande matcher i Bevakning.** Visa motståndare och matchtid för varje bevakad spelare, så att spelare med liknande form kan jämföras över flera omgångar.
 5. [x] **Ta med sparade lag i JSON-säkerhetskopian.** Exportera och återställ sparade uppställningar tillsammans med kort, manuella positioner och bevakning. Förhandsgranska vilka sparade lag som påverkas vid import.
 
-## Nästa fem uppdateringar
+## Genomförda förbättringar av Lagbygge och Mina kort
 
 1. [x] **Se vilka sparade kort du kan spela i nästa omgång.** Lägg till filtret **Spelar i nästa omgång** under **Mina kort**. Visa motståndare, matchstart och spelstatus när det finns en NHL-rapport. Infört i **4.1.9**.
 2. [x] **Bygg ett lag med bara dina ägda kort.** Lägg till ett val i **Lagbygge** mellan **Alla spelare** och **Mina ägda kort**, så att du kan jämföra förslagen. Infört i **4.1.10**.
 3. [x] **Jämför flera lagförslag för samma omgång.** Låt användaren spara ett reservförslag bredvid huvudlaget. Visa vilka spelare som skiljer sig och hur mycket totalprognosen ändras. Infört i **4.2.1**.
 4. [x] **Se prognosens träffsäkerhet över tid.** Samla färdigspelade omgångar i en historik och visa vilka spelare eller lagkort som oftast hamnar över eller under prognosen. Infört i **4.2.2**.
 5. [x] **Få en påminnelse före första nedsläpp.** Visa en notis i **Lagbygge** när första matchstart närmar sig och ett sparat val har osäker spelstatus eller bekräftad frånvaro. Infört i appen i **4.2.3**.
+
+## Nästa tio uppdateringsförslag
+
+1. [ ] **Omgångsplaneraren (kandidat för 5.0).** Föreslå uppställningar för tre kommande omgångar utifrån ägda kort, Fantasy Stars-positioner, motstånd, form och spelstatus. Låt användaren låsa val och jämföra **Maxa nästa omgång** med **Maxa totalen över tre omgångar**. Be om uttryckligt godkännande före ett släpp som 5.0.0.
+2. [x] **Samla ändrad spelstatus i Scout.** Lägg till **Statusändringar** med filter för ägda och bevakade spelare. Visa beskedets publiceringstid och om det gäller skada, osäker spelstatus eller möjlig comeback. Infört i **4.3.0**.
+3. [ ] **Ge form mindre vikt efter comeback.** Väg in säsongssnittet mer efter längre frånvaro och visa hur många matcher spelaren har spelat sedan återkomsten.
+4. [ ] **Jämför två spelare för samma lagplats.** Öppna jämförelsen från **Ersättare** i Lagbygge och visa prognos, motstånd, spelstatus och matchstart.
+5. [ ] **Visa luckor i kortsamlingen.** Visa hur många tillgängliga ägda kort som finns per position för var och en av de tre kommande omgångarna.
+6. [ ] **Sortera Scout efter kommande matchprogram.** Visa antalet kommande matcher och hur motståndarna rankas defensivt. Behåll form som ett eget mått.
+7. [ ] **Jämför lagkort sida vid sida.** Visa upp till tre lagkort med nästa motståndare och prognosens delar, till exempel räddningar, insläppta mål och vinstchans.
+8. [ ] **Följ dina spelares faktiska FPTS efter omgången.** Visa vilka kort i samlingen som gav högst utfall och jämför det sparade huvudlagets utfall med reservförslagets.
+9. [ ] **Visa när uppgifterna senast kontrollerades.** Ge schema, statistik och spelstatus egna tidsstämplar under **Mer**. Visa i Lagbygge hur många matcher i omgången som har en inläst NHL-rapport.
+10. [ ] **Matchnotiser på iPhone.** När arbetet med pushnotiser återupptas, låt användaren välja att få ett besked om en spelare i det sparade huvudlaget blir osäker eller bekräftat borta nära nedsläpp.
+
+Föreslagen startordning är **2, 4 och 5**. De förbättrar arbetet inför nästa omgång och kan återanvändas i Omgångsplaneraren.

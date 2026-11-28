@@ -172,7 +172,8 @@ def forecast_availability(games, players, headers):
         if players_for_match is None:
             return None
         return str(game["id"]), {
-            "source": url, "updated": article.get("dateModified") or article.get("datePublished"),
+            "source": url, "published": article.get("datePublished"),
+            "updated": article.get("dateModified") or article.get("datePublished"),
             "players": players_for_match, "projected": sorted(projected.difference(players_for_match)),
         }
 
