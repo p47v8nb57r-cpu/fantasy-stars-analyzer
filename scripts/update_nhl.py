@@ -480,6 +480,19 @@ def scheduled_games(days, season):
                 }, game
 
 
+def matchup_preview(match, game):
+    away_nick = localized(game["awayTeam"].get("commonName"))
+    home_nick = localized(game["homeTeam"].get("commonName"))
+    if not away_nick or not home_nick:
+        return None
+    return {
+        **match,
+        "awayNick": away_nick, "homeNick": home_nick,
+        "awayName": f'{localized(game["awayTeam"].get("placeName"))} {away_nick}',
+        "homeName": f'{localized(game["homeTeam"].get("placeName"))} {home_nick}',
+    }
+
+
 def get_lineup_data(season, standings, players=()):
     schedule = fetch_json(f"{WEB_BASE}/schedule/now")
     days = schedule.get("gameWeek")
@@ -487,18 +500,24 @@ def get_lineup_data(season, standings, players=()):
         raise ValueError("NHL schedule has no gameWeek")
 
     games = []
-    previews = []
+    previews = {}
     for match, game in scheduled_games(days, season):
         games.append(match)
-        away_nick = localized(game["awayTeam"].get("commonName"))
-        home_nick = localized(game["homeTeam"].get("commonName"))
-        if away_nick and home_nick:
-            previews.append({
-                **match,
-                "awayNick": away_nick, "homeNick": home_nick,
-                "awayName": f'{localized(game["awayTeam"].get("placeName"))} {away_nick}',
-                "homeName": f'{localized(game["homeTeam"].get("placeName"))} {home_nick}',
-            })
+        preview = matchup_preview(match, game)
+        if preview:
+            previews[match["id"]] = preview
+
+    previous_date = schedule.get("prevStartDate")
+    if games and players and previous_date:
+        try:
+            previous = fetch_json(f"{WEB_BASE}/schedule/{previous_date}")
+            for match, game in scheduled_games(previous["gameWeek"], season):
+                if match["state"] in ("FINAL", "OFF"):
+                    preview = matchup_preview(match, game)
+                    if preview:
+                        previews.setdefault(match["id"], preview)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print(f"::warning::Previous NHL schedule could not be read: {exc}", flush=True)
 
     scout_games = []
     if games:
@@ -527,10 +546,10 @@ def get_lineup_data(season, standings, players=()):
             total_games += played
             total_goals += allowed
 
-    availability = {}
+    availability, recent_injuries = {}, {}
     if players:
         try:
-            availability = forecast_availability(previews, players, HEADERS)
+            availability, recent_injuries = forecast_availability(previews.values(), players, HEADERS)
         except (ValueError, TypeError) as exc:
             print(f"::warning::NHL availability reports could not be read: {exc}", flush=True)
     print(f"NHL availability: {len(availability)} match previews", flush=True)
@@ -539,6 +558,7 @@ def get_lineup_data(season, standings, players=()):
         "games": games,
         "scoutGames": scout_games,
         "availability": availability,
+        "recentInjuries": recent_injuries,
         "goalsAgainstPerGame": defense,
         "leagueGoalsAgainstPerGame": total_goals / total_games if total_games else None,
     }

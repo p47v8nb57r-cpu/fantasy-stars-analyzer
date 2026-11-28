@@ -5,7 +5,7 @@ import re
 import unicodedata
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from html.parser import HTMLParser
 
 MONTHS = (
@@ -162,9 +162,28 @@ def forecast_availability(games, players, headers):
                 datetime.fromisoformat(g["start"].replace("Z", "+00:00")) > now]
     dates = set(sorted({g["date"] for g in upcoming})[:2])
 
+    cutoff = (now.date() - timedelta(days=6)).isoformat()
+    completed = sorted((g for g in games if g["state"] in ("FINAL", "OFF") and
+                        g.get("id") and g["date"] >= cutoff), key=lambda g: g["start"], reverse=True)
+    recent = []
+    visited = set()
+    for game in completed:
+        teams = (game["away"], game["home"])
+        if not all(team in visited for team in teams):
+            recent.append(game)
+            visited.update(teams)
+
     def report(game):
         url = preview_url(game)
         article = preview_body(url, headers)
+        if not article:
+            slug = url.removeprefix(NHL_NEWS)
+            for nickname in (game["homeNick"], game["awayNick"]):
+                club = words(nickname).replace(" ", "")
+                url = f"https://www.nhl.com/{club}/news/{slug}"
+                article = preview_body(url, headers)
+                if article:
+                    break
         if not article:
             return None
         projected = set()
@@ -177,5 +196,28 @@ def forecast_availability(games, players, headers):
             "players": players_for_match, "projected": sorted(projected.difference(players_for_match)),
         }
 
-    with ThreadPoolExecutor(max_workers=6) as pool:
-        return dict(result for result in pool.map(report, (g for g in upcoming if g["date"] in dates)) if result)
+    future = [g for g in upcoming if g["date"] in dates]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        reports = dict(result for result in pool.map(report, future + recent) if result)
+
+    recent_injuries = {}
+    players_by_id = {str(player["id"]): player for player in players}
+    handled = set()
+    for game in recent:
+        evidence = reports.get(str(game["id"]))
+        if not evidence:
+            continue
+        for player_id in evidence["projected"]:
+            handled.add(player_id)
+        for player_id, status in evidence["players"].items():
+            if player_id in handled or status["reason"] != "injured":
+                continue
+            player = players_by_id[player_id]
+            if player["team"] not in (game["away"], game["home"]):
+                continue
+            handled.add(player_id)
+            recent_injuries[player_id] = {
+                "date": game["date"], "team": player["team"], "source": evidence["source"],
+                "published": evidence["published"], "updated": evidence["updated"],
+            }
+    return {str(g["id"]): reports[str(g["id"])] for g in future if str(g["id"]) in reports}, recent_injuries
