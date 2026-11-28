@@ -138,8 +138,12 @@ def parse_availability(body, game, players):
         if not evidence or len(rest[:evidence.start()].split()) > 12:
             continue
         player = aliases[subject][0]
-        status[str(player["id"])] = {
-            "state": "out" if match else "uncertain", "reason": "explicit", "name": player["name"],
+        player_id = str(player["id"])
+        reason = status.get(player_id, {}).get("reason")
+        status[player_id] = {
+            "state": "out" if match else "uncertain",
+            "reason": "injured" if reason == "injured" else "explicit",
+            "name": player["name"],
         }
     return status
 
