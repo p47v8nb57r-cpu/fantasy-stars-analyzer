@@ -41,7 +41,7 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 2. [x] **Samla ändrad spelstatus i Scout.** Lägg till **Statusändringar** med filter för ägda och bevakade spelare. Visa beskedets publiceringstid och om det gäller skada, osäker spelstatus eller möjlig comeback. Infört i **4.3.0**.
 3. [ ] **Ge form mindre vikt efter comeback.** Väg in säsongssnittet mer efter längre frånvaro och visa hur många matcher spelaren har spelat sedan återkomsten.
 4. [x] **Jämför två spelare för samma lagplats.** Öppna jämförelsen från **Ersättare** i Lagbygge och visa prognos, motstånd, spelstatus och matchstart. Infört i **4.3.2**.
-5. [ ] **Visa luckor i kortsamlingen.** Visa hur många tillgängliga ägda kort som finns per position för var och en av de tre kommande omgångarna.
+5. [x] **Visa luckor i kortsamlingen.** Visa hur många tillgängliga ägda kort som finns per position för var och en av de tre kommande omgångarna. Infört i **4.3.3**.
 6. [ ] **Sortera Scout efter kommande matchprogram.** Visa antalet kommande matcher och hur motståndarna rankas defensivt. Behåll form som ett eget mått.
 7. [ ] **Jämför lagkort sida vid sida.** Visa upp till tre lagkort med nästa motståndare och prognosens delar, till exempel räddningar, insläppta mål och vinstchans.
 8. [ ] **Följ dina spelares faktiska FPTS efter omgången.** Visa vilka kort i samlingen som gav högst utfall och jämför det sparade huvudlagets utfall med reservförslagets.
