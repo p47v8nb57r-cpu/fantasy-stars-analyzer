@@ -33,4 +33,4 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 2. [x] **Bygg ett lag med bara dina ägda kort.** Lägg till ett val i **Lagbygge** mellan **Alla spelare** och **Mina ägda kort**, så att du kan jämföra förslagen. Infört i **4.1.10**.
 3. [x] **Jämför flera lagförslag för samma omgång.** Låt användaren spara ett reservförslag bredvid huvudlaget. Visa vilka spelare som skiljer sig och hur mycket totalprognosen ändras. Infört i **4.2.1**.
 4. [x] **Se prognosens träffsäkerhet över tid.** Samla färdigspelade omgångar i en historik och visa vilka spelare eller lagkort som oftast hamnar över eller under prognosen. Infört i **4.2.2**.
-5. [ ] **Få en påminnelse före första nedsläpp.** Visa en notis i **Lagbygge** när första matchstart närmar sig och ett sparat val har osäker spelstatus eller bekräftad frånvaro.
+5. [x] **Få en påminnelse före första nedsläpp.** Visa en notis i **Lagbygge** när första matchstart närmar sig och ett sparat val har osäker spelstatus eller bekräftad frånvaro. Infört i appen i **4.2.3**.
