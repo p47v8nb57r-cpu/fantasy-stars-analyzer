@@ -19,10 +19,18 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 - [x] **Jämför spelare sida vid sida.** Jämför två eller tre spelare från Scout på samma träningsnivå. Visa säsongssnitt, senaste form, Fantasy Stars-position och nästa motståndare där uppgifterna finns.
 - [x] **Följ spelare i en bevakningslista.** Stjärnmärk spelare direkt i Scout och sortera bevakningslistan efter formlyft eller nästa match. Spara listan tillsammans med kort och positioner i JSON-säkerhetskopian.
 
-## Nästa fem uppdateringar
+## Genomförda uppdateringar
 
 1. [x] **Visa utfallet för sparade lag.** Jämför den sparade prognosen med faktiskt utfall efter omgången. Visa skillnaden för varje spelare, lagkortet och hela uppställningen.
 2. [x] **Lås val i Lagbygge.** Behåll valda spelare eller lagkort och räkna om de övriga platserna. Kontrollera Fantasy Stars-positioner och uteslut dubbletter.
 3. [x] **Visa spelstatus inför match.** Markera bekräftad frånvaro och osäker spelstatus när det finns en verifierad källa. Visa statusen i Lagbygge så att en ersättare kan väljas inför matchstart.
 4. [x] **Visa tre kommande matcher i Bevakning.** Visa motståndare och matchtid för varje bevakad spelare, så att spelare med liknande form kan jämföras över flera omgångar.
 5. [x] **Ta med sparade lag i JSON-säkerhetskopian.** Exportera och återställ sparade uppställningar tillsammans med kort, manuella positioner och bevakning. Förhandsgranska vilka sparade lag som påverkas vid import.
+
+## Nästa fem uppdateringar
+
+1. [x] **Se vilka sparade kort du kan spela i nästa omgång.** Lägg till filtret **Spelar i nästa omgång** under **Mina kort**. Visa motståndare, matchstart och spelstatus när det finns en NHL-rapport. Infört i **4.1.9**.
+2. [ ] **Bygg ett lag med bara dina ägda kort.** Lägg till ett val i **Lagbygge** mellan **Alla spelare** och **Mina ägda kort**, så att du kan jämföra förslagen.
+3. [ ] **Jämför flera lagförslag för samma omgång.** Låt användaren spara ett reservförslag bredvid huvudlaget. Visa vilka spelare som skiljer sig och hur mycket totalprognosen ändras.
+4. [ ] **Se prognosens träffsäkerhet över tid.** Samla färdigspelade omgångar i en historik och visa vilka spelare eller lagkort som oftast hamnar över eller under prognosen.
+5. [ ] **Få en påminnelse före första nedsläpp.** Visa en notis i **Lagbygge** när första matchstart närmar sig och ett sparat val har osäker spelstatus eller bekräftad frånvaro.
