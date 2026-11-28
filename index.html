@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-title" content="FSA 4.3.1"><title>Fantasy Stars Analyzer 4.3.1</title>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-title" content="FSA 4.3.2"><title>Fantasy Stars Analyzer 4.3.2</title>
 <style>
 :root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1020;color:#eef0ff}header{padding:24px 17px;background:linear-gradient(120deg,#182345,#43206b)}h1{margin:0;font-size:1.7rem}.wrap{max-width:900px;margin:auto;padding:14px 14px 110px}.panel{background:#171e34;border:1px solid #354060;border-radius:17px;padding:16px;margin-bottom:15px}h2{font-size:1.16rem;margin:0 0 12px}h3{font-size:1rem;margin:15px 0 8px}button,input,select{font:inherit}button{border:0;border-radius:10px;background:#354066;color:#fff;padding:10px 13px;cursor:pointer}button.primary,.active{background:#9d2dd0}button.danger{background:#713046}button:disabled{opacity:.55}input,select{width:100%;min-width:0;background:#10172a;border:1px solid #475475;color:white;border-radius:9px;padding:11px}input:read-only{background:#202944;color:#c6d9ef}label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.full{grid-column:1/-1}.tabs,.actions{display:flex;gap:7px;flex-wrap:wrap}.tabs{margin:12px 0}.note,.muted{color:#b9bfd8;font-size:.87rem;line-height:1.5}.status{margin:12px 0;color:#b8f0d1}.error{color:#ffb1b1}.player{border-top:1px solid #36405d;padding:13px 0;display:flex;justify-content:space-between;gap:12px}.player:first-child{border-top:0}.player strong{font-size:1rem}.score{font-size:1.4rem;font-weight:750;color:#a6f5c6;text-align:right;white-space:nowrap}.score small{display:block;font-size:.7rem;font-weight:400;color:#b9bfd8}.actions{justify-content:flex-end;margin-top:7px}.actions button{padding:7px 9px;font-size:.8rem}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.check label{margin:0}.pill{display:inline-block;background:#293553;border-radius:6px;padding:2px 6px;font-size:.75rem;margin-left:5px}.hide{display:none}.foot{padding:8px 0 20px}.rank{min-width:31px;font-size:1.05rem;font-weight:800;color:#e7c2ff}.top-player{align-items:center}.top-player .details{flex:1;min-width:0}.top-player .score{min-width:75px}.top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.app-view{display:none}.app-view.current{display:block}.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;background:#12192d;border-top:1px solid #455171;padding:8px max(5px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left));box-shadow:0 -6px 22px #0005}.bottom-nav button{min-width:0;padding:9px 1px 7px;background:transparent;color:#b9bfd8;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:10px;font-size:.63rem;line-height:1.15}.bottom-nav button .nav-icon{font-size:1.3rem;line-height:1.2}.bottom-nav button.selected{background:#51246f;color:white}.form-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}.metric{background:#222c49;border-radius:12px;padding:12px 7px;text-align:center}.metric strong{display:block;font-size:1.35rem;color:#a6f5c6}.metric small{display:block;font-size:.72rem;color:#c1c6df;margin-top:5px}.chart-wrap{background:#10172a;border:1px solid #354060;border-radius:13px;padding:12px 8px;margin:14px 0}.chart-wrap svg{width:100%;height:auto;display:block}.game-row{display:grid;grid-template-columns:75px 1fr 65px;gap:8px;align-items:center;border-top:1px solid #36405d;padding:12px 0}.game-row strong{color:#a6f5c6;text-align:right}.form-up{color:#a6f5c6}.form-down{color:#ffb1b1}.form-neutral{color:#c1c6df}.form-player{background:#222c49;border-radius:12px;padding:14px;margin-top:12px}.card-item{background:#202944;border:1px solid #3c4868;border-radius:13px;padding:13px;margin:10px 0}.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.card-head strong{font-size:1.05rem}.card-meta{margin-top:5px;color:#bdc7df;font-size:.84rem}.card-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}.card-stat{background:#111a30;border-radius:9px;padding:9px}.card-stat strong{display:block;color:#a6f5c6;font-size:1.1rem}.card-stat small{font-size:.72rem;color:#b9bfd8}.card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.card-actions button{font-size:.8rem;padding:8px 10px}.card-count{font-size:1.7rem;font-weight:800;color:#a6f5c6}.section-line{border-top:1px solid #36405d;margin:19px 0}.team-pill{display:inline-block;background:#253e57;color:#b7e2ff;border:1px solid #42617c;border-radius:6px;padding:2px 7px;font-size:.76rem;font-weight:700}.team-note{font-size:.76rem;color:#a6f5c6;margin-top:4px}.position-note{color:#e7c2ff;font-size:.76rem;margin-top:4px}.position-editor{background:#222c49;border:1px solid #465378;border-radius:12px;padding:13px;margin:12px 0}.position-editor .actions{justify-content:flex-start}.position-editor button{font-size:.83rem}.inline-position{margin-top:5px}.inline-position button{padding:4px 7px;font-size:.74rem;background:#47315f}@media(max-width:480px){.grid{grid-template-columns:1fr}.score{font-size:1.2rem}.top-player{gap:8px}.rank{min-width:25px}.form-summary{gap:5px}.metric{padding:10px 4px}.metric strong{font-size:1.12rem}}@media(min-width:900px){.bottom-nav{max-width:900px;left:50%;transform:translateX(-50%);border-left:1px solid #455171;border-right:1px solid #455171;border-radius:14px 14px 0 0}}
 .player-availability{display:block;margin-top:4px;font-size:.82rem;font-weight:700;overflow-wrap:anywhere;color:#ffdc91}
@@ -104,6 +104,10 @@
 </dialog>
 <script id="appReleases" type="application/json">
 [
+  {
+    "version": "4.3.2",
+    "summary": "Jämför två spelare för samma plats via Ersättare i Lagbygge. Se prognos, motstånd, matchstart och spelstatus sida vid sida."
+  },
   {
     "version": "4.3.1",
     "summary": "En färsk skaderapport från en spelad match kan hålla en spelare utanför formlaget tills nyare uppgifter visar en möjlig comeback eller en spelad match."
@@ -789,6 +793,34 @@ function renderLineupReminder(now=Date.now()){
     target.innerHTML=content;
   }
 }
+function lineupComparisonTable(rows){
+  if(rows[0].id===rows[1].id)return '<p class="note">Välj två olika spelare.</p>';
+  const values=[
+    ['Prognos',row=>Number.isFinite(row.score)?fmt(row.score)+' FPTS':'–'],
+    ['Motstånd',row=>row.match?esc(row.match.opponent)+' · '+esc(row.match.venue):'–'],
+    ['Matchstart',row=>row.match?esc(lineupClock.format(new Date(row.match.start)))+' svensk tid':'–'],
+    ['Spelstatus',row=>playerAvailabilityBadge(row.player,row.evidence)||'Ingen särskild status rapporterad']
+  ];
+  const difference=Number.isFinite(rows[0].score)&&Number.isFinite(rows[1].score)?
+    `<p class="note">Skillnad för spelare 2 <strong>${forecastDifference(rows[0].score,rows[1].score)} FPTS</strong></p>`:'';
+  return `${difference}<div class="scout-compare-scroll" tabindex="0" role="region" aria-label="Spelarjämförelse för lagplats">
+    <table class="scout-compare"><thead><tr><th scope="col">Mått</th>
+      ${rows.map(row=>`<th scope="col">${esc(row.name)}</th>`).join('')}
+    </tr></thead><tbody>${values.map(([label,format])=>`<tr><th scope="row">${label}</th>
+      ${rows.map(row=>`<td>${format(row)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+  </div>`;
+}
+function renderLineupReplacementComparison(rows,index){
+  if(rows.length<2)return '';
+  return `<details class="form-player" data-lineup-compare="${index}"><summary>Jämför två spelare</summary>
+    <div class="grid">${[0,1].map(side=>`<div>
+      <label for="lineupCompare${index}-${side}">Spelare ${side+1}</label>
+      <select id="lineupCompare${index}-${side}" data-compare-player>
+        ${rows.map((row,i)=>`<option value="${esc(row.id)}"${i===side?' selected':''}>${esc(row.name)}</option>`).join('')}
+      </select></div>`).join('')}</div>
+    <div data-lineup-compare-results aria-live="polite">${lineupComparisonTable(rows.slice(0,2))}</div>
+  </details>`;
+}
 function renderLineup(){
   const select=$('lineupDate'),status=$('lineupStatus'),results=$('lineupResults');
   const season=$('season').value,previous=select.value,now=Date.now();
@@ -866,7 +898,8 @@ function renderLineup(){
     const candidate=rankedById.get(String(entry?.id));
     return candidate&&fitsSlot(candidate,lineupSlots[i])?candidate:null;
   });
-  activeLineup={key,draftKey,level,entries,picks,rankedById,teamEntry,rankedTeams,locks};
+  const comparisons=new Map();
+  activeLineup={key,draftKey,level,entries,picks,rankedById,teamEntry,rankedTeams,locks,comparisons};
   renderSavedLineupResults(key);
   renderLineupComparison(saved);
   const eligible=picks.filter(Boolean);
@@ -886,9 +919,20 @@ function renderLineup(){
     const entry=entries[i],pick=picks[i],locked=locks.slots.has(i);
     const lockButton=entry?lineupLockButton(i,locked,entry.name):'';
     const alternatives=locked?[]:ranked.filter(row=>!selected.has(String(row.player.id))&&fitsSlot(row,slot)).slice(0,3);
+    const comparisonRows=alternatives.map(row=>({
+      id:String(row.player.id),name:row.player.name,player:row.player,match:row,score:row.score,
+      evidence:playerAvailabilityForMatch(row.player,reports.get(row.gameId))
+    }));
+    if(entry){
+      const player=byId(entry.id)??entry,match=pick??matchups.get(player.team||entry.team);
+      const report=reports.get(match?.gameId??entry.gameId);
+      comparisonRows.unshift({id:String(entry.id),name:player.name,player,match,score:pick?.score,
+        evidence:playerAvailabilityForMatch(player,report)});
+    }
+    comparisons.set(i,comparisonRows);
     const replacement=alternatives.length?`<details><summary>Ersättare (${alternatives.length})</summary><div class="actions">${alternatives.map(row=>
       `<button type="button" data-lineup-slot="${i}" data-lineup-player="${esc(row.player.id)}">${esc(row.player.name)} · ${fmt(row.score)} FPTS${row.availability?' · '+esc(lineupAvailabilityLabel(row.availability)):''}</button>`
-    ).join('')}</div></details>`:'';
+    ).join('')}</div>${renderLineupReplacementComparison(comparisonRows,i)}</details>`:'';
     if(!pick){
       if(!entry)return `<div class="player"><div><strong>${slot}</strong><div class="muted">${ownedOnly?'Inget tillgängligt ägt kort':'Ingen tillgänglig spelare'}</div>${replacement}</div></div>`;
       const player=byId(entry.id);
@@ -1481,6 +1525,13 @@ $('lineupRestore').addEventListener('click',()=>{
   $('lineupLevel').value=saved.level;
   $('lineupMessage').textContent='';
   renderLineup();
+});
+$('lineupResults').addEventListener('change',event=>{
+  if(!event.target.matches('[data-compare-player]'))return;
+  const panel=event.target.closest('[data-lineup-compare]');
+  const options=activeLineup?.comparisons.get(Number(panel.dataset.lineupCompare))??[];
+  const rows=[...panel.querySelectorAll('[data-compare-player]')].map(select=>options.find(row=>row.id===select.value));
+  if(rows.every(Boolean))panel.querySelector('[data-lineup-compare-results]').innerHTML=lineupComparisonTable(rows);
 });
 $('lineupResults').addEventListener('click',e=>{
   const lock=e.target.closest('[data-lineup-lock]');
