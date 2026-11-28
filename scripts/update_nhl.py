@@ -356,8 +356,10 @@ def build_form(players, season):
     for player in players:
         pid = str(player["id"])
         form = []
+        games = game_logs.get(pid, [])
+        player["lastPlayed"] = games[0]["gameDate"] if games else None
 
-        for game in game_logs.get(pid, []):
+        for game in games:
             game_id = str(game["gameId"])
 
             realtime = (

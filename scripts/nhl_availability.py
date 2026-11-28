@@ -73,11 +73,11 @@ OUT = re.compile(
     r"will serve the [a-z0-9]+ of (?:his|a) [a-z0-9]+ game suspension)\b"
 )
 UNCERTAIN = re.compile(
-    r"\b(?:game time decision|questionable|doubtful|day to day|decision on his status)\b"
+    r"\b(?:game time decision|questionable|doubtful|day to day|decision on his status|may not dress|could return)\b"
 )
 
 
-def parse_availability(body, game, players):
+def parse_availability(body, game, players, projected=None):
     away, home = game["away"], game["home"]
     nicknames = {words(game["awayNick"]): away, words(game["homeNick"]): home}
     heading = re.search(r"^\s*##\s*([^\n]+)", body, re.MULTILINE)
@@ -89,6 +89,9 @@ def parse_availability(body, game, players):
         return None
 
     candidates = [p for p in players if p["team"] in (away, home)]
+    names = {}
+    for player in players:
+        names.setdefault(words(player["name"]), []).append(player)
     status = {}
     report = []
     current_team = None
@@ -108,13 +111,18 @@ def parse_availability(body, game, players):
         elif lower.startswith(("injured:", "scratched:")) and current_team:
             label, rest = line.split(":", 1)
             for name in re.sub(r"\([^)]*\)", "", rest).split(","):
-                matches = [p for p in players if words(p["name"]) == words(name)]
+                matches = names.get(words(name), [])
                 if len(matches) == 1 and matches[0]["team"] in (current_team, ""):
                     player = matches[0]
                     status[str(player["id"])] = {
                         "state": "uncertain", "reason": "injured" if label.lower() == "injured" else "scratch",
                         "name": player["name"],
                     }
+        elif current_team and projected is not None:
+            for name in re.split(r"\s+(?:-{2,}|[–—])\s+", line):
+                matches = names.get(words(name), [])
+                if len(matches) == 1 and matches[0]["team"] == current_team:
+                    projected.add(str(matches[0]["id"]))
 
     aliases = {}
     for player in players:
@@ -159,12 +167,13 @@ def forecast_availability(games, players, headers):
         article = preview_body(url, headers)
         if not article:
             return None
-        players_for_match = parse_availability(article["articleBody"], game, players)
+        projected = set()
+        players_for_match = parse_availability(article["articleBody"], game, players, projected)
         if players_for_match is None:
             return None
         return str(game["id"]), {
             "source": url, "updated": article.get("dateModified") or article.get("datePublished"),
-            "players": players_for_match,
+            "players": players_for_match, "projected": sorted(projected.difference(players_for_match)),
         }
 
     with ThreadPoolExecutor(max_workers=6) as pool:
