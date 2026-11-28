@@ -671,6 +671,18 @@ def refresh_team_cards(season):
     return cards
 
 
+def fill_missing_last_played(players, games):
+    """Use final NHL box scores when a player's regular-season game log is unavailable."""
+    missing = {str(player["id"]): player for player in players if not player.get("lastPlayed")}
+    if not missing:
+        return
+    for game in sorted(games.values(), key=lambda game: game["date"], reverse=True):
+        for player_id in missing.keys() & (game.get("skaters") or {}).keys():
+            missing.pop(player_id)["lastPlayed"] = game["date"]
+        if not missing:
+            break
+
+
 def normalize(season):
     print(
         f"Processing NHL season {season}...",
@@ -820,6 +832,15 @@ def normalize(season):
                 previous = json.loads(target.read_text(encoding="utf-8"))
                 if field in previous:
                     result[field] = previous[field]
+
+    results_path = OUT / f"nhl-results-{season}.json"
+    if results_path.exists():
+        try:
+            outcomes = json.loads(results_path.read_text(encoding="utf-8"))
+            if isinstance(outcomes, dict) and outcomes.get("season") == season and isinstance(outcomes.get("games"), dict):
+                fill_missing_last_played(players, outcomes["games"])
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            print(f"::warning::Last appearance fallback unavailable: {exc}", flush=True)
 
     temp = target.with_suffix(
         ".tmp"
