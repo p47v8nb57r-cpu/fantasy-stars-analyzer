@@ -31,6 +31,6 @@ Förslagen prioriterar trygg hantering av kortsamlingen på iPhone och bättre s
 
 1. [x] **Se vilka sparade kort du kan spela i nästa omgång.** Lägg till filtret **Spelar i nästa omgång** under **Mina kort**. Visa motståndare, matchstart och spelstatus när det finns en NHL-rapport. Infört i **4.1.9**.
 2. [x] **Bygg ett lag med bara dina ägda kort.** Lägg till ett val i **Lagbygge** mellan **Alla spelare** och **Mina ägda kort**, så att du kan jämföra förslagen. Infört i **4.1.10**.
-3. [ ] **Jämför flera lagförslag för samma omgång.** Låt användaren spara ett reservförslag bredvid huvudlaget. Visa vilka spelare som skiljer sig och hur mycket totalprognosen ändras.
+3. [x] **Jämför flera lagförslag för samma omgång.** Låt användaren spara ett reservförslag bredvid huvudlaget. Visa vilka spelare som skiljer sig och hur mycket totalprognosen ändras. Infört i **4.2.1**.
 4. [ ] **Se prognosens träffsäkerhet över tid.** Samla färdigspelade omgångar i en historik och visa vilka spelare eller lagkort som oftast hamnar över eller under prognosen.
 5. [ ] **Få en påminnelse före första nedsläpp.** Visa en notis i **Lagbygge** när första matchstart närmar sig och ett sparat val har osäker spelstatus eller bekräftad frånvaro.

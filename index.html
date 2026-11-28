@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-title" content="FSA 4.2.0"><title>Fantasy Stars Analyzer 4.2.0</title>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-title" content="FSA 4.2.1"><title>Fantasy Stars Analyzer 4.2.1</title>
 <style>
 :root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1020;color:#eef0ff}header{padding:24px 17px;background:linear-gradient(120deg,#182345,#43206b)}h1{margin:0;font-size:1.7rem}.wrap{max-width:900px;margin:auto;padding:14px 14px 110px}.panel{background:#171e34;border:1px solid #354060;border-radius:17px;padding:16px;margin-bottom:15px}h2{font-size:1.16rem;margin:0 0 12px}h3{font-size:1rem;margin:15px 0 8px}button,input,select{font:inherit}button{border:0;border-radius:10px;background:#354066;color:#fff;padding:10px 13px;cursor:pointer}button.primary,.active{background:#9d2dd0}button.danger{background:#713046}button:disabled{opacity:.55}input,select{width:100%;min-width:0;background:#10172a;border:1px solid #475475;color:white;border-radius:9px;padding:11px}input:read-only{background:#202944;color:#c6d9ef}label{display:block;color:#c6c9df;font-size:.9rem;margin:8px 0 5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.full{grid-column:1/-1}.tabs,.actions{display:flex;gap:7px;flex-wrap:wrap}.tabs{margin:12px 0}.note,.muted{color:#b9bfd8;font-size:.87rem;line-height:1.5}.status{margin:12px 0;color:#b8f0d1}.error{color:#ffb1b1}.player{border-top:1px solid #36405d;padding:13px 0;display:flex;justify-content:space-between;gap:12px}.player:first-child{border-top:0}.player strong{font-size:1rem}.score{font-size:1.4rem;font-weight:750;color:#a6f5c6;text-align:right;white-space:nowrap}.score small{display:block;font-size:.7rem;font-weight:400;color:#b9bfd8}.actions{justify-content:flex-end;margin-top:7px}.actions button{padding:7px 9px;font-size:.8rem}.check{display:flex;align-items:center;gap:8px}.check input{width:auto}.check label{margin:0}.pill{display:inline-block;background:#293553;border-radius:6px;padding:2px 6px;font-size:.75rem;margin-left:5px}.hide{display:none}.foot{padding:8px 0 20px}.rank{min-width:31px;font-size:1.05rem;font-weight:800;color:#e7c2ff}.top-player{align-items:center}.top-player .details{flex:1;min-width:0}.top-player .score{min-width:75px}.top-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.app-view{display:none}.app-view.current{display:block}.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;background:#12192d;border-top:1px solid #455171;padding:8px max(5px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left));box-shadow:0 -6px 22px #0005}.bottom-nav button{min-width:0;padding:9px 1px 7px;background:transparent;color:#b9bfd8;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:10px;font-size:.63rem;line-height:1.15}.bottom-nav button .nav-icon{font-size:1.3rem;line-height:1.2}.bottom-nav button.selected{background:#51246f;color:white}.form-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}.metric{background:#222c49;border-radius:12px;padding:12px 7px;text-align:center}.metric strong{display:block;font-size:1.35rem;color:#a6f5c6}.metric small{display:block;font-size:.72rem;color:#c1c6df;margin-top:5px}.chart-wrap{background:#10172a;border:1px solid #354060;border-radius:13px;padding:12px 8px;margin:14px 0}.chart-wrap svg{width:100%;height:auto;display:block}.game-row{display:grid;grid-template-columns:75px 1fr 65px;gap:8px;align-items:center;border-top:1px solid #36405d;padding:12px 0}.game-row strong{color:#a6f5c6;text-align:right}.form-up{color:#a6f5c6}.form-down{color:#ffb1b1}.form-neutral{color:#c1c6df}.form-player{background:#222c49;border-radius:12px;padding:14px;margin-top:12px}.card-item{background:#202944;border:1px solid #3c4868;border-radius:13px;padding:13px;margin:10px 0}.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.card-head strong{font-size:1.05rem}.card-meta{margin-top:5px;color:#bdc7df;font-size:.84rem}.card-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}.card-stat{background:#111a30;border-radius:9px;padding:9px}.card-stat strong{display:block;color:#a6f5c6;font-size:1.1rem}.card-stat small{font-size:.72rem;color:#b9bfd8}.card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.card-actions button{font-size:.8rem;padding:8px 10px}.card-count{font-size:1.7rem;font-weight:800;color:#a6f5c6}.section-line{border-top:1px solid #36405d;margin:19px 0}.team-pill{display:inline-block;background:#253e57;color:#b7e2ff;border:1px solid #42617c;border-radius:6px;padding:2px 7px;font-size:.76rem;font-weight:700}.team-note{font-size:.76rem;color:#a6f5c6;margin-top:4px}.position-note{color:#e7c2ff;font-size:.76rem;margin-top:4px}.position-editor{background:#222c49;border:1px solid #465378;border-radius:12px;padding:13px;margin:12px 0}.position-editor .actions{justify-content:flex-start}.position-editor button{font-size:.83rem}.inline-position{margin-top:5px}.inline-position button{padding:4px 7px;font-size:.74rem;background:#47315f}@media(max-width:480px){.grid{grid-template-columns:1fr}.score{font-size:1.2rem}.top-player{gap:8px}.rank{min-width:25px}.form-summary{gap:5px}.metric{padding:10px 4px}.metric strong{font-size:1.12rem}}@media(min-width:900px){.bottom-nav{max-width:900px;left:50%;transform:translateX(-50%);border-left:1px solid #455171;border-right:1px solid #455171;border-radius:14px 14px 0 0}}
 #moreNav{position:relative}
@@ -50,11 +50,12 @@
 <div id="lineupSchedule"></div>
 <div id="lineupAvailability"></div>
 <p id="lineupStatus" class="note" role="status"></p>
-<div class="actions" id="lineupActions" hidden><button type="button" id="lineupSave" class="primary">Spara laget</button><button type="button" id="lineupNew">Nytt förslag</button><button type="button" id="lineupRestore" hidden>Visa sparat lag</button></div>
+<div class="actions" id="lineupActions" hidden><button type="button" id="lineupSave" class="primary">Spara laget</button><button type="button" id="lineupSaveReserve" hidden>Spara som reservförslag</button><button type="button" id="lineupNew">Nytt förslag</button><button type="button" id="lineupRestore" hidden>Visa sparat lag</button></div>
 <p id="lineupMessage" class="note" role="status"></p>
 <section id="savedLineupResults" class="form-player" aria-labelledby="savedOutcomeTitle" hidden>
   <h3 id="savedOutcomeTitle">Utfall för sparat lag</h3><div id="savedLineupOutcome"></div>
 </section>
+<section id="lineupComparison" class="form-player" aria-labelledby="lineupComparisonTitle" hidden></section>
 <div id="lineupResults"></div>
 <details><summary>Så beräknas förslaget</summary><p class="note">Förslaget utgår från alla spelare i appen som har match i den valda omgången. Med fem kompletta matcher väger formen 60 % och säsongssnittet 40 %. Vid färre matcher väger säsongssnittet mer. Motståndarens insläppta mål per match jämförs med ligasnittet och kan justera prognosen upp eller ner med högst 15 %. Saknas motståndardata används ingen justering. Dina manuella Fantasy Stars-positioner och sparade kortpositioner styr lagplatserna. Lagkortets prognos använder NHL Fantasy Stars grundpoäng för vinst, special teams, insläppta mål, nolla och räddningar. Prognosen bygger på NHL-statistiken och vald träningsnivå.</p></details>
 </section></div>
@@ -82,6 +83,10 @@
 </dialog>
 <script id="appReleases" type="application/json">
 [
+  {
+    "version": "4.2.1",
+    "summary": "I Lagbygge kan du spara ett reservförslag för samma omgång och jämföra spelare, lagkort och sparad prognos med huvudlaget."
+  },
   {
     "version": "4.2.0",
     "summary": "Versionsnumret går vidare till 4.2.0. Efter en nia ökar nästa siffra till vänster och siffran till höger börjar om på noll."
@@ -650,6 +655,7 @@ function renderLineup(){
   if(!dates.length){
     activeLineup=null;
     renderSavedLineupResults();
+    renderLineupComparison();
     status.textContent=!nhl.length?'Väntar på NHL-statistik…':lineupData?'Inga matcher finns i det inlästa NHL-schemat.':'NHL-schemat saknas i den inlästa statistiken.';
     return;
   }
@@ -705,9 +711,12 @@ function renderLineup(){
   });
   activeLineup={key,draftKey,level,entries,picks,rankedById,teamEntry,rankedTeams,locks};
   renderSavedLineupResults(key);
+  renderLineupComparison(saved);
   const eligible=picks.filter(Boolean);
   const total=eligible.reduce((sum,row)=>sum+row.score,teamPick?.score??0);
   $('lineupSave').disabled=!selected.size&&!teamEntry;
+  $('lineupSaveReserve').hidden=!saved;
+  $('lineupSaveReserve').disabled=!eligible.length&&!teamPick;
   $('lineupRestore').hidden=!saved;
   const lockCount=locks.slots.size+Number(Boolean(locks.team));
   $('lineupNew').textContent=lockCount?'Räkna om övriga':'Nytt förslag';
@@ -762,25 +771,56 @@ function replaceLineupPlayer(button){
   $('lineupMessage').textContent='Spelaren är bytt. Spara laget om du vill behålla ändringen.';
   renderLineup();
 }
-function saveLineup(){
+function renderLineupComparison(saved){
+  const target=$('lineupComparison'),reserve=saved?.reserve;
+  const hasReserve=Array.isArray(reserve?.slots)&&reserve.slots.length===lineupSlots.length;
+  target.hidden=!hasReserve;
+  if(!hasReserve){target.innerHTML='';return;}
+  const selections=[...lineupSlots,'Lagkort'];
+  const rows=[...saved.slots,saved.team], alternatives=[...reserve.slots,reserve.team];
+  const total=entries=>{
+    const picks=entries.filter(Boolean);
+    return picks.length&&picks.every(pick=>Number.isFinite(pick.score))?picks.reduce((sum,pick)=>sum+pick.score,0):null;
+  };
+  const mainTotal=total(rows),reserveTotal=total(alternatives);
+  const delta=mainTotal===null||reserveTotal===null?null:reserveTotal-mainTotal;
+  const changes=selections.flatMap((slot,i)=>{
+    const main=rows[i],other=alternatives[i];
+    const identity=row=>String(row?.id??row?.code??'');
+    if(identity(main)===identity(other))return [];
+    const label=slot==='D'?`Back ${i+1}`:slot;
+    return [`<li><strong>${esc(label)}</strong> · ${esc(main?.name||'Tom plats')} → ${esc(other?.name||'Tom plats')}</li>`];
+  });
+  target.innerHTML=`<h3 id="lineupComparisonTitle">Huvudlag och reservförslag</h3>
+    <p class="note">Sparad prognos för huvudlaget <strong>${fmt(mainTotal)}</strong> FPTS · Reservförslag <strong>${fmt(reserveTotal)}</strong> FPTS</p>
+    <p class="note">${delta===null?'Skillnaden kan inte beräknas eftersom en sparad prognos saknas.':
+      `Skillnad för reservförslaget <strong>${delta>0?'+':''}${fmt(delta)}</strong> FPTS`}</p>
+    ${changes.length?`<ul class="note">${changes.join('')}</ul>`:'<p class="note">Samma spelare och lagkort i båda förslagen.</p>'}`;
+}
+function saveLineup(asReserve=false){
   if(!activeLineup||(!activeLineup.entries.some(Boolean)&&!activeLineup.teamEntry))return;
   const {key,level,entries,picks,teamEntry,locks}=activeLineup;
-  const previous=savedLineups[key]?.slots||[];
+  const saved=savedLineups[key];
+  if(asReserve&&!saved)return;
+  const previous=(asReserve?saved.reserve??saved:saved);
   const slots=entries.map((entry,i)=>{
     if(!entry)return null;
-    const old=previous.find(row=>String(row?.id)===String(entry.id));
+    const old=previous?.slots.find(row=>String(row?.id)===String(entry.id));
     const pick=picks[i];
     return {id:String(entry.id),name:entry.name,score:pick?.score??old?.score??null,
-      level:pick?level:old?.level??savedLineups[key]?.level??level,
+      level:pick?level:old?.level??previous?.level??level,
       gameId:pick?.gameId??old?.gameId??null,team:pick?.player.team??old?.team??null};
   });
-  const updated={...savedLineups,[key]:{level,slots,team:teamEntry,lockedSlots:[...locks.slots.keys()],teamLocked:Boolean(locks.team)}};
+  const snapshot={level,slots,team:teamEntry,lockedSlots:[...locks.slots.keys()],teamLocked:Boolean(locks.team)};
+  const updated={...savedLineups,[key]:asReserve?{...saved,reserve:snapshot}:{...saved,...snapshot}};
   try{
     localStorage.setItem(LINEUP_KEY,JSON.stringify(updated));
     savedLineups=updated;
-    clearLineupDraft(key);
-    clearLineupDraft(ownedLineupDraftKey(key));
-    $('lineupMessage').textContent='Laget är sparat i den här installationen.';
+    if(!asReserve){
+      clearLineupDraft(key);
+      clearLineupDraft(ownedLineupDraftKey(key));
+    }
+    $('lineupMessage').textContent=asReserve?'Reservförslaget är sparat för omgången.':'Laget är sparat i den här installationen.';
     renderLineup();
     loadLineupResults();
   }catch(err){$('lineupMessage').textContent='Laget kunde inte sparas: '+err.message;}
@@ -1145,7 +1185,8 @@ $('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-pos]');if
 for(const id of ['lineupDate','lineupLevel','lineupPool']){
   $(id).addEventListener('change',()=>{$('lineupMessage').textContent='';renderLineup();});
 }
-$('lineupSave').addEventListener('click',saveLineup);
+$('lineupSave').addEventListener('click',()=>saveLineup());
+$('lineupSaveReserve').addEventListener('click',()=>saveLineup(true));
 $('lineupNew').addEventListener('click',recalculateLineup);
 $('lineupRestore').addEventListener('click',()=>{
   if(!activeLineup)return;
@@ -1211,13 +1252,14 @@ function downloadBackup(){
 function parseBackupLineups(lineups){
   const validDetails=row=>row.score==null||Number.isFinite(row.score);
   const validGameId=id=>id==null||/^\d+$/.test(String(id));
-  if(!isLineupObject(lineups)||Object.entries(lineups).some(([key,row])=>
-    !validLineup(key,row)||row.slots.some(slot=>slot!==null&&(!validDetails(slot)||!validGameId(slot.gameId)||
+  const invalid=(key,row)=>!validLineup(key,row)||row.slots.some(slot=>slot!==null&&(!validDetails(slot)||!validGameId(slot.gameId)||
       (slot.level!=null&&!Object.hasOwn(levelWeights,slot.level))||(slot.team!=null&&typeof slot.team!=='string')))||
     (row.team!=null&&(!isLineupObject(row.team)||typeof row.team.code!=='string'||!/^[A-Z]{2,4}$/.test(row.team.code)||typeof row.team.name!=='string'||
       !validDetails(row.team)||!validGameId(row.team.gameId)))||
     (row.lockedSlots!==undefined&&(!Array.isArray(row.lockedSlots)||row.lockedSlots.some(index=>!Number.isInteger(index)||!row.slots[index])))||
-    (row.teamLocked!==undefined&&typeof row.teamLocked!=='boolean'))){
+    (row.teamLocked!==undefined&&typeof row.teamLocked!=='boolean');
+  if(!isLineupObject(lineups)||Object.entries(lineups).some(([key,row])=>invalid(key,row)||
+    (row.reserve!==undefined&&(invalid(key,row.reserve)||row.reserve.reserve!==undefined)))){
     throw Error('Felaktigt format för sparade lag');
   }
   return lineups;
@@ -1278,7 +1320,7 @@ function withLinkedId(preferred,other){
   return preferred.id==null&&other.id!=null?{...preferred,id:other.id}:{...preferred};
 }
 function sameSavedLineup(a,b){
-  const fields=['level','slots','id','name','score','gameId','team','code','lockedSlots','teamLocked'];
+  const fields=['level','slots','id','name','score','gameId','team','code','lockedSlots','teamLocked','reserve'];
   return JSON.stringify(a,fields)===JSON.stringify(b,fields);
 }
 function updateSavedLineups(next,changes){
@@ -1333,6 +1375,7 @@ function renderBackupLineups(lineups,changes){
     return result;
   },{added:0,conflicts:0,removed:0});
   const lineupLabel=row=>row.slots.map(slot=>slot?.name).filter(Boolean).concat(row.team?.name||row.team?.code||[]).join(', ')||'Tom uppställning';
+  const backupLabel=row=>lineupLabel(row)+(row.reserve?' · Reservförslag: '+lineupLabel(row.reserve):'');
   $('backupPreviewLineups').innerHTML=lineups===null?'<p class="note">Filen saknar sparade lag. Dina uppställningar behålls.</p>':
     `<h3>Sparade lag</h3>
       <p class="note">I appen ${Object.keys(savedLineups).length} · I filen ${Object.keys(lineups).length}. ${changes.length?
@@ -1340,8 +1383,8 @@ function renderBackupLineups(lineups,changes){
       ${changes.map(({key,current,next},i)=>{
         const [season,date]=key.split(':');
         return `<div class="form-player"><strong>${esc(date)} · ${esc(season.slice(0,4))}/${esc(season.slice(4))}</strong>
-          ${current?`<p class="note">I appen · ${esc(lineupLabel(current))}</p>`:''}
-          ${next?`<p class="note">I filen · ${esc(lineupLabel(next))}</p>`:''}
+          ${current?`<p class="note">I appen · ${esc(backupLabel(current))}</p>`:''}
+          ${next?`<p class="note">I filen · ${esc(backupLabel(next))}</p>`:''}
           ${current&&next?`<label for="backupLineup${i}">Uppställning vid sammanslagning</label>
             <select id="backupLineup${i}"><option value="current">Behåll appens uppställning</option><option value="incoming">Använd filens uppställning</option></select>`:
             `<p class="note">${next?'Läggs till vid import.':'Behålls vid Slå ihop. Tas bort vid Ersätt.'}</p>`}
